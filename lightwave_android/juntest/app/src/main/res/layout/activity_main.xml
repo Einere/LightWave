@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+>
+ <TableLayout
+     android:layout_width="match_parent"
+     android:layout_height="wrap_content"
+     android:stretchColumns="0,2,4,6"
+     android:layout_marginTop="100dp"
+     android:layout_marginLeft="50dp"
+     android:layout_marginRight="50dp">
+ <TableRow>
+    <EditText
+        android:id="@+id/et_ip1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint=""
+        android:gravity="center"/>
+  <TextView
+      android:layout_marginTop="10dp"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="."
+      android:textStyle="bold"
+      android:textSize="20dp"/>
+
+  <EditText
+      android:id="@+id/et_ip2"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:hint=""
+      android:gravity="center"/>
+  <TextView
+      android:layout_marginTop="10dp"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="."
+      android:textStyle="bold"
+      android:textSize="20dp"/>
+
+  <EditText
+      android:id="@+id/et_ip3"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:hint=""
+      android:gravity="center"/>
+  <TextView
+      android:layout_marginTop="10dp"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="."
+      android:textStyle="bold"
+      android:textSize="20dp"/>
+
+  <EditText
+      android:id="@+id/et_ip4"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:hint=""
+      android:gravity="center"/>
+
+ </TableRow>
+ </TableLayout>
+
+ <LinearLayout
+     android:layout_marginTop="20dp"
+     android:layout_width="match_parent"
+     android:layout_height="wrap_content"
+     android:gravity="center"
+     android:weightSum="100">
+  <TextView
+      android:id = "@+id/workername"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="작업자 :"
+      android:textSize="20dp"
+      android:textStyle="bold"/>
+  <EditText
+      android:layout_weight="40"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"/>
+
+ </LinearLayout>
+
+<LinearLayout
+    android:layout_marginTop="20dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center">
+
+ <Button
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:text = "서버연결"
+     android:onClick = "myclick"/>
+</LinearLayout>
+
+ <LinearLayout
+     android:layout_marginTop="20dp"
+     android:layout_width="match_parent"
+     android:layout_height="wrap_content"
+     android:gravity="center">
+
+  <Button
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text = "연결끊기"
+      android:onClick = "cancleclick"/>
+ </LinearLayout>
+
+</LinearLayout>
