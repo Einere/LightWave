@@ -2,16 +2,19 @@ package com.example.einere.myapplication;
 
 import android.app.Service;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -51,8 +54,8 @@ public class ConnectionService extends Service {
         }
 
         @Override
-        public void send() throws RemoteException {
-            mySend();
+        public void send(String packet) throws RemoteException {
+            mySend(packet);
         }
 
         @Override
@@ -60,6 +63,47 @@ public class ConnectionService extends Service {
             myReceive();
         }
     };
+
+    class ReceiveThread extends AsyncTask<Boolean, String, Boolean> {
+        public ReceiveThread() {
+            super();
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Boolean doInBackground(Boolean... booleans) {
+            try {
+                while (reader.ready()) {
+                    String packet = reader.readLine();
+                    onProgressUpdate(packet);
+                }
+            }catch(IOException e){
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            Toast.makeText(ConnectionService.this, values[0], Toast.LENGTH_SHORT).show();
+            super.onProgressUpdate(values);
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            super.onPostExecute(aBoolean);
+        }
+
+        @Override
+        protected void onCancelled(Boolean aBoolean) {
+            super.onCancelled(aBoolean);
+        }
+    }
 
     public ConnectionService() {
     }
@@ -122,7 +166,7 @@ public class ConnectionService extends Service {
         }).start();
     }
 
-    void myDisconnect(){
+    void myDisconnect() {
         try {
             reader.close();
             writer.close();
@@ -133,33 +177,23 @@ public class ConnectionService extends Service {
         status = STATUS_DISCONNECTED;
     }
 
-    void mySend(){
+    void mySend(String packet) {
+        final String myPacket = packet;
         new Thread(new Runnable() {
             @Override
             public void run() {
-                String msg = "hello, world!";
                 try {
-                    writer.write(msg, 0, msg.length());
+                    writer.write(myPacket, 0, myPacket.length());
                     writer.flush();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         }).start();
-
     }
 
-    void myReceive(){
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Log.i("ConnectionService", reader.readLine());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-
+    void myReceive() {
+        ReceiveThread receiveThread = new ReceiveThread();
+        receiveThread.execute(true);
     }
 }

@@ -1,60 +1,68 @@
 package com.example.einere.myapplication;
 
-import android.content.ComponentName;
-import android.content.Intent;
-import android.content.ServiceConnection;
-import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
-    private ServiceConnection connection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            Log.i("ConnectToServerActivity", "onServiceConnected()");
-            binder = IConnectionService.Stub.asInterface(service);
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            Log.i("ConnectToServerActivity", "onServiceDisconnected()");
-        }
-    };
-    private IConnectionService binder = null;
+    final int STATUS_DISCONNECTED = 0;
+    final int STATUS_CONNECTED = 1;
+    String ip = "10.20.22.177";
+    SocketManager manager = null;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        // bind service
-        Intent intent = new Intent(this, ConnectionService.class);
-        intent.setPackage(getPackageName());
-        bindService(intent, connection, BIND_ADJUST_WITH_ACTIVITY);
+        Log.i("MainActivity", "onCreate()");
     }
 
-    public void connectToServer(View v){
-        Intent intent = new Intent(this, ConnectToServerActivity.class);
-        startActivity(intent);
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.i("MainActivity", "onResume()");
+
+        // get SocketManager instance
+        manager = SocketManager.getInstance();
     }
 
-    public void sendData(View v){
-        try {
-            binder.send();
-        } catch (RemoteException e) {
-            e.printStackTrace();
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+    public void connectToServer(View v) throws RemoteException {
+        manager.setSocket(ip);
+        manager.connect();
+    }
+
+    public void sendData(View v) throws RemoteException, JSONException {
+        if(manager.getStatus() == STATUS_CONNECTED){
+            JSONObject packet = new JSONObject();
+            packet.put("code", 0);
+            packet.put("workerName", "CHJ");
+            packet.put("location", "KWU");
+            manager.send(packet.toString());
+        }
+        else {
+            Toast.makeText(this, "not connected to server", Toast.LENGTH_SHORT).show();
         }
     }
 
-    public void receiveData(View v){
-        try {
-            binder.receive();
-        } catch (RemoteException e) {
-            e.printStackTrace();
+    public void receiveData(View v) throws RemoteException {
+        if(manager.getStatus() == STATUS_CONNECTED){
+            manager.receive();
         }
+        else {
+            Toast.makeText(this, "not connected to server", Toast.LENGTH_SHORT).show();
+        }
+
     }
 }

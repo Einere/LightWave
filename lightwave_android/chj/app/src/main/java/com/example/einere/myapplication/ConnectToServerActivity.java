@@ -39,22 +39,35 @@ public class ConnectToServerActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_connect_to_server);
-
+        Log.i("ConnectToServerActivity", "onCreate()");
         // get views
         et_ip1 = findViewById(R.id.et_ip1);
         et_ip2 = findViewById(R.id.et_ip2);
         et_ip3 = findViewById(R.id.et_ip3);
         et_ip4 = findViewById(R.id.et_ip4);
         et_worker_name = findViewById(R.id.et_worker_name);
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.i("ConnectToServerActivity", "onResume()");
+        // bind service
         Intent intent = new Intent(this, ConnectionService.class);
         intent.setPackage(getPackageName());
         bindService(intent, connection, BIND_AUTO_CREATE);
     }
 
     @Override
-    protected void onDestroy() {
+    protected void onPause() {
+        super.onPause();
+
+        // unbind service
         unbindService(connection);
+    }
+
+    @Override
+    protected void onDestroy() {
         super.onDestroy();
     }
 
@@ -69,6 +82,7 @@ public class ConnectToServerActivity extends AppCompatActivity {
 
         // go to main activity
         Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra("SERVER_IP", ip);
         startActivity(intent);
     }
 
