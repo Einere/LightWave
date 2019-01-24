@@ -1,14 +1,17 @@
 #include "stdafx.h"
 #include "WorkerManager.h"
 #include "ServerWorker.h"
+#include "Server.h"
 
 
 WorkerManager::WorkerManager()
 {
+
 }
 
 WorkerManager::~WorkerManager()
 {
+	int workerCount = workers.size();
 	for (int i = workerCount - 1; i >= 0; --i) {
 		remove(*workers[i]);
 	}
@@ -16,7 +19,7 @@ WorkerManager::~WorkerManager()
 
 bool WorkerManager::isBusy()
 {
-	return (workerCount >= maxWorkersCount);
+	return (workers.size() >= maxWorkersCount);
 }
 
 bool WorkerManager::employWorker(SOCKET sock)
@@ -30,10 +33,9 @@ bool WorkerManager::employWorker(SOCKET sock)
 		return false;
 	}
 
-	workers[workerCount] = worker;
-	++workerCount;
+	workers.push_back(worker);
 
-	printf("workers count increasing: %d\n", workerCount);
+	printf("workers count increasing: %d\n", workers.size());
 
 	return true;
 }
@@ -47,17 +49,22 @@ void WorkerManager::notifyStatus(const ServerWorker & worker)
 
 void WorkerManager::clear()
 {
-	for (int i = workerCount - 1; i >= 0; --i) {
+	for (int i = workers.size() - 1; i >= 0; --i) {
+		workers[i]->cleanUp();
 		remove(*workers[i]);
 		workers[i] = nullptr;
 	}
+}
 
-	workerCount = 0;
+const ClientList& WorkerManager::getWorkers() const
+{
+	return workers;
 }
 
 bool WorkerManager::remove(const ServerWorker & worker)
 {
 	int targetIndex = -1;
+	int workerCount = workers.size();
 	for (int i = 0; i < workerCount; ++i) {
 		if (worker.getThread() == workers[i]->getThread()) {
 			targetIndex = i;

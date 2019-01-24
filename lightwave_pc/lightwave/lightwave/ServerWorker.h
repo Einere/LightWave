@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #define DEFAULT_BUFLEN 512
 
 extern class WorkerManager;
@@ -14,6 +16,7 @@ public:
 	void cleanUp();
 
 	const char* getIPAddress() const;
+	const std::vector<wchar_t> getIPAddressW() const;
 	const SOCKET getClientSocket() const;
 	CWinThread* getThread() const;
 	WorkerManager* getManager() const;

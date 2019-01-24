@@ -1,12 +1,12 @@
 #include "stdafx.h"
 #include "Server.h"
-
+#include "Dashboard.h"
+#include "WorkerManager.h"
 
 Server::Server()
 {
 	workerManager = new WorkerManager();
 }
-
 
 Server::~Server()
 {
@@ -80,9 +80,24 @@ WorkerManager * Server::getWorkerManager() const
 	return workerManager;
 }
 
+const ClientList& Server::getWorkers() const
+{
+	return workerManager->getWorkers();
+}
+
 bool Server::isRunning() const
 {
 	return bRunning;
+}
+
+Dashboard * Server::getDashboard() const
+{
+	return dashboard;
+}
+
+void Server::setDashboard(Dashboard * dashboardParam)
+{
+	dashboard = dashboardParam;
 }
 
 UINT acceptFunc(LPVOID pParam)
@@ -106,6 +121,10 @@ UINT acceptFunc(LPVOID pParam)
 		assert(ClientSocket != INVALID_SOCKET);
 
 		manager->employWorker(ClientSocket);
+		if (server->getDashboard() != nullptr) {
+			server->getDashboard()->updateClientList(server);
+		}
+
 	}
 
 	return 0;
