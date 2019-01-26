@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">My Application</string>
+    <string name="receivePacket">수신</string>
+    <string name="sendPacket">발신</string>
+    <string name="getFromGallery">사진 선택</string>
+    <string name="getFromCamera">사진 촬영</string>
+    <string name="connectToServer">서버 연결</string>
+    <string name="point">.</string>
+    <string name="ip">ip :</string>
+    <string name="port">port :</string>
+    <string name="workerName">작업자 :</string>
+    <string name="description">서버로 전송할 사진</string>
 </resources>
