@@ -58,8 +58,8 @@ public class SocketManager extends Application {
         return binder.getStatus();
     }
 
-    void setSocket(String ip) throws RemoteException {
-        binder.setSocket(ip);
+    void setSocket(String ip, int port) throws RemoteException {
+        binder.setSocket(ip, port);
     }
 
     void connect() throws RemoteException {
