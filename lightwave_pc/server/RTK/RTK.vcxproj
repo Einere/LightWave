@@ -1,0 +1,226 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{5D478A88-930D-4861-AF31-58E3EB21C366}</ProjectGuid>
+    <RootNamespace>RTK</RootNamespace>
+    <Keyword>MFCProj</Keyword>
+    <ProjectName>Sample</ProjectName>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>NotSet</CharacterSet>
+    <UseOfMfc>Static</UseOfMfc>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>NotSet</CharacterSet>
+    <UseOfMfc>Static</UseOfMfc>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <LibraryPath>$(ProjectDir)..\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <Midl>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <ValidateAllParameters>true</ValidateAllParameters>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0412</Culture>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>SrPoseSeed.lib;SerialLibD.lib;UseReleaseDll\\SerialCustomDll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <Midl>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <ValidateAllParameters>true</ValidateAllParameters>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0412</Culture>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="..\..\Image\PSNLeftImage.bmp" />
+    <None Include="cpp.hint" />
+    <None Include="ReadMe.txt" />
+    <None Include="res\bitmap1.bmp" />
+    <None Include="res\bmp00001.bmp" />
+    <None Include="res\CadDraw.bmp" />
+    <None Include="res\CadZoom.bmp" />
+    <None Include="res\cad_draw.bmp" />
+    <None Include="res\GLS.bmp" />
+    <None Include="res\GPS.bmp" />
+    <None Include="res\HMove.bmp" />
+    <None Include="res\output_wnd.ico" />
+    <None Include="res\output_wnd_hc.ico" />
+    <None Include="res\PSNLeftImage.bmp" />
+    <None Include="res\RTK.ico" />
+    <None Include="res\RTK.rc2" />
+    <None Include="res\RTKDoc.ico" />
+    <None Include="res\SkyGraph.bmp" />
+    <None Include="res\TBCadDraw.bmp" />
+    <None Include="res\TBCadZoom.bmp" />
+    <None Include="res\Toolbar.bmp" />
+    <None Include="res\toolbar1.bmp" />
+    <None Include="res\toolbar2.bmp" />
+    <None Include="res\Toolbar256.bmp" />
+    <None Include="res\VMove.bmp" />
+    <None Include="UserImages.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Angle.h" />
+    <ClInclude Include="BasePoint.h" />
+    <ClInclude Include="Caculate.h" />
+    <ClInclude Include="CadManager.h" />
+    <ClInclude Include="Common.h" />
+    <ClInclude Include="ConnectionStateDlg.h" />
+    <ClInclude Include="TaskMngDlg.h" />
+    <ClInclude Include="GlobalDefine.h" />
+    <ClInclude Include="GlobalUtil\FileUtil.h" />
+    <ClInclude Include="GlobalUtil\StringUtil.h" />
+    <ClInclude Include="GPSPoint.h" />
+    <ClInclude Include="json\json-forwards.h" />
+    <ClInclude Include="json\json.h" />
+    <ClInclude Include="Log.h" />
+    <ClInclude Include="MainFrm.h" />
+    <ClInclude Include="MapBound.h" />
+    <ClInclude Include="OutputWnd.h" />
+    <ClInclude Include="Parcel.h" />
+    <ClInclude Include="ParcelInfoDlg.h" />
+    <ClInclude Include="ParcelManager.h" />
+    <ClInclude Include="Resource.h" />
+    <ClInclude Include="RTK.h" />
+    <ClInclude Include="RTKDoc.h" />
+    <ClInclude Include="RTKView.h" />
+    <ClInclude Include="SocketRecipient.h" />
+    <ClInclude Include="Shape\DS_Line.h" />
+    <ClInclude Include="Shape\DS_Point.h" />
+    <ClInclude Include="Shape\DS_Polygon.h" />
+    <ClInclude Include="Shape\DS_Polyline.h" />
+    <ClInclude Include="Shape\DS_Rect.h" />
+    <ClInclude Include="Shape\DS_Shape.h" />
+    <ClInclude Include="SocketWorker.h" />
+    <ClInclude Include="StatePane.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="Task.h" />
+    <ClInclude Include="TaskAddDlg.h" />
+    <ClInclude Include="TaskWnd.h" />
+    <ClInclude Include="VeCad\cadapi.h" />
+    <ClInclude Include="WorkerManager.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Angle.cpp" />
+    <ClCompile Include="BasePoint.cpp" />
+    <ClCompile Include="Caculate.cpp" />
+    <ClCompile Include="CadManager.cpp" />
+    <ClCompile Include="Common.cpp" />
+    <ClCompile Include="ConnectionStateDlg.cpp" />
+    <ClCompile Include="TaskMngDlg.cpp" />
+    <ClCompile Include="SocketWorker.cpp" />
+    <ClCompile Include="GlobalUtil\FileUtil.cpp" />
+    <ClCompile Include="GlobalUtil\StringUtil.cpp" />
+    <ClCompile Include="GPSPoint.cpp" />
+    <ClCompile Include="jsoncpp.cpp" />
+    <ClCompile Include="Log.cpp" />
+    <ClCompile Include="MainFrm.cpp" />
+    <ClCompile Include="MapBound.cpp" />
+    <ClCompile Include="OutputWnd.cpp" />
+    <ClCompile Include="Parcel.cpp" />
+    <ClCompile Include="ParcelInfoDlg.cpp" />
+    <ClCompile Include="ParcelManager.cpp" />
+    <ClCompile Include="RTK.cpp" />
+    <ClCompile Include="RTKDoc.cpp" />
+    <ClCompile Include="RTKView.cpp" />
+    <ClCompile Include="SocketRecipient.cpp" />
+    <ClCompile Include="Shape\DS_Line.cpp" />
+    <ClCompile Include="Shape\DS_Point.cpp" />
+    <ClCompile Include="Shape\DS_Polygon.cpp" />
+    <ClCompile Include="Shape\DS_Polyline.cpp" />
+    <ClCompile Include="Shape\DS_Rect.cpp" />
+    <ClCompile Include="Shape\DS_Shape.cpp" />
+    <ClCompile Include="StatePane.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Task.cpp" />
+    <ClCompile Include="TaskAddDlg.cpp" />
+    <ClCompile Include="TaskWnd.cpp" />
+    <ClCompile Include="VeCad\cadapi.cpp" />
+    <ClCompile Include="WorkerManager.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="RTK.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties RESOURCE_FILE="RTK.rc" />
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>
