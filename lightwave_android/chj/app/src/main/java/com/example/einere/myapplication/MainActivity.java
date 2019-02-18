@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private final int CAMERA_CODE = 1111;
     private final int GALLERY_CODE = 1112;
     private final String TAG = "MainActivity";
+    private GpsInfo gps;
 
     String ip = "";
     int port = 0;
@@ -93,7 +94,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
 
         // request permission
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA}, 0);
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA,
+                Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 0);
     }
 
     @Override
@@ -184,6 +187,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
+    public void clickPoint(View v){
+          Intent intent = new Intent(this, ListViewActivity.class);
+          startActivity(intent);
+    }
     public void sendData(View v) throws RemoteException, JSONException {
         if (manager.getStatus() == STATUS_CONNECTED && myBitmap != null) {
             // make json object
@@ -212,7 +219,24 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             Toast.makeText(this, "not connected to server", Toast.LENGTH_SHORT).show();
         }
     }
+    /* *****************GPS**************************** */
+    public void Gps(){
+        gps = new GpsInfo(MainActivity.this);
+        // GPS 사용유무 가져오기
+        if (gps.isGetLocation()) {
 
+            double latitude = gps.getLatitude();
+            double longitude = gps.getLongitude();
+
+            Toast.makeText(
+                    getApplicationContext(),
+                    "당신의 위치 - \n위도: " + latitude + "\n경도: " + longitude,
+                    Toast.LENGTH_LONG).show();
+        } else {
+            // GPS 를 사용할수 없으므로
+            gps.showSettingsAlert();
+        }
+    }
 
     /* ******************* camera & gallery methods start ******************* */
     public void capture(View v) {
