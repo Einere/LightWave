@@ -26,9 +26,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".ConnectToServerActivity" />
-
-        <activity android:name=".ListViewActivity"/>
-        <activity android:name=".MemoActivity"/>
+        <activity android:name=".ListViewActivity" />
+        <activity android:name=".MemoActivity" />
 
         <service
             android:name=".ConnectionService"

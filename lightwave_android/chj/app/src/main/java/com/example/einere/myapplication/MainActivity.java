@@ -1,7 +1,10 @@
 package com.example.einere.myapplication;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -11,6 +14,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.media.ExifInterface;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -25,6 +29,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,6 +40,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
@@ -51,7 +57,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     SocketManager manager = null;
     String workerName = null;
 
-    ImageView iv_picture = null;
+    LinearLayout ll_imageList = null;
+    ArrayList<ImageView> iv_picture = null;
     EditText et_ip1 = null;
     EditText et_ip2 = null;
     EditText et_ip3 = null;
@@ -78,7 +85,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         Log.i(TAG, "onCreate()");
 
         // get view
-        iv_picture = findViewById(R.id.iv_selectedImage);
+        ll_imageList = findViewById(R.id.ll_image_list);
+        iv_picture = new ArrayList<ImageView>();
+//        iv_picture.add((ImageView)findViewById(R.id.iv_selectedImage));
         et_ip1 = findViewById(R.id.et_ip1);
         et_ip2 = findViewById(R.id.et_ip2);
         et_ip3 = findViewById(R.id.et_ip3);
@@ -92,11 +101,21 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         magnetometer = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 
-
         // request permission
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA,
                 Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 0);
+
+        // register broadcast receiver
+        IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        intentFilter.addAction("android.hardware.action.NEW_PICTURE");
+        BroadcastReceiver cameraBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Log.i(TAG, String.format("azimuth1 : %s...", tv_azimuth.getText()));
+            }
+        };
+        registerReceiver(cameraBroadcastReceiver, intentFilter);
     }
 
     @Override
@@ -117,6 +136,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onPause();
     }
 
+    /* ******************* sensor methods start ******************* */
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
@@ -134,12 +154,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             if (success) {
                 float orientation[] = new float[3];
                 SensorManager.getOrientation(R, orientation);
-                // orientation contains: azimut, pitch  and roll
-                float azimut = orientation[0];
+                // orientation contains: azimuth, pitch  and roll
+                float azimuth = orientation[0];
                 float pitch = orientation[1];
                 float roll = orientation[2];
 
-                tv_azimuth.setText(String.format(Locale.KOREA, "azimuth : %f", azimut));
+                tv_azimuth.setText(String.format(Locale.KOREA, "azimuth : %f", azimuth));
                 /*txtPitch.setText("y 좌표:" + String.valueOf(pitch));
                 txtRoll.setText("z 좌표 : " + String.valueOf(roll));*/
             }
@@ -150,7 +170,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
     }
+    /* ******************* sensor methods end ******************* */
 
+    /* ******************* socket methods start ******************* */
     public void connectToServer(View v) throws RemoteException {
         // get ip, worker name from EditText
         ip = String.format("%s.%s.%s.%s", et_ip1.getText(), et_ip2.getText(), et_ip3.getText(), et_ip4.getText());
@@ -191,6 +213,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
           Intent intent = new Intent(this, ListViewActivity.class);
           startActivity(intent);
     }
+
     public void sendData(View v) throws RemoteException, JSONException {
         if (manager.getStatus() == STATUS_CONNECTED && myBitmap != null) {
             // make json object
@@ -219,6 +242,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             Toast.makeText(this, "not connected to server", Toast.LENGTH_SHORT).show();
         }
     }
+    /* ******************* socket methods end ******************* */
+
     /* *****************GPS**************************** */
     public void Gps(){
         gps = new GpsInfo(MainActivity.this);
@@ -256,6 +281,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
+    public void selectGallery(View v) {
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setDataAndType(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
+        startActivityForResult(intent, GALLERY_CODE);
+    }
+
     public File createImageFile() {
         File dir = new File(Environment.getExternalStorageDirectory() + "/path/");
         if (!dir.exists()) {
@@ -268,35 +299,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         actualPath = storageDir.getAbsolutePath();
 
         return storageDir;
-    }
-
-    public void getPictureForPhoto() {
-        Log.i(TAG, "getPictureForPhoto() called");
-        Bitmap bitmap = BitmapFactory.decodeFile(actualPath);
-        ExifInterface exif = null;
-        try {
-            exif = new ExifInterface(actualPath);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        int exifOrientation;
-        int exifDegree;
-
-        if (exif != null) {
-            exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-            exifDegree = exifOrientationToDegrees(exifOrientation);
-        } else {
-            exifDegree = 0;
-        }
-
-        //이미지 뷰에 비트맵 넣기
-        iv_picture.setImageBitmap(rotate(bitmap, exifDegree));
-    }
-
-    public void selectGallery(View v) {
-        Intent intent = new Intent(Intent.ACTION_PICK);
-        intent.setDataAndType(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
-        startActivityForResult(intent, GALLERY_CODE);
     }
 
     @Override
@@ -321,6 +323,46 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
+    public int dpToPx(int dp) {
+        float density = getResources().getDisplayMetrics().density;
+        return Math.round((float) dp * density);
+    }
+
+    private void addPicture(Bitmap bitmap){
+        ImageView iv_tmp = new ImageView(this);
+        iv_tmp.setImageBitmap(bitmap);
+        iv_tmp.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        iv_tmp.setPadding(5, 5, 5, 5);
+        iv_tmp.setMaxHeight(dpToPx(100));
+        iv_tmp.setMaxWidth(dpToPx(100));
+        iv_tmp.setAdjustViewBounds(true);
+        ll_imageList.addView(iv_tmp);
+    }
+
+    public void getPictureForPhoto() {
+        Log.i(TAG, "getPictureForPhoto() called");
+
+        Bitmap bitmap = BitmapFactory.decodeFile(actualPath);
+        ExifInterface exif = null;
+        try {
+            exif = new ExifInterface(actualPath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        int exifOrientation;
+        int exifDegree;
+
+        if (exif != null) {
+            exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+            exifDegree = exifOrientationToDegrees(exifOrientation);
+        } else {
+            exifDegree = 0;
+        }
+
+        // create tmp image view, set bitmap image
+        addPicture(rotate(bitmap, exifDegree));
+    }
+
     private void sendPicture(Uri imgUri) {
         // path 경로
         String imagePath = getRealPathFromURI(imgUri);
@@ -337,12 +379,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
         int exifDegree = exifOrientationToDegrees(exifOrientation);
 
-        //경로를 통해 비트맵으로 전환
+        // translate bitmap from real path
         Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
-        myBitmap = rotate(bitmap, exifDegree);
 
-        //이미지 뷰에 비트맵 넣기
-        iv_picture.setImageBitmap(myBitmap);
+        // create tmp image view, set bitmap image
+        addPicture(rotate(bitmap, exifDegree));
     }
 
     private String getRealPathFromURI(Uri contentUri) {
@@ -379,5 +420,5 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         // 이미지와 Matrix 를 셋팅해서 Bitmap 객체 생성
         return Bitmap.createBitmap(src, 0, 0, src.getWidth(), src.getHeight(), matrix, true);
     }
-    /* ******************* pick a picture methods end ******************* */
+    /* ******************* camera & gallery methods end ******************* */
 }
