@@ -33,6 +33,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.chrisbanes.photoview.PhotoView;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -329,14 +331,25 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private void addPicture(Bitmap bitmap){
-        ImageView iv_tmp = new ImageView(this);
-        iv_tmp.setImageBitmap(bitmap);
-        iv_tmp.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-        iv_tmp.setPadding(5, 5, 5, 5);
-        iv_tmp.setMaxHeight(dpToPx(100));
-        iv_tmp.setMaxWidth(dpToPx(100));
-        iv_tmp.setAdjustViewBounds(true);
-        ll_imageList.addView(iv_tmp);
+        // use ImageView
+//        ImageView iv_tmp = new ImageView(this);
+//        iv_tmp.setImageBitmap(bitmap);
+//        iv_tmp.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+//        iv_tmp.setPadding(5, 5, 5, 5);
+//        iv_tmp.setMaxHeight(dpToPx(100));
+//        iv_tmp.setMaxWidth(dpToPx(100));
+//        iv_tmp.setAdjustViewBounds(true);
+//        ll_imageList.addView(iv_tmp);
+
+        // use PhotoView (third-party library)
+        PhotoView pv_tmp = new PhotoView(this);
+        pv_tmp.setImageBitmap(bitmap);
+        pv_tmp.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        pv_tmp.setPadding(5, 5, 5, 5);
+        pv_tmp.setMaxHeight(dpToPx(100));
+        pv_tmp.setMaxWidth(dpToPx(100));
+        pv_tmp.setAdjustViewBounds(true);
+        ll_imageList.addView(pv_tmp);
     }
 
     public void getPictureForPhoto() {
