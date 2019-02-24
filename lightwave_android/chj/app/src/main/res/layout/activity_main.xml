@@ -215,6 +215,21 @@
                 android:textSize="20sp" />
         </LinearLayout>
 
+        <Button
+            android:id="@+id/btn_single_pick"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="single"
+            />
+
+        <Button
+            android:id="@+id/btn_multi_pick"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="multiPick"
+            android:text="multi"
+            />
+
 
     </LinearLayout>
 </ScrollView>

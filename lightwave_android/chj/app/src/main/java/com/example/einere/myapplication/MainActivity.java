@@ -20,7 +20,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.RemoteException;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
@@ -29,16 +28,12 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Base64;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.github.chrisbanes.photoview.PhotoView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -46,12 +41,14 @@ import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+
+import gun0912.tedbottompicker.TedBottomPicker;
+import gun0912.tedbottompicker.TedBottomSheetDialogFragment;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
     final int STATUS_DISCONNECTED = 0;
@@ -65,11 +62,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     int port = 0;
     SocketManager manager = null;
     String workerName = null;
-    List<Uri> uris = null;
     List<Bitmap> bitmaps = null;
 
-//    LinearLayout ll_imageList = null;
-//    ArrayList<ImageView> iv_picture = null;
     RecyclerView rv_selectedImage = null;
     RecyclerViewAdapter recyclerAdapter = null;
     EditText et_ip1 = null;
@@ -90,7 +84,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     float[] gravity = null;
     float[] geomagnetic = null;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -98,9 +91,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         Log.i(TAG, "onCreate()");
 
         // get view
-//        ll_imageList = findViewById(R.id.ll_image_list);
-//        iv_picture = new ArrayList<ImageView>();
-//        iv_picture.add((ImageView)findViewById(R.id.iv_selectedImage));
         rv_selectedImage = findViewById(R.id.rv_selectedImage);
         et_ip1 = findViewById(R.id.et_ip1);
         et_ip2 = findViewById(R.id.et_ip2);
@@ -132,13 +122,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         registerReceiver(cameraBroadcastReceiver, intentFilter);
 
         // make RecyclerView
-        uris = new ArrayList<>();
         bitmaps = new ArrayList<>();
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
         rv_selectedImage.setLayoutManager(linearLayoutManager);
-        recyclerAdapter = new RecyclerViewAdapter(bitmaps);
+        recyclerAdapter = new RecyclerViewAdapter();
         rv_selectedImage.setAdapter(recyclerAdapter);
+
+        // set listener
+        findViewById(R.id.btn_single_pick).setOnClickListener(v -> singlePick());
+        findViewById(R.id.btn_capture).setOnClickListener(v -> singlePick());
     }
 
     @Override
@@ -228,15 +221,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
             manager.send(packet.toString());
             Toast.makeText(this, "Connected!", Toast.LENGTH_SHORT).show();
-        }
-        else{
+        } else {
             Toast.makeText(this, "retry to connect...", Toast.LENGTH_SHORT).show();
         }
     }
 
-    public void clickPoint(View v){
-          Intent intent = new Intent(this, ListViewActivity.class);
-          startActivity(intent);
+    public void clickPoint(View v) {
+        Intent intent = new Intent(this, ListViewActivity.class);
+        startActivity(intent);
     }
 
     public void sendData(View v) throws RemoteException, JSONException {
@@ -271,7 +263,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
 
     /* *****************GPS**************************** */
-    public void Gps(){
+    public void Gps() {
         gps = new GpsInfo(MainActivity.this);
         // GPS 사용유무 가져오기
         if (gps.isGetLocation()) {
@@ -291,7 +283,31 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
 
     /* ******************* camera & gallery methods start ******************* */
-    public void capture(View v) {
+    public void singlePick() {
+        TedBottomPicker.with(this)
+                .show(uri -> {
+                    String scheme = uri.getScheme();
+                    if (scheme.equals("file")) {
+                        Log.d(TAG, uri.getLastPathSegment());
+                    }
+                    recyclerAdapter.addUri(uri);
+                });
+    }
+
+    public void multiPick(View v) {
+        TedBottomPicker.with(this)
+                .setSelectMaxCount(5)
+                .setSelectMaxCountErrorText("최대 5장까지 선택가능합니다")
+                .setPeekHeight(1600)
+                .showTitle(true)
+                .setCompleteButtonText("확인")
+                .setEmptySelectionText("사진을 선택해주세요")
+                .showMultiImage(uriList -> {
+                    recyclerAdapter.addAll(uriList);
+                });
+    }
+
+    /*public void capture(View v) {
         String state = Environment.getExternalStorageState();
         if (Environment.MEDIA_MOUNTED.equals(state)) {
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -355,7 +371,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         return Math.round((float) dp * density);
     }
 
-    private void addPicture(Bitmap bitmap){
+    private void addPicture(Bitmap bitmap) {
         // use ImageView
         ImageView iv_tmp = new ImageView(this);
         iv_tmp.setImageBitmap(bitmap);
@@ -364,7 +380,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         iv_tmp.setMaxHeight(dpToPx(100));
         iv_tmp.setMaxWidth(dpToPx(100));
         iv_tmp.setAdjustViewBounds(true);
-        int index = recyclerAdapter.pushUri(bitmap);
+        int index = recyclerAdapter.addUri(bitmap);
         recyclerAdapter.notifyItemInserted(index);
     }
 
@@ -448,6 +464,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         matrix.postRotate(degree);
         // 이미지와 Matrix 를 셋팅해서 Bitmap 객체 생성
         return Bitmap.createBitmap(src, 0, 0, src.getWidth(), src.getHeight(), matrix, true);
-    }
+    }*/
     /* ******************* camera & gallery methods end ******************* */
 }
