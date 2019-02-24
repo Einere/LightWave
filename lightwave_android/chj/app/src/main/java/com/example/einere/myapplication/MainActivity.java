@@ -20,13 +20,18 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.RemoteException;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Base64;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -41,9 +46,11 @@ import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
@@ -58,9 +65,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     int port = 0;
     SocketManager manager = null;
     String workerName = null;
+    List<Uri> uris = null;
+    List<Bitmap> bitmaps = null;
 
-    LinearLayout ll_imageList = null;
-    ArrayList<ImageView> iv_picture = null;
+//    LinearLayout ll_imageList = null;
+//    ArrayList<ImageView> iv_picture = null;
+    RecyclerView rv_selectedImage = null;
+    RecyclerViewAdapter recyclerAdapter = null;
     EditText et_ip1 = null;
     EditText et_ip2 = null;
     EditText et_ip3 = null;
@@ -87,9 +98,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         Log.i(TAG, "onCreate()");
 
         // get view
-        ll_imageList = findViewById(R.id.ll_image_list);
-        iv_picture = new ArrayList<ImageView>();
+//        ll_imageList = findViewById(R.id.ll_image_list);
+//        iv_picture = new ArrayList<ImageView>();
 //        iv_picture.add((ImageView)findViewById(R.id.iv_selectedImage));
+        rv_selectedImage = findViewById(R.id.rv_selectedImage);
         et_ip1 = findViewById(R.id.et_ip1);
         et_ip2 = findViewById(R.id.et_ip2);
         et_ip3 = findViewById(R.id.et_ip3);
@@ -118,6 +130,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         };
         registerReceiver(cameraBroadcastReceiver, intentFilter);
+
+        // make RecyclerView
+        uris = new ArrayList<>();
+        bitmaps = new ArrayList<>();
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        rv_selectedImage.setLayoutManager(linearLayoutManager);
+        recyclerAdapter = new RecyclerViewAdapter(bitmaps);
+        rv_selectedImage.setAdapter(recyclerAdapter);
     }
 
     @Override
@@ -137,6 +158,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onPause() {
         super.onPause();
     }
+
 
     /* ******************* sensor methods start ******************* */
     @Override
@@ -173,6 +195,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     }
     /* ******************* sensor methods end ******************* */
+
 
     /* ******************* socket methods start ******************* */
     public void connectToServer(View v) throws RemoteException {
@@ -246,6 +269,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
     /* ******************* socket methods end ******************* */
 
+
     /* *****************GPS**************************** */
     public void Gps(){
         gps = new GpsInfo(MainActivity.this);
@@ -264,6 +288,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             gps.showSettingsAlert();
         }
     }
+
 
     /* ******************* camera & gallery methods start ******************* */
     public void capture(View v) {
@@ -332,24 +357,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private void addPicture(Bitmap bitmap){
         // use ImageView
-//        ImageView iv_tmp = new ImageView(this);
-//        iv_tmp.setImageBitmap(bitmap);
-//        iv_tmp.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-//        iv_tmp.setPadding(5, 5, 5, 5);
-//        iv_tmp.setMaxHeight(dpToPx(100));
-//        iv_tmp.setMaxWidth(dpToPx(100));
-//        iv_tmp.setAdjustViewBounds(true);
-//        ll_imageList.addView(iv_tmp);
-
-        // use PhotoView (third-party library)
-        PhotoView pv_tmp = new PhotoView(this);
-        pv_tmp.setImageBitmap(bitmap);
-        pv_tmp.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-        pv_tmp.setPadding(5, 5, 5, 5);
-        pv_tmp.setMaxHeight(dpToPx(100));
-        pv_tmp.setMaxWidth(dpToPx(100));
-        pv_tmp.setAdjustViewBounds(true);
-        ll_imageList.addView(pv_tmp);
+        ImageView iv_tmp = new ImageView(this);
+        iv_tmp.setImageBitmap(bitmap);
+        iv_tmp.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        iv_tmp.setPadding(5, 5, 5, 5);
+        iv_tmp.setMaxHeight(dpToPx(100));
+        iv_tmp.setMaxWidth(dpToPx(100));
+        iv_tmp.setAdjustViewBounds(true);
+        int index = recyclerAdapter.pushUri(bitmap);
+        recyclerAdapter.notifyItemInserted(index);
     }
 
     public void getPictureForPhoto() {
