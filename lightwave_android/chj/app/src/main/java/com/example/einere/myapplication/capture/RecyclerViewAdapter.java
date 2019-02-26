@@ -1,4 +1,4 @@
-package com.example.einere.myapplication;
+package com.example.einere.myapplication.capture;
 
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -7,6 +7,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+
+import com.example.einere.myapplication.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,18 +38,22 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         return uriList.size();
     }
 
-    public void addUri(Uri uri) {
+    void addUri(Uri uri) {
         uriList.add(uri);
         notifyDataSetChanged();
     }
 
-    void addAll(List<Uri> uriList) {
+    void addUriList(List<Uri> uriList) {
         this.uriList.addAll(uriList);
         notifyDataSetChanged();
     }
 
-    public void clearUri() {
+    void clearUriList() {
         uriList.clear();
+    }
+
+    List<Uri> getUriList() {
+        return new ArrayList<>(uriList);
     }
 
     class RecyclerViewHolder extends RecyclerView.ViewHolder {

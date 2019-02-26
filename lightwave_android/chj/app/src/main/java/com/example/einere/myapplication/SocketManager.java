@@ -27,7 +27,7 @@ public class SocketManager extends Application {
         }
     };
     private IConnectionService binder = null;
-
+    private String userName = "unknown";
 
     public SocketManager() {
         Log.i("SocketManager", "SocketManager()");
@@ -54,28 +54,36 @@ public class SocketManager extends Application {
         this.binder = binder;
     }
 
-    int getStatus() throws RemoteException {
+    public int getStatus() throws RemoteException {
         return binder.getStatus();
     }
 
-    void setSocket(String ip, int port) throws RemoteException {
+    public void setSocket(String ip, int port) throws RemoteException {
         binder.setSocket(ip, port);
     }
 
-    void connect() throws RemoteException {
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public void connect() throws RemoteException {
         binder.connect();
 
     }
 
-    void disconnect() throws RemoteException {
+    public void disconnect() throws RemoteException {
         binder.disconnect();
     }
 
-    void send(String packet) throws RemoteException {
+    public void send(String packet) throws RemoteException {
         binder.send(packet);
     }
 
-    void receive() throws RemoteException {
+    public void receive() throws RemoteException {
         binder.receive();
     }
 }

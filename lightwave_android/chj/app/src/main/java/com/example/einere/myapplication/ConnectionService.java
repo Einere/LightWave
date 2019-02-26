@@ -24,7 +24,6 @@ public class ConnectionService extends Service {
     private SocketAddress socketAddress = null;
     private BufferedReader reader = null;
     private BufferedWriter writer = null;
-//    private int port = 8080;
 
     IConnectionService.Stub binder = new IConnectionService.Stub() {
         @Override
