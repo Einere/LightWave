@@ -180,6 +180,12 @@
             android:layout_height="wrap_content"
             android:text="@string/connectToServer"/>
 
+        <Button
+            android:id="@+id/btn_pop_up_menu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="menu"/>
+
     </LinearLayout>
 
 </LinearLayout>
