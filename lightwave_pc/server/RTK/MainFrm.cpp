@@ -6,6 +6,7 @@
 #include "RTK.h"
 
 #include "OutputWnd.h"
+#include "Task.h"
 #include "MainFrm.h"
 #include "CadManager.h"
 #include "GlobalDefine.h"
@@ -15,7 +16,6 @@
 #include "SocketWorker.h"
 #include "SocketRecipient.h"
 #include "TaskAddDlg.h"
-#include "Task.h"
 
 
 
@@ -550,8 +550,7 @@ void CMainFrame::OnLoadCif()
 	else
 	{
 		MessageBox("Cif파일 불러오기를 실패하였습니다.","CIF열기",MB_OK);
-	}
-	
+	}	
 }
 
 
@@ -910,16 +909,15 @@ void CMainFrame::OnAddTask()
 {
 	TaskAddDlg taskAddDlg(this);
 	if (IDOK == taskAddDlg.DoModal()) {
-		const CString fileName = taskAddDlg.getFileName();
-		const CString taskDesc = taskAddDlg.getTaskDesc();
-		const CString taskName = taskAddDlg.getTaskName();
-		const CString lotNumber = taskAddDlg.getLotNumber();
-
-		auto newTask = std::make_shared<Task>(taskName, lotNumber, taskDesc, fileName);
+		auto newTask = std::make_shared<Task>(taskAddDlg.getTask());
 		m_wndTask.appendTask(newTask);
+		m_fileManager.saveTask(*newTask);
 
-		Log::log("작업이 등록되었습니다: [작업명: %s\t 대표지번: %s]", taskName, lotNumber);
+		Log::log("작업이 등록되었습니다: [작업명: %s\t 대표지번: %s]", newTask->at("name"), newTask->at("lotNumber"));
 	}
+
+	auto pManager = CCadManager::GetInstance();
+	pManager->OnShowParcelInfomation();
 }
 
 void CMainFrame::OnAccept(const CString& ipAddress, UINT port, int errorCode)

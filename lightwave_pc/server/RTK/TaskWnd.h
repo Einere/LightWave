@@ -3,8 +3,6 @@
 #include "ConnectionStateDlg.h"
 #include "TaskMngDlg.h"
 
-class Task;
-
 class TaskList : public CListBox {
 public:
 	TaskList();
@@ -20,7 +18,7 @@ public:
 	TaskWnd();
 	~TaskWnd();
 
-	void appendTask(const std::shared_ptr<Task> pTask);
+	void appendTask(std::shared_ptr<Task> pTask);
 
 protected:
 	TaskList m_wndTaskList;

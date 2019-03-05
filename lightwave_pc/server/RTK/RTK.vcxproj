@@ -136,6 +136,7 @@
     <ClInclude Include="CadManager.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="ConnectionStateDlg.h" />
+    <ClInclude Include="FileManager.h" />
     <ClInclude Include="TaskMngDlg.h" />
     <ClInclude Include="GlobalDefine.h" />
     <ClInclude Include="GlobalUtil\FileUtil.h" />
@@ -178,6 +179,7 @@
     <ClCompile Include="CadManager.cpp" />
     <ClCompile Include="Common.cpp" />
     <ClCompile Include="ConnectionStateDlg.cpp" />
+    <ClCompile Include="FileManager.cpp" />
     <ClCompile Include="TaskMngDlg.cpp" />
     <ClCompile Include="SocketWorker.cpp" />
     <ClCompile Include="GlobalUtil\FileUtil.cpp" />

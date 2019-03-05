@@ -62,6 +62,8 @@ namespace ProgramManager
 
 	public:
 		bool ShowParcelInfoTodlg( CString sParcelKey );			// sParcelKey에 해당하는 필지의 정보를 보여준다.
+		CDS_Polyline* GetParcelInfo(CString sParcelKey);
+		const std::vector<CDS_Point> GetPointList(CString sParcelKey);
 		// 
 		// ###########################################
 

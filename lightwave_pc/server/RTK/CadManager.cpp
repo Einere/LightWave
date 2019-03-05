@@ -145,12 +145,9 @@ namespace ProgramManager
 		CadOnEventExecute( CadEventExecute );
 		CadOnEventView( CadEventView );
 		CadOnEventMouseMove( CadEventMouseMove );
-//		CadOnEventMouseDown( CadEventMouseDown );
+		CadOnEventMouseDown( CadEventMouseDown );
 //		CadOnEventCEntDisplay( CadEventCEntDisplay );
 		CadOnEventCmdStart( CadEventCmdStart );
-
-
-		
 
 		CadPluginImageRead( "jpg" , "image", "ImgReadJPEG", 1 );
 		CadPluginImageRead( "jpeg", "image", "ImgReadJPEG", 1 );
@@ -1025,7 +1022,23 @@ namespace ProgramManager
 	// 선택한 도형의 필지 정보를 확인한다.
 	void CCadManager::OnShowParcelInfomation()
 	{
-		VHANDLE hSearchEntPtr = CadSelGetFirstPtr( m_hDwg );
+		VHANDLE hSearchEntPtr = CadSelGetFirstPtr(m_hDwg);
+		
+		VHANDLE hEnt = CadGetEntityByPtr(hSearchEntPtr);
+		VHANDLE next = hEnt;
+		
+		int nBuffer = CadEntityGetExDataSize(next);
+		CString sExKey;
+		CadEntityGetExData(next, sExKey.GetBufferSetLength(nBuffer));
+		CParcelManager* pParcelManager = CParcelManager::GetInstance();
+		auto temp = pParcelManager->GetPointList(sExKey);
+
+		for (auto i : temp) {
+			Log::log("%.3f, %.3f", i.GetY(), i.GetX());
+		}
+		Log::log("총 %d개", temp.size());
+
+
 		if( hSearchEntPtr != NULL )
 		{
 			VHANDLE hEnt = CadGetEntityByPtr( hSearchEntPtr );
@@ -1042,10 +1055,11 @@ namespace ProgramManager
 	// 마우스가 클릭되었을때
 	void CCadManager::OnMouseClick( double fX, double fY )
 	{
-		if( m_fnMouseClickEvent != NULL )
+		Log::log("X: %.3f, Y: %.3f", fY, fX);
+		/*if( m_fnMouseClickEvent != NULL )
 		{
 			(*m_fnMouseClickEvent)(fX, fY );
-		}
+		}*/
 	}
 
 	////////////////////////////////////////
@@ -1163,13 +1177,14 @@ namespace ProgramManager
 
 		}
 	}
-
 	
 	void __stdcall CadEventMouseDown(VDWG hCad, int Button, int Flags, int Xwin, int Ywin, double Xdwg, double Ydwg, double Zdwg)
 	{
 		CCadManager *pCad = CCadManager::GetInstance();
 		pCad->OnMouseClick( Xdwg, Ydwg );
 	}
+
+	
 
 	void __stdcall CadEventMouseMove(VDWG hCad, int Button, int Flags, int Xwin, int Ywin, double Xdwg, double Ydwg, double Zdwg)
 	{

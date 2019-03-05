@@ -12,7 +12,7 @@ TaskWnd::~TaskWnd()
 {
 }
 
-void TaskWnd::appendTask(const std::shared_ptr<Task> pTask)
+void TaskWnd::appendTask(std::shared_ptr<Task> pTask)
 {
 	BOOL result = m_dlg.appendTask(pTask);
 	assert(result);

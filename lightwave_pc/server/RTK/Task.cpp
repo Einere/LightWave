@@ -1,55 +1,31 @@
 #include "stdafx.h"
 #include "Task.h"
 
-Task::Task(CString title, CString lotNumber, CString desc, CString targetFileName)
+const std::vector<CDS_Point>& Task::getParcelPoints() const
 {
-	m_title = title;
-	m_desc = desc;
-	m_targetFileName = targetFileName;
-	m_lotNumber = lotNumber;
+	return m_parcelPoints;
 }
 
-Task::~Task()
+void Task::clearParcelPoints()
 {
+	m_parcelPoints.clear();
 }
 
-void Task::setTitle(const CString title)
+int Task::addParcelPoints(const CDS_Point* pts, size_t offset, size_t count)
 {
-	m_title = title;
+	assert(pts);
+	for (int i = offset; i < offset + count; ++i) {
+		m_parcelPoints.push_back(pts[i]);
+	}
+
+	return m_parcelPoints.size();
 }
 
-void Task::setDesc(const CString desc)
+int Task::addParcelPoints(const std::vector<CDS_Point>& pts)
 {
-	m_desc = desc;
-}
+	for (const CDS_Point& pt : pts) {
+		m_parcelPoints.push_back(pt);
+	}
 
-void Task::setTargetFileName(const CString fileName)
-{
-	m_targetFileName = fileName;
+	return m_parcelPoints.size();
 }
-
-void Task::setLotNumber(const CString lotNumber)
-{
-	m_lotNumber = lotNumber;
-}
-
-CString Task::getTitle() const
-{
-	return m_title;
-}
-
-CString Task::getDesc() const
-{
-	return m_desc;
-}
-
-CString Task::getTargetFileName() const
-{
-	return m_targetFileName;
-}
-
-CString Task::getLotNumber() const
-{
-	return m_lotNumber;
-}
-

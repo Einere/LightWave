@@ -8,6 +8,7 @@
 #include "TaskWnd.h"
 #include "SocketRecipient.h"
 #include "WorkerManager.h"
+#include "FileManager.h"
 
 class Task;
 class TaskAddDlg;
@@ -16,7 +17,6 @@ class CViewVMoveDlg;
 class CViewSkyDlg;
 class CGPSSNRGraphDlg;
 class ConnectionStateDlg;
-
 
 
 // 기본 Frame이다. 메뉴 이벤트들을 여기서 처리 하게 될것이다.
@@ -31,6 +31,7 @@ protected: // serialization에서만 만들어집니다.
 // 특성입니다.
 private:
 	WorkerManager m_workerManager;
+	FileManager m_fileManager;
 
 // 작업입니다.
 public:
