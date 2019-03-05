@@ -1,23 +1,21 @@
 #pragma once
-class Task
-{
+
+#include <map>
+#include "./Shape/DS_Point.h"
+
+using DataType::ShapeType::CDS_Point;
+
+// 작업을 나타내는 클래스
+class Task : public std::map<LPCTSTR, LPCTSTR>{
 public:
-	Task(CString title="no title", CString lotNumber="-1", CString desc="no desc", CString targetFileName=NULL);
-	~Task();
+	const std::vector<CDS_Point>& getParcelPoints() const;
 
-	void setTitle(const CString title);
-	void setDesc(const CString desc);
-	void setTargetFileName(const CString fileName);
-	void setLotNumber(const CString lotNumber);
+	void clearParcelPoints();
+	int addParcelPoints(const CDS_Point* pts, size_t offset, size_t count);
+	int addParcelPoints(const std::vector<CDS_Point>& pts);
+	//void addParcelPoint(const CDS_Point pt);
 
-	CString getTitle() const;
-	CString getDesc() const;
-	CString getTargetFileName() const;
-	CString getLotNumber() const;
 
-protected:
-	CString m_title;
-	CString m_desc;
-	CString m_targetFileName;
-	CString m_lotNumber;
+private:
+	std::vector<CDS_Point> m_parcelPoints;
 };

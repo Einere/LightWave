@@ -16,7 +16,7 @@ namespace ProgramManager
 	bool __LoadCif( LPCTSTR sCifPath );
 
 	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-	// ÇÊÁö Á¤º¸µé°ú °ü·ÃµÈ Àü¹İÀûÀÎ µ¥ÀÌÅÍ¸¦ °ü¸®ÇÑ´Ù.
+	// í•„ì§€ ì •ë³´ë“¤ê³¼ ê´€ë ¨ëœ ì „ë°˜ì ì¸ ë°ì´í„°ë¥¼ ê´€ë¦¬í•œë‹¤.
 	class CParcelManager
 	{
 		friend bool __LoadCif( LPCTSTR sCifPath );
@@ -24,14 +24,14 @@ namespace ProgramManager
 		friend class CVIEW_HMOVE_GRAPH;
 
 		// ########################################
-		// ½Ì±ÛÅæÆĞÅÏÀ» À§ÇÑ Á¢±ÙÇÔ¼ö
+		// ì‹±ê¸€í†¤íŒ¨í„´ì„ ìœ„í•œ ì ‘ê·¼í•¨ìˆ˜
 	protected:
 		static CParcelManager* m_pThis;
 
 	public:
 		static CParcelManager* GetInstance();
 		static void ReleaseInstance();
-		// ½Ì±ÛÅæÆĞÅÏÀ» À§ÇÑ Á¢±ÙÇÔ¼ö
+		// ì‹±ê¸€í†¤íŒ¨í„´ì„ ìœ„í•œ ì ‘ê·¼í•¨ìˆ˜
 		// ########################################
 
 	protected:
@@ -61,7 +61,9 @@ namespace ProgramManager
 		CParcelInfoDlg dlgParcelInfo;
 
 	public:
-		bool ShowParcelInfoTodlg( CString sParcelKey );			// sParcelKey¿¡ ÇØ´çÇÏ´Â ÇÊÁöÀÇ Á¤º¸¸¦ º¸¿©ÁØ´Ù.
+		bool ShowParcelInfoTodlg( CString sParcelKey );			// sParcelKeyì— í•´ë‹¹í•˜ëŠ” í•„ì§€ì˜ ì •ë³´ë¥¼ ë³´ì—¬ì¤€ë‹¤.
+		CDS_Polyline* GetParcelInfo(CString sParcelKey);
+		const std::vector<CDS_Point> GetPointList(CString sParcelKey);
 		// 
 		// ###########################################
 

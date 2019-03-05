@@ -23,7 +23,7 @@ using namespace GlobalUtil;
 
 namespace ProgramManager
 {	
-	void __stdcall CadEventView (													// È­¸éÀÌ ÀÌµ¿ÇÏ°Å³ª Å©±â°¡ º¯µ¿µÉ¶§ ½ÇÇàµÉ Äİ¹éÇÔ¼ö ¼±¾ğ
+	void __stdcall CadEventView (													// í™”ë©´ì´ ì´ë™í•˜ê±°ë‚˜ í¬ê¸°ê°€ ë³€ë™ë ë•Œ ì‹¤í–‰ë  ì½œë°±í•¨ìˆ˜ ì„ ì–¸
 		   VDWG hDwg,          // handle to VeCAD object 
 		   int WinWidth,       // width of output window 
 		   int WinHeight,      // height of output window 
@@ -34,13 +34,13 @@ namespace ProgramManager
 		   double Scale        // visible scale of drawing in a window 
 		 );
 	void __stdcall CadEventMouseDown(VDWG hCad, int Button, int Flags, int Xwin, int Ywin, double Xdwg, double Ydwg, double Zdwg);
-																					// ¸¶¿ì½ºÅ¬¸¯µÉ¶§ ½ÇÇàµÉ Äİ¹éÇÔ¼ö ¼±¾ğ
+																					// ë§ˆìš°ìŠ¤í´ë¦­ë ë•Œ ì‹¤í–‰ë  ì½œë°±í•¨ìˆ˜ ì„ ì–¸
 	void __stdcall CadEventMouseMove(VDWG hCad, int Button, int Flags, int Xwin, int Ywin, double Xdwg, double Ydwg, double Zdwg);
-																					// ¸¶¿ì½º°¡ ÀÌµ¿ÇÒ¶§ ½ÇÇàµÉ Äİ¹éÇÔ¼ö ¼±¾ğ
-	void _stdcall CadEvenGetXY(unsigned long hDwg);									// ¸¶¿ì½º À§Ä¡¸¦ ÀÔ·Â¹ŞÀ»¶§ »ç¿ëµÉ Äİ¹éÇÔ¼ö ¼±¾ğ
+																					// ë§ˆìš°ìŠ¤ê°€ ì´ë™í• ë•Œ ì‹¤í–‰ë  ì½œë°±í•¨ìˆ˜ ì„ ì–¸
+	void _stdcall CadEvenGetXY(unsigned long hDwg);									// ë§ˆìš°ìŠ¤ ìœ„ì¹˜ë¥¼ ì…ë ¥ë°›ì„ë•Œ ì‚¬ìš©ë  ì½œë°±í•¨ìˆ˜ ì„ ì–¸
 
 	void __stdcall ChangePositionColorEvent( HWND hWnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime );
-																					// ÇöÀçÀ§Ä¡»ö»óº¯°æÀ» À§ÇÑ Å¸ÀÌ¸Ó ÀÌº¥Æ®°¡ ¹ß»ıÇÒ¶§ ½ÇÇàµÉ Äİ¹éÇÔ¼ö ¼±¾ğ
+																					// í˜„ì¬ìœ„ì¹˜ìƒ‰ìƒë³€ê²½ì„ ìœ„í•œ íƒ€ì´ë¨¸ ì´ë²¤íŠ¸ê°€ ë°œìƒí• ë•Œ ì‹¤í–‰ë  ì½œë°±í•¨ìˆ˜ ì„ ì–¸
 	void __stdcall CadEventCmdStart( VDWG hDwg, int Command, int nSteps );
 
 	CCadManager* CCadManager::m_pThis = NULL;
@@ -67,18 +67,18 @@ namespace ProgramManager
 	CCadManager::CCadManager(void)
 	{
 		// ============================================
-		// º¯¼ö ÃÊ±âÈ­
+		// ë³€ìˆ˜ ì´ˆê¸°í™”
 		m_bInitCadLib = false;
 		m_pMainView = NULL;
 		m_hDwg = NULL;
 		m_hWnd = NULL;
 		
-		// À§Ä¡
+		// ìœ„ì¹˜
 		m_hPositionEnt = NULL;
 		m_bShowPosition = false;
 		m_nColorChangeEventHandle = 0;
 
-		// ÀÎÄÚ´õ ¼±
+		// ì¸ì½”ë” ì„ 
 		m_hEncorderLine = NULL;
 		m_bShowEncorderLine = false;
 		m_hViewLine = NULL;
@@ -86,12 +86,12 @@ namespace ProgramManager
 		m_fnMouseClickEvent = NULL;
 
 		// =============================================================
-		// VeCad.dll ¿ÀÇÂ
+		// VeCad.dll ì˜¤í”ˆ
 		if (CadLoadLibrary()==FALSE)
 		{
 			DWORD errcode = GetLastError();
 			CString sMessage;
-			sMessage.Format("Ä³µå¶óÀÌºê·¯¸®¸¦ ¿­ ¼ö ¾ø½À´Ï´Ù. ercode=%d", errcode);
+			sMessage.Format("ìºë“œë¼ì´ë¸ŒëŸ¬ë¦¬ë¥¼ ì—´ ìˆ˜ ì—†ìŠµë‹ˆë‹¤. ercode=%d", errcode);
 		
 			MessageBox( NULL, sMessage, "RTK", MB_OK );
 			m_bInitCadLib = false;
@@ -134,7 +134,7 @@ namespace ProgramManager
 	{
 		if( m_hDwg != NULL ) return false;
 
-		// View ¿¬°á
+		// View ì—°ê²°
 		if( pView != NULL ) ConnectCadAndView( pView );
 		if( m_pMainView == NULL ) return false;
 
@@ -145,13 +145,10 @@ namespace ProgramManager
 		CadOnEventExecute( CadEventExecute );
 		CadOnEventView( CadEventView );
 		CadOnEventMouseMove( CadEventMouseMove );
-//		CadOnEventMouseDown( CadEventMouseDown );
+		CadOnEventMouseDown( CadEventMouseDown );
 //		CadOnEventCEntDisplay( CadEventCEntDisplay );
 		CadOnEventCmdStart( CadEventCmdStart );
-
-
-		
-
+    
 		CadPluginImageRead( "jpg" , "image", "ImgReadJPEG", 1 );
 		CadPluginImageRead( "jpeg", "image", "ImgReadJPEG", 1 );
 		CadPluginImageRead( "tif" , "image", "ImgReadTIFF", 1 );
@@ -169,27 +166,27 @@ namespace ProgramManager
 		*/
 
 		CadMenuClear( CAD_MENU_EDIT );
-		CadMenuAdd( CAD_MENU_EDIT, _T("¼±ÅÃÇØÁ¦"), CAD_CMD_RESET  );
-		CadMenuAdd( CAD_MENU_EDIT, _T("°´Ã¼Á¤º¸"), CAD_CMD_ENTPROP  );
+		CadMenuAdd( CAD_MENU_EDIT, _T("ì„ íƒí•´ì œ"), CAD_CMD_RESET  );
+		CadMenuAdd( CAD_MENU_EDIT, _T("ê°ì²´ì •ë³´"), CAD_CMD_ENTPROP  );
 		CadMenuAdd( CAD_MENU_EDIT, _T("-"), 0 );  // separator
-		CadMenuAdd( CAD_MENU_EDIT, _T("ÇÊÁöÁ¤º¸º¸±â"), __CAD_CM_SHOW_PARCEL_INFOMATION__  );
+		CadMenuAdd( CAD_MENU_EDIT, _T("í•„ì§€ì •ë³´ë³´ê¸°"), __CAD_CM_SHOW_PARCEL_INFOMATION__  );
 
 		//CadAddCommand(
 		CadMenuClear( CAD_MENU_POLYLINE );	//CAD_CMD_PLINE_CLOSE
-		CadMenuAdd( CAD_MENU_POLYLINE, _T("¿Ï·á"),CAD_CMD_PLINE_ENTER );
-		CadMenuAdd( CAD_MENU_POLYLINE, _T("Æó¾ĞÈÄ ¿Ï·á"),CAD_CMD_PLINE_CLOSE );
+		CadMenuAdd( CAD_MENU_POLYLINE, _T("ì™„ë£Œ"),CAD_CMD_PLINE_ENTER );
+		CadMenuAdd( CAD_MENU_POLYLINE, _T("íì••í›„ ì™„ë£Œ"),CAD_CMD_PLINE_CLOSE );
 		CadMenuAdd( CAD_MENU_POLYLINE, _T("-"), 0 );  // separator
-		CadMenuAdd( CAD_MENU_POLYLINE, _T("Ãë¼Ò"), CAD_CMD_PLINE_CANCEL );
+		CadMenuAdd( CAD_MENU_POLYLINE, _T("ì·¨ì†Œ"), CAD_CMD_PLINE_CANCEL );
 		/*
-		CadMenuAdd( CAD_MENU_POLYLINE, _T("¿Ï·á"),__CAD_CM_EDIT_PLINE_COMPLATE__ );
-		CadMenuAdd( CAD_MENU_POLYLINE, _T("Æó¾ĞÈÄ ¿Ï·á"),__CAD_CM_EDIT_PLINE_CLOSE_COMPLATE__ );
+		CadMenuAdd( CAD_MENU_POLYLINE, _T("ì™„ë£Œ"),__CAD_CM_EDIT_PLINE_COMPLATE__ );
+		CadMenuAdd( CAD_MENU_POLYLINE, _T("íì••í›„ ì™„ë£Œ"),__CAD_CM_EDIT_PLINE_CLOSE_COMPLATE__ );
 		CadMenuAdd( CAD_MENU_POLYLINE, _T("-"), 0 );  // separator
-		CadMenuAdd( CAD_MENU_POLYLINE, _T("Ãë¼Ò"), __CAD_CM_EDIT_PLINE_CANCEL__ );
+		CadMenuAdd( CAD_MENU_POLYLINE, _T("ì·¨ì†Œ"), __CAD_CM_EDIT_PLINE_CANCEL__ );
 		*/
 		/*
-		CadSetString( STR_MENU_ENTER         ,"¿Ï·á");
-		CadSetString( STR_MENU_CLOSED        ,"ÆóÇÕÈÄ¿Ï·á");
-		CadSetString( STR_MENU_POLYGON       ,"Æú¸®°ï¿Ï·á");
+		CadSetString( STR_MENU_ENTER         ,"ì™„ë£Œ");
+		CadSetString( STR_MENU_CLOSED        ,"íí•©í›„ì™„ë£Œ");
+		CadSetString( STR_MENU_POLYGON       ,"í´ë¦¬ê³¤ì™„ë£Œ");
 		*/
 		m_hDwg = CadCreate();
 
@@ -238,7 +235,7 @@ namespace ProgramManager
 		return bResult;
 	}
 
-	// Ä³µåÈ£¸é »ı¼º¹× ÃÊ±âÈ­ °ü·Ã
+	// ìºë“œí˜¸ë©´ ìƒì„±ë° ì´ˆê¸°í™” ê´€ë ¨
 	// ########################################
 
 	// ########################################
@@ -278,7 +275,7 @@ namespace ProgramManager
 	}
 
 	//////////////////////////////////////////////////////////
-	// SVYÆÄÀÏ ³»º¸³»±â
+	// SVYíŒŒì¼ ë‚´ë³´ë‚´ê¸°
 	bool CCadManager::ExportToSvy( CString sSvyFileName )
 	{
 		CFileUtil flSvyFile;
@@ -286,13 +283,13 @@ namespace ProgramManager
 		{
 			return false;	
 		}
-		// ÇöÀç ·¹ÀÌ¾î ¹é¾÷
+		// í˜„ì¬ ë ˆì´ì–´ ë°±ì—…
 		VHANDLE hOldLayer = CadGetCurLayer( m_hDwg );
 		VHANDLE hTargetLayer = CadGetLayerByName(m_hDwg , "211" );
 		VHANDLE hEnt = CadLayerGetFirstEntity( hTargetLayer );
 		int nEntIndex = 1;
 		int nBlockIndex = 1;
-		// µµÇüÀÎµ¦½º , Å¸ÀÔ,
+		// ë„í˜•ì¸ë±ìŠ¤ , íƒ€ì…,
 		while( hEnt != NULL )
 		{
 			// 
@@ -303,7 +300,7 @@ namespace ProgramManager
 			{
 			case CAD_ENT_LINE :
 				{
-					// µµÇüÀÎµ¦½º , Å¸ÀÔ, ½ÃÀÛÁ¡X, ½ÃÀÛÁ¡ Y, Á¾·áÁ¡ X, Á¾·áÁ¡ Y , ·¹ÀÌ¾î , Å°
+					// ë„í˜•ì¸ë±ìŠ¤ , íƒ€ì…, ì‹œì‘ì X, ì‹œì‘ì  Y, ì¢…ë£Œì  X, ì¢…ë£Œì  Y , ë ˆì´ì–´ , í‚¤
 					double fX1,fY1,fZ1,fX2,fY2,fZ2;
 					CadLineGetPoint1(hEnt,&fX1,&fY1,&fZ1 );
 					CadLineGetPoint2(hEnt,&fX2,&fY2,&fZ2 );
@@ -375,7 +372,7 @@ namespace ProgramManager
 
 
 
-		// ¼±ÅÃ ·¹ÀÌ¾î º¹¿ø
+		// ì„ íƒ ë ˆì´ì–´ ë³µì›
 		flSvyFile.FileClose();
 		CadSetCurLayer( m_hDwg, hOldLayer);
 
@@ -386,7 +383,7 @@ namespace ProgramManager
 	// ########################################
 
 	// ########################################
-	// Parcelµ¥ÀÌÅÍ µîÀÇ ·¹ÀÌ¾î¸¦ »ı¼ºÇÑ´Ù.
+	// Parcelë°ì´í„° ë“±ì˜ ë ˆì´ì–´ë¥¼ ìƒì„±í•œë‹¤.
 	bool CCadManager::ReCreateParcelData()
 	{
 		double fXTemp = 0.0 ,fYTemp = 0.0;
@@ -395,7 +392,7 @@ namespace ProgramManager
 
 		CParcelManager* pParcelManager = CParcelManager::GetInstance();
 
-		// ·¹ÀÌ¾î »ı¼º : 1/60/71 
+		// ë ˆì´ì–´ ìƒì„± : 1/60/71 
 		MakeLayer("1");
 		MakeLayer("60",CAD_COLOR_RED);
 		MakeLayer("71");
@@ -409,7 +406,7 @@ namespace ProgramManager
 		
 //		VHABDLE CadGetLayerByName(m_hDwg,"1");
 		
-		// ÇÊÁö »ı¼º
+		// í•„ì§€ ìƒì„±
 		CadSetCurLayer( m_hDwg, hLayer1 );
 		POSITION posNow = pParcelManager->m_lsParcelMap.GetStartPosition();
 		while( posNow != 0 )
@@ -428,7 +425,7 @@ namespace ProgramManager
 
 		}
 
-		// µµ°û »ı¼º
+		// ë„ê³½ ìƒì„±
 		CadSetCurLayer( m_hDwg, hLayer60 );
 		posNow = pParcelManager->m_lsMapBoundMap.GetStartPosition();
 		while( posNow != 0 )
@@ -439,7 +436,7 @@ namespace ProgramManager
 			MakeRect( boundTemp.GetRect(), boundTemp.GetEntityKey(), sKey );
 		}
 
-		// ±âÁØÁ¡ »ı¼º
+		// ê¸°ì¤€ì  ìƒì„±
 		CadSetCurLayer( m_hDwg, hLayer71 );
 		posNow = pParcelManager->m_lsBasePointMap.GetStartPosition();
 		while( posNow != 0 )
@@ -483,11 +480,11 @@ namespace ProgramManager
 
 		return true;
 	}
-	// Parcelµ¥ÀÌÅÍ µîÀÇ ·¹ÀÌ¾î¸¦ »ı¼ºÇÑ´Ù.
+	// Parcelë°ì´í„° ë“±ì˜ ë ˆì´ì–´ë¥¼ ìƒì„±í•œë‹¤.
 	// ########################################
 
 	// ########################################
-	// ·¹ÀÌ¾î/µµÇü »ı¼º
+	// ë ˆì´ì–´/ë„í˜• ìƒì„±
 	bool CCadManager::MakeLayer( CString sLayerName , int nLayerColor , IDOBJ idLineType, int nLineWeight )
 	{
 		VHANDLE hLayer = CadGetLayerByName(m_hDwg,sLayerName);
@@ -500,7 +497,7 @@ namespace ProgramManager
 		}
 		if( hLayer == NULL )
 		{
-			// DWG, ÀÌ¸§ , ¶óÀÎÄÃ·¯ , ¶óÀÎ Å¸ÀÔ, ¶óÀÎµÎ²² 
+			// DWG, ì´ë¦„ , ë¼ì¸ì»¬ëŸ¬ , ë¼ì¸ íƒ€ì…, ë¼ì¸ë‘ê»˜ 
 			hLayer = CadAddLayer( m_hDwg, sLayerName, nLayerColor, idLineType, nLineWeight );
 		}
 		if( hLayer == NULL ) return false;
@@ -653,11 +650,11 @@ namespace ProgramManager
 
 		return true;
 	}
-	// ·¹ÀÌ¾î/µµÇü »ı¼º
+	// ë ˆì´ì–´/ë„í˜• ìƒì„±
 	// ########################################
 
 	// ########################################
-	// Draw°ü·Ã
+	// Drawê´€ë ¨
 	bool CCadManager::DrawPoint()
 	{
 		return Execute( CAD_CMD_DRAW_POINT );
@@ -692,12 +689,12 @@ namespace ProgramManager
 	{
 		return Execute( CAD_CMD_DRAW_TEXT );
 	}
-	// Draw°ü·Ã
+	// Drawê´€ë ¨
 	// ########################################
 
 
 	// #######################################
-	// Zoom°ü·Ã
+	// Zoomê´€ë ¨
 	void CCadManager::ZoomExtent()
 	{
 		Execute( CAD_CMD_ZOOM_EXT );
@@ -727,11 +724,11 @@ namespace ProgramManager
 		Execute( CAD_CMD_PAN_RTIME );	
 //		CadUpdate(m_hDwg);
 	}
-	// Zoom°ü·Ã
+	// Zoomê´€ë ¨
 	// #######################################
 
 	// #######################################
-	// ÀÚ±â À§Ä¡ Ç¥½Ã °ü·Ã
+	// ìê¸° ìœ„ì¹˜ í‘œì‹œ ê´€ë ¨
 	void CCadManager::InitPositionEnt()
 	{
 		if( m_hPositionEnt != NULL )
@@ -806,11 +803,11 @@ namespace ProgramManager
 	void CCadManager::ChangePositionColor()
 	{
 		if( m_hPositionEnt== NULL) return;
-		if( m_bPositionColor_Light == false )	// ¾îµÎ¿î»öÀÌ¶ó¸é ¹àÀº»öÀ¸·Î
+		if( m_bPositionColor_Light == false )	// ì–´ë‘ìš´ìƒ‰ì´ë¼ë©´ ë°ì€ìƒ‰ìœ¼ë¡œ
 		{
 			_ChangeBlockColor( m_hPositionEnt, CAD_COLOR_GREEN );//CAD_COLOR_RED );
 		}
-		else // m_bLight == true		: ¹àÀº »öÀÌ¶ó¸é ¾îµÎ¿î»öÀ¸·Î
+		else // m_bLight == true		: ë°ì€ ìƒ‰ì´ë¼ë©´ ì–´ë‘ìš´ìƒ‰ìœ¼ë¡œ
 		{
 			_ChangeBlockColor( m_hPositionEnt, CAD_COLOR_GRAY );//CAD_COLOR_BLUE );
 		}
@@ -879,11 +876,11 @@ namespace ProgramManager
 		CadUpdate(m_hDwg);
 	}
 		
-	// ÀÚ±â À§Ä¡ Ç¥½Ã °ü·Ã
+	// ìê¸° ìœ„ì¹˜ í‘œì‹œ ê´€ë ¨
 	// #######################################
 
 	// #######################################
-	// ÀÎÄÚ´õ ¶óÀÎ
+	// ì¸ì½”ë” ë¼ì¸
 	void CCadManager::InitEncorderLineEnt()
 	{
 		VHANDLE hLayer = CadGetLayerByName(m_hDwg,"999");
@@ -957,7 +954,7 @@ namespace ProgramManager
 	}
 
 	////////////////////////////////////////////
-	// ÇöÀç ¼±ÅÃµÈ Á¡ÀÇ ÁÂÇ¥¸¦ °¡Á®¿Â´Ù.
+	// í˜„ì¬ ì„ íƒëœ ì ì˜ ì¢Œí‘œë¥¼ ê°€ì ¸ì˜¨ë‹¤.
 	CDS_Point CCadManager::GetNowSelectPoint()
 	{
 		CDS_Point ptResult;
@@ -970,11 +967,11 @@ namespace ProgramManager
 			VHANDLE hLayer = CadGetLayerByID( m_hDwg, idLayer );
 			CString sLayer;
 			CadLayerGetName( hLayer, sLayer.GetBufferSetLength(50) );
-			// Á¡ ÁÂÇ¥´Â 211°ú 71 ¿¡¼­¸¸ °¡Á®¿Â´Ù.
+			// ì  ì¢Œí‘œëŠ” 211ê³¼ 71 ì—ì„œë§Œ ê°€ì ¸ì˜¨ë‹¤.
 			if( sLayer == "211" || sLayer == "71" )
 			{
 				DWORD nType = CadEntityGetType( hEnt );
-				// Á¡°ú ¿ø µµÇü¿¡¼­¸¸ °¡Á®°£´Ù.
+				// ì ê³¼ ì› ë„í˜•ì—ì„œë§Œ ê°€ì ¸ê°„ë‹¤.
 				switch( nType )
 				{
 				case CAD_ENT_POINT :
@@ -1001,12 +998,12 @@ namespace ProgramManager
 		return ptResult;
 	}
 
-	// ÀÎÄÚ´õ ¶óÀÎ
+	// ì¸ì½”ë” ë¼ì¸
 	// #######################################
 
 
 	// #######################################
-	// ÀÌº¥Æ® Ã³¸®
+	// ì´ë²¤íŠ¸ ì²˜ë¦¬
 
 
 	void CCadManager::WantGetMousePoint()
@@ -1022,41 +1019,58 @@ namespace ProgramManager
 
 
 	////////////////////////////////////////
-	// ¼±ÅÃÇÑ µµÇüÀÇ ÇÊÁö Á¤º¸¸¦ È®ÀÎÇÑ´Ù.
+	// ì„ íƒí•œ ë„í˜•ì˜ í•„ì§€ ì •ë³´ë¥¼ í™•ì¸í•œë‹¤.
 	void CCadManager::OnShowParcelInfomation()
 	{
-		VHANDLE hSearchEntPtr = CadSelGetFirstPtr( m_hDwg );
+		VHANDLE hSearchEntPtr = CadSelGetFirstPtr(m_hDwg);
+		
+		VHANDLE hEnt = CadGetEntityByPtr(hSearchEntPtr);
+		VHANDLE next = hEnt;
+		
+		int nBuffer = CadEntityGetExDataSize(next);
+		CString sExKey;
+		CadEntityGetExData(next, sExKey.GetBufferSetLength(nBuffer));
+		CParcelManager* pParcelManager = CParcelManager::GetInstance();
+		auto temp = pParcelManager->GetPointList(sExKey);
+
+		for (auto i : temp) {
+			Log::log("%.3f, %.3f", i.GetY(), i.GetX());
+		}
+		Log::log("ì´ %dê°œ", temp.size());
+
+
 		if( hSearchEntPtr != NULL )
 		{
 			VHANDLE hEnt = CadGetEntityByPtr( hSearchEntPtr );
 			int nBuffer = CadEntityGetExDataSize( hEnt );
 			CString sExKey;
 			CadEntityGetExData( hEnt, sExKey.GetBufferSetLength( nBuffer ) );
-			//MessageBox( NULL , sExKey, "°íÀ¯¹øÈ£ Å×½ºÆ®",MB_OK );
+			//MessageBox( NULL , sExKey, "ê³ ìœ ë²ˆí˜¸ í…ŒìŠ¤íŠ¸",MB_OK );
 			CParcelManager* pParcelManager = CParcelManager::GetInstance();
 			pParcelManager->ShowParcelInfoTodlg( sExKey );
 		}
 	}
 
 	////////////////////////////////////////
-	// ¸¶¿ì½º°¡ Å¬¸¯µÇ¾úÀ»¶§
+	// ë§ˆìš°ìŠ¤ê°€ í´ë¦­ë˜ì—ˆì„ë•Œ
 	void CCadManager::OnMouseClick( double fX, double fY )
 	{
-		if( m_fnMouseClickEvent != NULL )
+		Log::log("X: %.3f, Y: %.3f", fY, fX);
+		/*if( m_fnMouseClickEvent != NULL )
 		{
 			(*m_fnMouseClickEvent)(fX, fY );
-		}
+		}*/
 	}
 
 	////////////////////////////////////////
-	// ¸¶¿ì½º°¡ Å¬¸¯ µÇ¾úÀ»¶§ È£ÃâµÉ Äİ¹é ÇÔ¼ö µî·Ï
+	// ë§ˆìš°ìŠ¤ê°€ í´ë¦­ ë˜ì—ˆì„ë•Œ í˜¸ì¶œë  ì½œë°± í•¨ìˆ˜ ë“±ë¡
 	void CCadManager::SetMouseClickEventFunction( FnMouseClickCallback fnMouseClickEvent )
 	{
 		m_fnMouseClickEvent = fnMouseClickEvent;
 	}
 
 	///////////////////////////////////////////
-	// Æú¸®¶óÀÎ ¿¡µğÆ®Áß ¿Ï·á ¸Ş´º¸¦ ¼±ÅÃÇÏ¿´À»¶§
+	// í´ë¦¬ë¼ì¸ ì—ë””íŠ¸ì¤‘ ì™„ë£Œ ë©”ë‰´ë¥¼ ì„ íƒí•˜ì˜€ì„ë•Œ
 	void CCadManager::_OnPolylineEditOpenComplate()
 	{
 		int nInputPointCount = CadCmdCountPoints( m_hDwg );
@@ -1066,20 +1080,20 @@ namespace ProgramManager
 	}
 
 	///////////////////////////////////////////
-	// Æú¸®¶óÀÎ ¿¡µğÆ®Áß Æó¼èÈÄ ¿Ï·á ¸Ş´º¸¦ ¼±ÅÃÇÏ¿´À»¶§
+	// í´ë¦¬ë¼ì¸ ì—ë””íŠ¸ì¤‘ íì‡ í›„ ì™„ë£Œ ë©”ë‰´ë¥¼ ì„ íƒí•˜ì˜€ì„ë•Œ
 	void CCadManager::_OnPolylineEditCloseComplate()
 	{
 		CadAddPolyline( m_hDwg, CAD_PLINE_LINEAR , true );
 	}
 
 	///////////////////////////////////////////
-	// Æú¸®¶óÀÎ ¿¡µğÆ®¸¦ Ãë¼ÒÇÏ¿´À»¶§
+	// í´ë¦¬ë¼ì¸ ì—ë””íŠ¸ë¥¼ ì·¨ì†Œí•˜ì˜€ì„ë•Œ
 	void CCadManager::_OnPolylineEditCancel()
 	{
 		CadClearVertices();
 	}
 													
-	// ÀÌº¥Æ® Ã³¸®
+	// ì´ë²¤íŠ¸ ì²˜ë¦¬
 	// #######################################
 
 	// #######################################
@@ -1163,7 +1177,6 @@ namespace ProgramManager
 
 		}
 	}
-
 	
 	void __stdcall CadEventMouseDown(VDWG hCad, int Button, int Flags, int Xwin, int Ywin, double Xdwg, double Ydwg, double Zdwg)
 	{

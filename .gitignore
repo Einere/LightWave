@@ -14,7 +14,6 @@
 # Compiled Dynamic libraries
 *.so
 *.dylib
-*.dll
 
 # Fortran module files
 *.mod
@@ -377,3 +376,10 @@ ASALocalRun/
 *.ogv
 *.ogg
 *.webm
+
+
+/lightwave_pc/jsoncpp_test/*
+/lightwave_pc/library/*
+/lightwave_pc/server/RTK/working-data
+
+log.txt

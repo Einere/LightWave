@@ -12,7 +12,7 @@ TaskWnd::~TaskWnd()
 {
 }
 
-void TaskWnd::appendTask(const std::shared_ptr<Task> pTask)
+void TaskWnd::appendTask(std::shared_ptr<Task> pTask)
 {
 	BOOL result = m_dlg.appendTask(pTask);
 	assert(result);
@@ -38,15 +38,15 @@ int TaskWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	if (!m_dlg.Create(IDD_DLG_TASK_MANAGEMENT, this))
 	{
-		TRACE0("Ãâ·Â Ã¢À» ¸¸µéÁö ¸øÇß½À´Ï´Ù.\n");
-		return -1;      // ¸¸µéÁö ¸øÇß½À´Ï´Ù.
+		TRACE0("ì¶œë ¥ ì°½ì„ ë§Œë“¤ì§€ ëª»í–ˆìŠµë‹ˆë‹¤.\n");
+		return -1;      // ë§Œë“¤ì§€ ëª»í–ˆìŠµë‹ˆë‹¤.
 	}
 	m_dlg.ShowWindow(SW_SHOW);
 
 	//if (!m_wndTaskList.Create(dwStyle, rectDummy, this, 1))
 	//{
-	//	TRACE0("Ãâ·Â Ã¢À» ¸¸µéÁö ¸øÇß½À´Ï´Ù.\n");
-	//	return -1;      // ¸¸µéÁö ¸øÇß½À´Ï´Ù.
+	//	TRACE0("ì¶œë ¥ ì°½ì„ ë§Œë“¤ì§€ ëª»í–ˆìŠµë‹ˆë‹¤.\n");
+	//	return -1;      // ë§Œë“¤ì§€ ëª»í–ˆìŠµë‹ˆë‹¤.
 	//}
 
 	return 0;
