@@ -1,5 +1,5 @@
 
-// MainFrm.h : CMainFrame í´ë˜ìŠ¤ì˜ ì¸í„°í˜ì´ìŠ¤
+// MainFrm.h : CMainFrame Å¬·¡½ºÀÇ ÀÎÅÍÆäÀÌ½º
 //
 
 #pragma once
@@ -18,31 +18,31 @@ class CViewSkyDlg;
 class CGPSSNRGraphDlg;
 class ConnectionStateDlg;
 
-// ê¸°ë³¸ Frameì´ë‹¤. ë©”ë‰´ ì´ë²¤íŠ¸ë“¤ì„ ì—¬ê¸°ì„œ ì²˜ë¦¬ í•˜ê²Œ ë ê²ƒì´ë‹¤.
+// ±âº» FrameÀÌ´Ù. ¸Ş´º ÀÌº¥Æ®µéÀ» ¿©±â¼­ Ã³¸® ÇÏ°Ô µÉ°ÍÀÌ´Ù.
 class CMainFrame : public CFrameWndEx, public SocketRecipient
 {
 public:
 
-protected: // serializationì—ì„œë§Œ ë§Œë“¤ì–´ì§‘ë‹ˆë‹¤.
+protected: // serialization¿¡¼­¸¸ ¸¸µé¾îÁı´Ï´Ù.
 	CMainFrame();
 	DECLARE_DYNCREATE(CMainFrame)
 
-// íŠ¹ì„±ì…ë‹ˆë‹¤.
+// Æ¯¼ºÀÔ´Ï´Ù.
 private:
 	WorkerManager m_workerManager;
 	FileManager m_fileManager;
 
-// ì‘ì—…ì…ë‹ˆë‹¤.
+// ÀÛ¾÷ÀÔ´Ï´Ù.
 public:
 	void addTask(Task task);
 
-// ì¬ì •ì˜ì…ë‹ˆë‹¤.
+// ÀçÁ¤ÀÇÀÔ´Ï´Ù.
 public:
 
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 	virtual BOOL LoadFrame(UINT nIDResource, DWORD dwDefaultStyle = WS_OVERLAPPEDWINDOW | FWS_ADDTOTITLE, CWnd* pParentWnd = NULL, CCreateContext* pContext = NULL);
 
-// êµ¬í˜„ì…ë‹ˆë‹¤.
+// ±¸ÇöÀÔ´Ï´Ù.
 public:
 	virtual ~CMainFrame();
 #ifdef _DEBUG
@@ -50,7 +50,7 @@ public:
 	virtual void Dump(CDumpContext& dc) const;
 #endif
 
-protected:  // ì»¨íŠ¸ë¡¤ ëª¨ìŒì´ í¬í•¨ëœ ë©¤ë²„ì…ë‹ˆë‹¤.
+protected:  // ÄÁÆ®·Ñ ¸ğÀ½ÀÌ Æ÷ÇÔµÈ ¸â¹öÀÔ´Ï´Ù.
 	CMFCMenuBar			m_wndMenuBar;
 	CMFCToolBar			m_wndToolBar;
 //	CMFCStatusBar		m_wndStatusBar;
@@ -66,7 +66,7 @@ public:
 	void updateStateDlg();
 	bool isServerListening() const;
 
-// ìƒì„±ëœ ë©”ì‹œì§€ ë§µ í•¨ìˆ˜
+// »ı¼ºµÈ ¸Ş½ÃÁö ¸Ê ÇÔ¼ö
 protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnViewCustomize();

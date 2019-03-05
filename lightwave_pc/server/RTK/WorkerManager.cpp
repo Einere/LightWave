@@ -89,7 +89,7 @@ void WorkerManager::OnReceive(const CString& ipAddress, UINT port, int errorCode
 {
 	auto sender = findWorkerOrNull(ipAddress, port);
 	if (!sender) {
-		Log::err("IP:%s, PORT:%d: ë¹„ì •ìƒì  ì ‘ê·¼: ", ipAddress, port);
+		Log::err("IP:%s, PORT:%d: ºñÁ¤»óÀû Á¢±Ù: ", ipAddress, port);
 	}
 
 	CSocketFile file(&(*sender));
@@ -105,7 +105,7 @@ void WorkerManager::OnClose(const CString& ipAddress, UINT port, int errorCode)
 {
 	bool removeSuccess = removeOrFalse(ipAddress, port);
 	if (!removeSuccess) {
-		Log::err("IP:%s, PORT:%d: ë¹„ì •ìƒì  ì ‘ê·¼: ", ipAddress, port);
+		Log::err("IP:%s, PORT:%d: ºñÁ¤»óÀû Á¢±Ù: ", ipAddress, port);
 	}
 
 	m_pRecepient->OnClose(ipAddress, port, errorCode);

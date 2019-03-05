@@ -38,15 +38,15 @@ int TaskWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	if (!m_dlg.Create(IDD_DLG_TASK_MANAGEMENT, this))
 	{
-		TRACE0("ì¶œë ¥ ì°½ì„ ë§Œë“¤ì§€ ëª»í–ˆìŠµë‹ˆë‹¤.\n");
-		return -1;      // ë§Œë“¤ì§€ ëª»í–ˆìŠµë‹ˆë‹¤.
+		TRACE0("Ãâ·Â Ã¢À» ¸¸µéÁö ¸øÇß½À´Ï´Ù.\n");
+		return -1;      // ¸¸µéÁö ¸øÇß½À´Ï´Ù.
 	}
 	m_dlg.ShowWindow(SW_SHOW);
 
 	//if (!m_wndTaskList.Create(dwStyle, rectDummy, this, 1))
 	//{
-	//	TRACE0("ì¶œë ¥ ì°½ì„ ë§Œë“¤ì§€ ëª»í–ˆìŠµë‹ˆë‹¤.\n");
-	//	return -1;      // ë§Œë“¤ì§€ ëª»í–ˆìŠµë‹ˆë‹¤.
+	//	TRACE0("Ãâ·Â Ã¢À» ¸¸µéÁö ¸øÇß½À´Ï´Ù.\n");
+	//	return -1;      // ¸¸µéÁö ¸øÇß½À´Ï´Ù.
 	//}
 
 	return 0;
