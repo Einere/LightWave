@@ -5,7 +5,7 @@
 
 using DataType::ShapeType::CDS_Point;
 
-// ÀÛ¾÷¿¡ ´ëÇÑ Å¬·¡½º
+// ì‘ì—…ì„ ë‚˜íƒ€ë‚´ëŠ” í´ë˜ìŠ¤
 class Task : public std::map<LPCTSTR, LPCTSTR>{
 public:
 	const std::vector<CDS_Point>& getParcelPoints() const;

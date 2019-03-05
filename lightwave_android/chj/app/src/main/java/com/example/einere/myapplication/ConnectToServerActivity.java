@@ -19,6 +19,7 @@ public class ConnectToServerActivity extends AppCompatActivity {
     EditText et_ip2 = null;
     EditText et_ip3 = null;
     EditText et_ip4 = null;
+    EditText et_port = null;
     EditText et_worker_name = null;
 
     private ServiceConnection connection = new ServiceConnection() {
@@ -45,6 +46,7 @@ public class ConnectToServerActivity extends AppCompatActivity {
         et_ip2 = findViewById(R.id.et_ip2);
         et_ip3 = findViewById(R.id.et_ip3);
         et_ip4 = findViewById(R.id.et_ip4);
+        et_port = findViewById(R.id.et_port);
         et_worker_name = findViewById(R.id.et_worker_name);
     }
 
@@ -73,8 +75,9 @@ public class ConnectToServerActivity extends AppCompatActivity {
 
     public void onClickConnect(View v){
         String ip = String.format(Locale.KOREA ,"%s.%s.%s.%s", et_ip1.getText(), et_ip2.getText(), et_ip3.getText(), et_ip4.getText());
+        int port = Integer.parseInt(et_port.getText().toString());
         try {
-            binder.setSocket(ip);
+            binder.setSocket(ip, port);
             binder.connect();
         } catch (RemoteException e) {
             e.printStackTrace();

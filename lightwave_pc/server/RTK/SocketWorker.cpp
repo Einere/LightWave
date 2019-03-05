@@ -26,7 +26,6 @@ void SocketWorker::OnReceive(int nErrorCode)
 {
 	CString ipAddress;
 	UINT port;
-	Log::log("들어왔어");
 	GetPeerName(ipAddress, port);
 	m_pWorkerManager->OnReceive(ipAddress, port, nErrorCode);
 }

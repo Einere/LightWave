@@ -86,8 +86,8 @@ namespace ProgramManager
 	bool CParcelManager::_ReadCifFile( CString sFileName )
 	{
 		// ---------------------------------------------
-		// ∆ƒ¿œ ¡ÿ∫Ò
-		CStdioFile FReadCif;	// ¿–¿ª∆ƒ¿œ «⁄µÈ
+		// ÌååÏùº Ï§ÄÎπÑ
+		CStdioFile FReadCif;	// ÏùΩÏùÑÌååÏùº Ìï∏Îì§
 		GlobalUtil::CFileUtil flCifFile;
 		
 		//.FileOpen( sFileName , "r+" ) == false )
@@ -117,18 +117,18 @@ namespace ProgramManager
 			sReadBuf = sReadBuf.Trim();
 			if( sReadBuf == "EOF" )
 			{
-				// CIF≥°
+				// CIFÎÅù
 				break;
 			}
-			if( sReadBuf == "<CIF¡§∫∏S>" )
+			if( sReadBuf == "<CIFÏ†ïÎ≥¥S>" )
 			{
 				/*
 				// 
-				nReadSize = flCifFile.ReadToEndString2("<CIF¡§∫∏E>",sReadBuf);
+				nReadSize = flCifFile.ReadToEndString2("<CIFÏ†ïÎ≥¥E>",sReadBuf);
 				if( nReadSize < 0 )
 				{
-					// πÆ¡¶ πﬂª˝
-					MessageBox(NULL,"CIF¡§∫∏ ≈◊±◊Ω÷ø° πÆ¡¶∞° ¿÷Ω¿¥œ¥Ÿ.","CIFø≠±‚",MB_OK );
+					// Î¨∏Ï†ú Î∞úÏÉù
+					MessageBox(NULL,"CIFÏ†ïÎ≥¥ ÌÖåÍ∑∏ÏåçÏóê Î¨∏Ï†úÍ∞Ä ÏûàÏäµÎãàÎã§.","CIFÏó¥Í∏∞",MB_OK );
 					flCifFile.FileClose();
 					return false;
 				}
@@ -138,12 +138,12 @@ namespace ProgramManager
 				{
 					if( FReadCif.ReadString( sReadBuf ) == false ) break;
 					sReadBuf = sReadBuf.Trim();
-					if( sReadBuf == "<CIF¡§∫∏E>" ) break;
+					if( sReadBuf == "<CIFÏ†ïÎ≥¥E>" ) break;
 				}
 				continue;
 				
 			}
-			if( sReadBuf == "<« ¡ˆS>" )
+			if( sReadBuf == "<ÌïÑÏßÄS>" )
 			{
 				CParcel prNewParcel;
 				if( prNewParcel.SettingParcelFromCifFile( FReadCif ) == true )
@@ -153,12 +153,12 @@ namespace ProgramManager
 				continue;
 				/*
 				int nNowPos = flCifFile.GetPos();
-				// ∑π¿ÃæÓ 1
-				nReadSize = flCifFile.ReadToEndString2("<« ¡ˆE>",sReadBuf);
+				// Î†àÏù¥Ïñ¥ 1
+				nReadSize = flCifFile.ReadToEndString2("<ÌïÑÏßÄE>",sReadBuf);
 				if( nReadSize < 0 )
 				{
-					// πÆ¡¶ πﬂª˝
-					MessageBox(NULL,"« ¡ˆ ≈◊±◊Ω÷ø° πÆ¡¶∞° ¿÷Ω¿¥œ¥Ÿ","CIFø≠±‚",MB_OK );
+					// Î¨∏Ï†ú Î∞úÏÉù
+					MessageBox(NULL,"ÌïÑÏßÄ ÌÖåÍ∑∏ÏåçÏóê Î¨∏Ï†úÍ∞Ä ÏûàÏäµÎãàÎã§","CIFÏó¥Í∏∞",MB_OK );
 					flCifFile.FileClose();
 					return false;
 				}
@@ -171,9 +171,9 @@ namespace ProgramManager
 				continue;
 				*/
 			}
-			if( sReadBuf == "<±‚¡ÿ¡°S>" )
+			if( sReadBuf == "<Í∏∞Ï§ÄÏ†êS>" )
 			{
-				// ∑π¿ÃæÓ 71
+				// Î†àÏù¥Ïñ¥ 71
 				
 				CBasePoint bptNewPoint;
 				if( bptNewPoint.SettingBasePointFromCifFile( FReadCif ) == true )
@@ -183,11 +183,11 @@ namespace ProgramManager
 				continue;
 				/*
 				
-				nReadSize = flCifFile.ReadToEndString2( "<±‚¡ÿ¡°E>" , sReadBuf );
+				nReadSize = flCifFile.ReadToEndString2( "<Í∏∞Ï§ÄÏ†êE>" , sReadBuf );
 				if( nReadSize < 0 )
 				{
-					// πÆ¡¶ πﬂª˝
-					MessageBox(NULL,"±‚¡ÿ¡° ≈◊±◊Ω÷ø° πÆ¡¶∞° ¿÷Ω¿¥œ¥Ÿ","CIFø≠±‚",MB_OK );
+					// Î¨∏Ï†ú Î∞úÏÉù
+					MessageBox(NULL,"Í∏∞Ï§ÄÏ†ê ÌÖåÍ∑∏ÏåçÏóê Î¨∏Ï†úÍ∞Ä ÏûàÏäµÎãàÎã§","CIFÏó¥Í∏∞",MB_OK );
 					flCifFile.FileClose();
 					return false;
 				}
@@ -199,9 +199,9 @@ namespace ProgramManager
 				continue;
 				*/
 			}
-			if( sReadBuf == "<µµ∞˚S>" )
+			if( sReadBuf == "<ÎèÑÍ≥ΩS>" )
 			{
-				// ∑π¿ÃæÓ 60
+				// Î†àÏù¥Ïñ¥ 60
 				CMapBound mbNewMapBound;
 				if( mbNewMapBound.SettingMapBoundFromCifFile( FReadCif ) == true )
 				{
@@ -209,11 +209,11 @@ namespace ProgramManager
 				}
 				continue;
 				/*
-				nReadSize = flCifFile.ReadToEndString2( "<µµ∞˚E>" , sReadBuf );
+				nReadSize = flCifFile.ReadToEndString2( "<ÎèÑÍ≥ΩE>" , sReadBuf );
 				if( nReadSize < 0 )
 				{
-					// πÆ¡¶ πﬂª˝ 
-					MessageBox( NULL, "µµ∞˚ ≈◊±◊Ω÷ø° π´¡¶∞° ¿÷Ω¿¥œ¥Ÿ.", "CIFø≠±‚",MB_OK );
+					// Î¨∏Ï†ú Î∞úÏÉù 
+					MessageBox( NULL, "ÎèÑÍ≥Ω ÌÖåÍ∑∏ÏåçÏóê Î¨¥Ï†úÍ∞Ä ÏûàÏäµÎãàÎã§.", "CIFÏó¥Í∏∞",MB_OK );
 					flCifFile.FileClose();
 					return false;
 				}
@@ -234,7 +234,7 @@ namespace ProgramManager
 	// 
 
 	///////////////////////////////////////////////////////
-	// sParcelKeyø° «ÿ¥Á«œ¥¬ « ¡ˆ¿« ¡§∫∏∏¶ ∫∏ø©¡ÿ¥Ÿ.
+	// sParcelKeyÏóê Ìï¥ÎãπÌïòÎäî ÌïÑÏßÄÏùò Ï†ïÎ≥¥Î•º Î≥¥Ïó¨Ï§ÄÎã§.
 	bool CParcelManager::ShowParcelInfoTodlg( CString sParcelKey )
 	{
 		CParcel * pParcel = &(m_lsParcelMap[sParcelKey]);
@@ -246,7 +246,7 @@ namespace ProgramManager
 			}
 			if( dlgParcelInfo.GetSafeHwnd() == NULL )
 			{
-				MessageBox( NULL, "« ¡ˆ¡§∫∏√¢¿ª ª˝º∫«“ºˆ æ¯Ω¿¥œ¥Ÿ.","ERROR",MB_OK);
+				MessageBox( NULL, "ÌïÑÏßÄÏ†ïÎ≥¥Ï∞ΩÏùÑ ÏÉùÏÑ±Ìï†Ïàò ÏóÜÏäµÎãàÎã§.","ERROR",MB_OK);
 				return false;
 			}
 			dlgParcelInfo.SetViewParcel( pParcel );
@@ -290,7 +290,6 @@ namespace ProgramManager
 
 	// 
 	// ###########################################
-
 
 	bool CParcelManager::SetNotAllocationNode( CBasePoint ptPoint )
 	{
