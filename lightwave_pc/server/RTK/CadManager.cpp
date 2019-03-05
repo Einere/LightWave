@@ -148,7 +148,6 @@ namespace ProgramManager
 		CadOnEventMouseDown( CadEventMouseDown );
 //		CadOnEventCEntDisplay( CadEventCEntDisplay );
 		CadOnEventCmdStart( CadEventCmdStart );
-
 		CadPluginImageRead( "jpg" , "image", "ImgReadJPEG", 1 );
 		CadPluginImageRead( "jpeg", "image", "ImgReadJPEG", 1 );
 		CadPluginImageRead( "tif" , "image", "ImgReadTIFF", 1 );
@@ -1183,8 +1182,6 @@ namespace ProgramManager
 		CCadManager *pCad = CCadManager::GetInstance();
 		pCad->OnMouseClick( Xdwg, Ydwg );
 	}
-
-	
 
 	void __stdcall CadEventMouseMove(VDWG hCad, int Button, int Flags, int Xwin, int Ywin, double Xdwg, double Ydwg, double Zdwg)
 	{

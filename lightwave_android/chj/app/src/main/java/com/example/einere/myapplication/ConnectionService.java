@@ -2,14 +2,8 @@ package com.example.einere.myapplication;
 
 import android.app.Service;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.IBinder;
-import android.os.RemoteException;
 import android.util.Log;
-import android.widget.Toast;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -30,41 +24,41 @@ public class ConnectionService extends Service {
     private SocketAddress socketAddress = null;
     private BufferedReader reader = null;
     private BufferedWriter writer = null;
-    private int port = 8080;
+//    private int port = 8080;
 
     IConnectionService.Stub binder = new IConnectionService.Stub() {
         @Override
-        public int getStatus() throws RemoteException {
+        public int getStatus() {
             return status;
         }
 
         @Override
-        public void setSocket(String ip) throws RemoteException {
-            mySetSocket(ip);
+        public void setSocket(String ip, int port) {
+            mySetSocket(ip, port);
         }
 
         @Override
-        public void connect() throws RemoteException {
+        public void connect() {
             myConnect();
         }
 
         @Override
-        public void disconnect() throws RemoteException {
+        public void disconnect() {
             myDisconnect();
         }
 
         @Override
-        public void send(String packet) throws RemoteException {
+        public void send(String packet) {
             mySend(packet);
         }
 
         @Override
-        public void receive() throws RemoteException {
+        public void receive() {
             myReceive();
         }
     };
 
-    class ReceiveThread extends AsyncTask<Boolean, String, Boolean> {
+    /*class ReceiveThread extends AsyncTask<Boolean, String, Boolean> {
         public ReceiveThread() {
             super();
         }
@@ -103,7 +97,7 @@ public class ConnectionService extends Service {
         protected void onCancelled(Boolean aBoolean) {
             super.onCancelled(aBoolean);
         }
-    }
+    }*/
 
     public ConnectionService() {
     }
@@ -142,7 +136,7 @@ public class ConnectionService extends Service {
         return super.onUnbind(intent);
     }
 
-    void mySetSocket(String ip) {
+    void mySetSocket(String ip, int port) {
         socketAddress = new InetSocketAddress(ip, port);
         Log.i("ConnectionService", "mySetSocket()");
     }
@@ -157,11 +151,12 @@ public class ConnectionService extends Service {
                     socket.connect(socketAddress, TIME_OUT);
                     writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
                     reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                    status = STATUS_CONNECTED;
                     Log.i("ConnectionService", "myConnect2()");
                 } catch (IOException e) {
                     e.printStackTrace();
+                    status = STATUS_DISCONNECTED;
                 }
-                status = STATUS_CONNECTED;
             }
         }).start();
     }
@@ -193,7 +188,7 @@ public class ConnectionService extends Service {
     }
 
     void myReceive() {
-        ReceiveThread receiveThread = new ReceiveThread();
-        receiveThread.execute(true);
+        /*ReceiveThread receiveThread = new ReceiveThread();
+        receiveThread.execute(true);*/
     }
 }

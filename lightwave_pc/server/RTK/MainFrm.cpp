@@ -17,8 +17,6 @@
 #include "SocketRecipient.h"
 #include "TaskAddDlg.h"
 
-
-
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -189,8 +187,6 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	DockPane(&m_tbCadDraw);
 	DockPane(&m_tbCadZoom);
 	
-
-
 	// Visual Studio 2005 스타일 도킹 창 동작을 활성화합니다.
 	CDockingManager::SetDockingMode(DT_SMART);
 	// Visual Studio 2005 스타일 도킹 창 자동 숨김 동작을 활성화합니다.
@@ -352,7 +348,6 @@ void CMainFrame::Dump(CDumpContext& dc) const
 	CFrameWndEx::Dump(dc);
 }
 #endif //_DEBUG
-
 
 // CMainFrame 메시지 처리기
 

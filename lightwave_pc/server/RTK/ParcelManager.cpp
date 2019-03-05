@@ -182,7 +182,7 @@ namespace ProgramManager
 				}				
 				continue;
 				/*
-				
+			
 				nReadSize = flCifFile.ReadToEndString2( "<±âÁØÁ¡E>" , sReadBuf );
 				if( nReadSize < 0 )
 				{
@@ -290,8 +290,6 @@ namespace ProgramManager
 
 	// 
 	// ###########################################
-
-
 	bool CParcelManager::SetNotAllocationNode( CBasePoint ptPoint )
 	{
 		m_lsNotAllocationNode.Add( ptPoint );

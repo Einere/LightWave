@@ -18,7 +18,6 @@ class CViewSkyDlg;
 class CGPSSNRGraphDlg;
 class ConnectionStateDlg;
 
-
 // 기본 Frame이다. 메뉴 이벤트들을 여기서 처리 하게 될것이다.
 class CMainFrame : public CFrameWndEx, public SocketRecipient
 {

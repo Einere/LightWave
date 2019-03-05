@@ -12,7 +12,6 @@ WorkerManager::WorkerManager(SocketRecipient* recep)
 
 WorkerManager::~WorkerManager()
 {
-
 }
 
 const SocketRecipient* WorkerManager::getRecepient() const
