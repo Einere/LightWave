@@ -83,7 +83,7 @@ public class SocketManager extends Application {
         binder.send(packet);
     }
 
-    public void receive() throws RemoteException {
-        binder.receive();
+    public String receive() throws RemoteException {
+        return binder.receive();
     }
 }
