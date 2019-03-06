@@ -6,6 +6,7 @@
 #include "RTK.h"
 
 #include "OutputWnd.h"
+#include "Task.h"
 #include "MainFrm.h"
 #include "CadManager.h"
 #include "GlobalDefine.h"
@@ -15,9 +16,6 @@
 #include "SocketWorker.h"
 #include "SocketRecipient.h"
 #include "TaskAddDlg.h"
-#include "Task.h"
-
-
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -189,8 +187,6 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	DockPane(&m_tbCadDraw);
 	DockPane(&m_tbCadZoom);
 	
-
-
 	// Visual Studio 2005 스타일 도킹 창 동작을 활성화합니다.
 	CDockingManager::SetDockingMode(DT_SMART);
 	// Visual Studio 2005 스타일 도킹 창 자동 숨김 동작을 활성화합니다.
@@ -352,7 +348,6 @@ void CMainFrame::Dump(CDumpContext& dc) const
 	CFrameWndEx::Dump(dc);
 }
 #endif //_DEBUG
-
 
 // CMainFrame 메시지 처리기
 
@@ -550,8 +545,7 @@ void CMainFrame::OnLoadCif()
 	else
 	{
 		MessageBox("Cif파일 불러오기를 실패하였습니다.","CIF열기",MB_OK);
-	}
-	
+	}	
 }
 
 
@@ -910,16 +904,15 @@ void CMainFrame::OnAddTask()
 {
 	TaskAddDlg taskAddDlg(this);
 	if (IDOK == taskAddDlg.DoModal()) {
-		const CString fileName = taskAddDlg.getFileName();
-		const CString taskDesc = taskAddDlg.getTaskDesc();
-		const CString taskName = taskAddDlg.getTaskName();
-		const CString lotNumber = taskAddDlg.getLotNumber();
-
-		auto newTask = std::make_shared<Task>(taskName, lotNumber, taskDesc, fileName);
+		auto newTask = std::make_shared<Task>(taskAddDlg.getTask());
 		m_wndTask.appendTask(newTask);
+		m_fileManager.saveTask(*newTask);
 
-		Log::log("작업이 등록되었습니다: [작업명: %s\t 대표지번: %s]", taskName, lotNumber);
+		Log::log("작업이 등록되었습니다: [작업명: %s\t 대표지번: %s]", newTask->at("name"), newTask->at("lotNumber"));
 	}
+
+	auto pManager = CCadManager::GetInstance();
+	pManager->OnShowParcelInfomation();
 }
 
 void CMainFrame::OnAccept(const CString& ipAddress, UINT port, int errorCode)

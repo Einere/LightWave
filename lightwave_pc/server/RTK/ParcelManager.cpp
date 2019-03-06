@@ -182,7 +182,7 @@ namespace ProgramManager
 				}				
 				continue;
 				/*
-				
+			
 				nReadSize = flCifFile.ReadToEndString2( "<±âÁØÁ¡E>" , sReadBuf );
 				if( nReadSize < 0 )
 				{
@@ -256,10 +256,40 @@ namespace ProgramManager
 		return false;
 	}
 
+	CDS_Polyline* CParcelManager::GetParcelInfo(CString sParcelKey)
+	{
+		CParcel * pParcel = &(m_lsParcelMap[sParcelKey]);
+		if (!pParcel) {
+			return NULL;
+		}
+
+		CDS_Polygon& shape = pParcel->GetParcelShape();
+		return shape.GetPolyline(0);
+	}
+
+	const std::vector<CDS_Point> CParcelManager::GetPointList(CString sParcelKey)
+	{
+		CParcel * pParcel = &(m_lsParcelMap[sParcelKey]);
+		assert(pParcel);
+		/*if (!pParcel) {
+			
+		}*/
+
+		CDS_Polygon& shape = pParcel->GetParcelShape();
+		CDS_Polyline* line = shape.GetPolyline(0);
+		const int pointCount = line->GetPointCount();
+
+		std::vector<CDS_Point> pointList;
+		for (int i = 0; i < pointCount; ++i) {
+			pointList.push_back(line->GetPoint(i));
+			//Log::log("%.3f, %.3f", pointList[i].GetX(), pointList[i].GetY());
+		}
+		
+		return pointList;
+	}
+
 	// 
 	// ###########################################
-
-
 	bool CParcelManager::SetNotAllocationNode( CBasePoint ptPoint )
 	{
 		m_lsNotAllocationNode.Add( ptPoint );
