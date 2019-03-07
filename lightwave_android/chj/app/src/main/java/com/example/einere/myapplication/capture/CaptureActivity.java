@@ -1,99 +1,82 @@
-package com.example.einere.myapplication;
+package com.example.einere.myapplication.capture;
 
-import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.media.ExifInterface;
+import android.media.Image;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.RemoteException;
 import android.provider.MediaStore;
-import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.einere.myapplication.GpsInfo;
+import com.example.einere.myapplication.ListViewActivity;
+import com.example.einere.myapplication.R;
+import com.example.einere.myapplication.SocketManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity implements SensorEventListener {
+import gun0912.tedbottompicker.TedBottomPicker;
+
+public class CaptureActivity extends AppCompatActivity implements SensorEventListener {
     final int STATUS_DISCONNECTED = 0;
     final int STATUS_CONNECTED = 1;
     private final int CAMERA_CODE = 1111;
     private final int GALLERY_CODE = 1112;
-    private final String TAG = "MainActivity";
-    private GpsInfo gps;
+    private final String TAG = "CaptureActivity";
 
-    String ip = "";
-    int port = 0;
-    SocketManager manager = null;
-    String workerName = null;
+    // socket transmission
+    SocketManager socketManager = null;
 
-    LinearLayout ll_imageList = null;
-    ArrayList<ImageView> iv_picture = null;
-    EditText et_ip1 = null;
-    EditText et_ip2 = null;
-    EditText et_ip3 = null;
-    EditText et_ip4 = null;
-    EditText et_port = null;
-    EditText et_worker_name = null;
-    TextView tv_azimuth = null;
-
+    // RecyclerView
+    RecyclerView rv_selectedImage = null;
+    RecyclerViewAdapter recyclerAdapter = null;
     String captureName = null;
     String actualPath = null;
-    Bitmap myBitmap = null;
+    Bitmap tmpBitmap = null;
 
+    // sensor
     SensorManager sensorManager = null;
     Sensor accelerometer = null;
     Sensor magnetometer = null;
     float[] gravity = null;
     float[] geomagnetic = null;
+    TextView tv_azimuth = null;
+    private GpsInfo gps;
 
+    // capture braodcast
+    BroadcastReceiver cameraBroadcastReceiver = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        Log.i(TAG, "onCreate()");
+        setContentView(R.layout.activity_capture);
 
-        // get view
-        ll_imageList = findViewById(R.id.ll_image_list);
-        iv_picture = new ArrayList<ImageView>();
-//        iv_picture.add((ImageView)findViewById(R.id.iv_selectedImage));
-        et_ip1 = findViewById(R.id.et_ip1);
-        et_ip2 = findViewById(R.id.et_ip2);
-        et_ip3 = findViewById(R.id.et_ip3);
-        et_ip4 = findViewById(R.id.et_ip4);
-        et_port = findViewById(R.id.et_port);
-        et_worker_name = findViewById(R.id.et_worker_name);
+        // get views
+        rv_selectedImage = findViewById(R.id.rv_selectedImage);
         tv_azimuth = findViewById(R.id.tv_azimuth);
 
         // get sensor manager
@@ -101,30 +84,37 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         magnetometer = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 
-        // request permission
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA,
-                Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 0);
-
-        // register broadcast receiver
+        // register camera capture broadcast receiver
         IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
         intentFilter.addAction("android.hardware.action.NEW_PICTURE");
-        BroadcastReceiver cameraBroadcastReceiver = new BroadcastReceiver() {
+        cameraBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 Log.i(TAG, String.format("azimuth1 : %s...", tv_azimuth.getText()));
+                Toast.makeText(getBaseContext(), "captured!!!", Toast.LENGTH_SHORT).show();
             }
         };
         registerReceiver(cameraBroadcastReceiver, intentFilter);
+
+        // make RecyclerView
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        linearLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        rv_selectedImage.setLayoutManager(linearLayoutManager);
+        recyclerAdapter = new RecyclerViewAdapter();
+        rv_selectedImage.setAdapter(recyclerAdapter);
+
+        // set listener
+        findViewById(R.id.btn_capture).setOnClickListener(v -> capture());
+        findViewById(R.id.btn_select_picture).setOnClickListener(v -> selectPicture());
+        findViewById(R.id.btn_send_data).setOnClickListener(v -> sendData());
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        Log.i(TAG, "onResume()");
 
         // get SocketManager instance
-        manager = SocketManager.getInstance();
+        socketManager = SocketManager.getInstance();
 
         // register listener
         sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
@@ -135,6 +125,97 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onPause() {
         super.onPause();
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        // unregister broadcast receiver
+        unregisterReceiver(cameraBroadcastReceiver);
+    }
+
+    void capture() {
+        TedBottomPicker.with(this)
+                .show(uri -> {
+                    String scheme = uri.getScheme();
+                    if (scheme != null && scheme.equals("file")) {
+                        Log.d(TAG, uri.getLastPathSegment());
+                    }
+                    recyclerAdapter.addUri(uri);
+                });
+    }
+
+    void selectPicture() {
+        TedBottomPicker.with(this)
+                .setSelectMaxCount(5)
+                .setSelectMaxCountErrorText("최대 5장까지 선택가능합니다")
+                .setPeekHeight(1600)
+                .showTitle(true)
+                .setCompleteButtonText("확인")
+                .setEmptySelectionText("사진을 선택해주세요")
+                .showMultiImage(uriList -> {
+                    recyclerAdapter.addUriList(uriList);
+                });
+    }
+
+    /* ******************* socket methods start ******************* */
+    public void clickPoint(View v) {
+        Intent intent = new Intent(this, ListViewActivity.class);
+        startActivity(intent);
+    }
+
+    public void sendData() {
+        // check manager status
+        try{
+            if (socketManager.getStatus() == STATUS_CONNECTED) {
+                // get uri list
+                List<Uri> uriList = recyclerAdapter.getUriList();
+
+                // make json object
+                JSONObject packet = new JSONObject();
+                packet.put("code", 101);
+                packet.put("userName", socketManager.getUserName());
+
+                // put uri data
+                int i = 0;
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                for(Uri uri : uriList){
+                    tmpBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+                    tmpBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+                    byte[] bytes = stream.toByteArray();
+                    String serialized = Base64.encodeToString(bytes, Base64.NO_WRAP);
+                    packet.put(String.format(Locale.KOREA ,"image%d", i), serialized);
+                    i++;
+                }
+                socketManager.send(packet.toString());
+            } else {
+                Toast.makeText(this, "not connected to server or no selected image", Toast.LENGTH_SHORT).show();
+            }
+        }
+        catch (RemoteException e){
+            Toast.makeText(this, "RemoteException occurred!", Toast.LENGTH_SHORT).show();
+        }
+        catch (JSONException e){
+            Toast.makeText(this, "JSONException occurred!", Toast.LENGTH_SHORT).show();
+        }
+        catch (FileNotFoundException e){
+            Toast.makeText(this, "FileNotFoundException occurred!", Toast.LENGTH_SHORT).show();
+        }
+        catch (IOException e){
+            Toast.makeText(this, "IOException occurred!", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+    public void receiveData(View v) throws RemoteException {
+        if (socketManager.getStatus() == STATUS_CONNECTED) {
+            socketManager.receive();
+        } else {
+            Toast.makeText(this, "not connected to server", Toast.LENGTH_SHORT).show();
+        }
+    }
+    /* ******************* socket methods end ******************* */
+
 
     /* ******************* sensor methods start ******************* */
     @Override
@@ -160,8 +241,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 float roll = orientation[2];
 
                 tv_azimuth.setText(String.format(Locale.KOREA, "azimuth : %f", azimuth));
-                /*txtPitch.setText("y 좌표:" + String.valueOf(pitch));
-                txtRoll.setText("z 좌표 : " + String.valueOf(roll));*/
+//                txtPitch.setText("y 좌표:" + String.valueOf(pitch));
+//                txtRoll.setText("z 좌표 : " + String.valueOf(roll));
             }
         }
     }
@@ -172,81 +253,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
     /* ******************* sensor methods end ******************* */
 
-    /* ******************* socket methods start ******************* */
-    public void connectToServer(View v) throws RemoteException {
-        // get ip, worker name from EditText
-        ip = String.format("%s.%s.%s.%s", et_ip1.getText(), et_ip2.getText(), et_ip3.getText(), et_ip4.getText());
-        port = Integer.parseInt(et_port.getText().toString());
-        workerName = et_worker_name.getText().toString();
 
-        // set socket and connect to server
-        manager.setSocket(ip, port);
-        manager.connect();
-
-        // send worker name to server
-        // notice to server that connected mobile's worker name
-        // so server can register it to currently connected worker list
-        while (manager.getStatus() == STATUS_DISCONNECTED) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        if (manager.getStatus() == STATUS_CONNECTED) {
-            JSONObject packet = new JSONObject();
-            try {
-                packet.put("code", 100);
-                packet.put("workerName", workerName);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            manager.send(packet.toString());
-            Toast.makeText(this, "Connected!", Toast.LENGTH_SHORT).show();
-        }
-        else{
-            Toast.makeText(this, "retry to connect...", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    public void clickPoint(View v){
-          Intent intent = new Intent(this, ListViewActivity.class);
-          startActivity(intent);
-    }
-
-    public void sendData(View v) throws RemoteException, JSONException {
-        if (manager.getStatus() == STATUS_CONNECTED && myBitmap != null) {
-            // make json object
-            JSONObject packet = new JSONObject();
-            packet.put("code", 101);
-            packet.put("workerName", workerName);
-
-            // put bitmap data
-            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            myBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-            byte[] bytes = stream.toByteArray();
-            String serialized = Base64.encodeToString(bytes, Base64.NO_WRAP);
-            Log.i(TAG, serialized);
-            packet.put("image", serialized);
-
-            manager.send(packet.toString());
-        } else {
-            Toast.makeText(this, "not connected to server or no selected image", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    public void receiveData(View v) throws RemoteException {
-        if (manager.getStatus() == STATUS_CONNECTED) {
-            manager.receive();
-        } else {
-            Toast.makeText(this, "not connected to server", Toast.LENGTH_SHORT).show();
-        }
-    }
-    /* ******************* socket methods end ******************* */
-
-    /* *****************GPS**************************** */
-    public void Gps(){
-        gps = new GpsInfo(MainActivity.this);
+    /* ******************* GPS methods start ******************* */
+    public void Gps() {
+        gps = new GpsInfo(this);
         // GPS 사용유무 가져오기
         if (gps.isGetLocation()) {
 
@@ -262,9 +272,35 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             gps.showSettingsAlert();
         }
     }
+    /* ******************* GPS methods end ******************* */
+
 
     /* ******************* camera & gallery methods start ******************* */
-    public void capture(View v) {
+    /*public void singlePick() {
+        TedBottomPicker.with(this)
+                .show(uri -> {
+                    String scheme = uri.getScheme();
+                    if (scheme.equals("file")) {
+                        Log.d(TAG, uri.getLastPathSegment());
+                    }
+                    recyclerAdapter.addUri(uri);
+                });
+    }
+
+    public void multiPick() {
+        TedBottomPicker.with(this)
+                .setSelectMaxCount(5)
+                .setSelectMaxCountErrorText("최대 5장까지 선택가능합니다")
+                .setPeekHeight(1600)
+                .showTitle(true)
+                .setCompleteButtonText("확인")
+                .setEmptySelectionText("사진을 선택해주세요")
+                .showMultiImage(uriList -> {
+                    recyclerAdapter.addAll(uriList);
+                });
+    }*/
+
+    /*public void capture(View v) {
         String state = Environment.getExternalStorageState();
         if (Environment.MEDIA_MOUNTED.equals(state)) {
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -328,7 +364,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         return Math.round((float) dp * density);
     }
 
-    private void addPicture(Bitmap bitmap){
+    private void addPicture(Bitmap bitmap) {
+        // use ImageView
         ImageView iv_tmp = new ImageView(this);
         iv_tmp.setImageBitmap(bitmap);
         iv_tmp.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
@@ -336,7 +373,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         iv_tmp.setMaxHeight(dpToPx(100));
         iv_tmp.setMaxWidth(dpToPx(100));
         iv_tmp.setAdjustViewBounds(true);
-        ll_imageList.addView(iv_tmp);
+        int index = recyclerAdapter.addUri(bitmap);
+        recyclerAdapter.notifyItemInserted(index);
     }
 
     public void getPictureForPhoto() {
@@ -419,6 +457,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         matrix.postRotate(degree);
         // 이미지와 Matrix 를 셋팅해서 Bitmap 객체 생성
         return Bitmap.createBitmap(src, 0, 0, src.getWidth(), src.getHeight(), matrix, true);
-    }
+    }*/
     /* ******************* camera & gallery methods end ******************* */
 }

@@ -1,227 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_height="match_parent"
-    android:layout_width="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
-        tools:context=".MainActivity">
+        tools:context=".main.MainActivity">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="25dp"
-            android:layout_marginTop="25dp"
-            android:layout_marginRight="25dp"
+            android:layout_marginStart="25dp"
+            android:layout_marginTop="100dp"
+            android:layout_marginEnd="25dp"
             android:gravity="center"
             android:orientation="horizontal">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/ip"
+                android:text="@string/app_name"
                 android:textAlignment="center"
-                android:textSize="20sp"
+                android:textSize="50sp"
                 android:textStyle="bold" />
-
-            <EditText
-                android:id="@+id/et_ip1"
-                android:layout_width="0sp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:gravity="center"
-                android:inputType="numberDecimal"
-                android:nextFocusDown="@+id/et_ip2"
-                />
-
-            <TextView
-                android:layout_width="0sp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/point"
-                android:textAlignment="center"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <EditText
-                android:id="@+id/et_ip2"
-                android:layout_width="0sp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:gravity="center"
-                android:inputType="numberDecimal"
-                android:nextFocusDown="@+id/et_ip3"/>
-
-            <TextView
-                android:layout_width="0sp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/point"
-                android:textAlignment="center"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <EditText
-                android:id="@+id/et_ip3"
-                android:layout_width="0sp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:gravity="center"
-                android:inputType="numberDecimal"
-                android:nextFocusDown="@+id/et_ip4"/>
-
-            <TextView
-                android:layout_width="0sp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/point"
-                android:textAlignment="center"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <EditText
-                android:id="@+id/et_ip4"
-                android:layout_width="0sp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:gravity="center"
-                android:inputType="numberDecimal"
-                android:nextFocusDown="@+id/et_port"/>
 
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="25dp"
-            android:layout_marginRight="25dp"
+            android:layout_marginStart="25dp"
+            android:layout_marginTop="50dp"
+            android:layout_marginEnd="25dp"
             android:gravity="center"
             android:orientation="horizontal">
 
-            <TextView
-                android:layout_width="wrap_content"
+            <Button
+                android:id="@+id/btn_new_capture"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/port"
-                android:textAlignment="center"
-                android:textSize="20sp"
-                android:textStyle="bold"
+                android:text="@string/new_capture"
+                android:textSize="40sp" />
 
-                />
-
-            <EditText
-                android:id="@+id/et_port"
-                android:layout_width="70sp"
-                android:layout_height="wrap_content"
-                android:textAlignment="center"
-                android:inputType="numberDecimal"
-                android:nextFocusDown="@+id/et_worker_name"/>
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginStart="25dp"
             android:layout_marginTop="20dp"
+            android:layout_marginEnd="25dp"
             android:gravity="center"
-            android:weightSum="100">
+            android:orientation="horizontal">
 
-            <TextView
-                android:layout_width="wrap_content"
+            <Button
+                android:id="@+id/btn_continue_capture"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/workerName"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <EditText
-                android:id="@+id/et_worker_name"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="40"
-                android:textAlignment="center"
-                android:inputType="text"
-                />
+                android:text="@string/continue_capture"
+                android:textSize="40sp" />
 
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/ll_image_list">
-
-            <ImageView
-                android:id="@+id/iv_selectedImage"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:adjustViewBounds="true"
-                android:maxHeight="10dp"
-                android:maxWidth="10dp"
-                android:contentDescription="@string/description"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_marginStart="25dp"
             android:layout_marginTop="20dp"
+            android:layout_marginEnd="25dp"
             android:gravity="center"
-            style="@android:style/ButtonBar">
+            android:orientation="horizontal">
 
             <Button
-                android:id="@+id/btn_connectToServer"
-                android:layout_width="wrap_content"
+                android:id="@+id/btn_check_history"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:onClick="connectToServer"
-                android:text="@string/connectToServer"
-                android:layout_weight="1"
-                />
-
-            <Button
-                android:id="@+id/btn_capture"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="capture"
-                android:text="@string/getFromCamera"
-                android:layout_weight="1"/>
-
-            <Button
-                android:id="@+id/btn_selectGallery"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="selectGallery"
-                android:text="@string/getFromGallery"
-                android:layout_weight="1"/>
-
-            <Button
-                android:id="@+id/btn_sendData"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="sendData"
-                android:text="@string/sendPacket"
-                android:layout_weight="1"/>
-
-            <Button
-                android:id="@+id/btn_receiveData"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="receiveData"
-                android:text="@string/receivePacket"
-                android:layout_weight="1"/>
+                android:text="@string/check_history"
+                android:textSize="40sp" />
         </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:id="@+id/tv_azimuth"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAlignment="center"
-                android:textSize="20sp" />
-        </LinearLayout>
-
-
     </LinearLayout>
 </ScrollView>
