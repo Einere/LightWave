@@ -194,7 +194,6 @@ public class ConnectionService extends Service {
         @Override
         public void handleMessage(Message msg) {
             existReceivedData = true;
-
             super.handleMessage(msg);
         }
     };
@@ -219,7 +218,17 @@ public class ConnectionService extends Service {
             }
         }).start();
 
-        while(!existReceivedData){
+        /*while(!existReceivedData){
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }*/
+        for(int i = 0; i < 3; i++){
+            if(!existReceivedData){
+                break;
+            }
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
