@@ -5,18 +5,19 @@
     android:layout_height="match_parent">
 
     <TextureView
-        android:id="@+id/texture_view"
+        android:id="@+id/texture"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab_take_photo"
+    <Button
+        android:id="@+id/btn_takepicture"
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="24dp"
-        android:src="@mipmap/ic_camera"
-        app:backgroundTint="@color/colorPrimary" />
+        android:scaleType="fitXY"
+        android:background="@drawable/ic_take"
+        />
 
 </RelativeLayout>

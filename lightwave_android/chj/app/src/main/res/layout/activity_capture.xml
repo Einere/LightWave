@@ -27,6 +27,28 @@
             android:text="@string/work_place"
             android:textSize="30sp" />
 
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <fragment
+                android:id="@+id/Googlemap"
+                android:name="com.google.android.gms.maps.SupportMapFragment"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"/>
+
+            <Button
+                android:id="@+id/btn_refresh"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignBottom="@id/Googlemap"
+                android:layout_alignRight="@id/Googlemap"
+                android:scaleType="fitXY"
+                android:background="@drawable/ic_refresh"
+                android:onClick="refreshClick"
+                />
+
+        </RelativeLayout>
+
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rv_selectedImage"
             android:layout_width="match_parent"
