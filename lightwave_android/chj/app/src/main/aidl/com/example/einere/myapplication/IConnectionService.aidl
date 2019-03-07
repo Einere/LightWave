@@ -13,5 +13,5 @@ interface IConnectionService {
     void connect();
     void disconnect();
     void send(String packet);
-    void receive();
+    String receive();
 }

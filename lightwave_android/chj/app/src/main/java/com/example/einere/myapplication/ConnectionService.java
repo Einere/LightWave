@@ -2,7 +2,9 @@ package com.example.einere.myapplication;
 
 import android.app.Service;
 import android.content.Intent;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -24,7 +26,8 @@ public class ConnectionService extends Service {
     private SocketAddress socketAddress = null;
     private BufferedReader reader = null;
     private BufferedWriter writer = null;
-//    private int port = 8080;
+    private String receivedData = null;
+    private Boolean existReceivedData = false;
 
     IConnectionService.Stub binder = new IConnectionService.Stub() {
         @Override
@@ -53,8 +56,8 @@ public class ConnectionService extends Service {
         }
 
         @Override
-        public void receive() {
-            myReceive();
+        public String receive() {
+            return myReceive();
         }
     };
 
@@ -187,8 +190,51 @@ public class ConnectionService extends Service {
         }).start();
     }
 
-    void myReceive() {
+    private Handler handler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            existReceivedData = true;
+            super.handleMessage(msg);
+        }
+    };
+
+    String myReceive() {
         /*ReceiveThread receiveThread = new ReceiveThread();
         receiveThread.execute(true);*/
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try{
+                    // polling whether available data is exist...
+                    while(!Thread.currentThread().isInterrupted() && (receivedData = reader.readLine()) != null){
+                        Message message = new Message();
+                        handler.sendMessage(message);
+                        existReceivedData = true;
+                    }
+                }
+                catch (IOException e){
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
+        /*while(!existReceivedData){
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }*/
+        for(int i = 0; i < 3; i++){
+            if(!existReceivedData){
+                break;
+            }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        return receivedData;
     }
 }
