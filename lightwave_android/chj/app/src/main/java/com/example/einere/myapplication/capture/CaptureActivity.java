@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -15,6 +16,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.provider.MediaStore;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -28,6 +30,16 @@ import com.example.einere.myapplication.GpsInfo;
 import com.example.einere.myapplication.ListViewActivity;
 import com.example.einere.myapplication.R;
 import com.example.einere.myapplication.SocketManager;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -41,12 +53,13 @@ import java.util.Locale;
 
 import gun0912.tedbottompicker.TedBottomPicker;
 
-public class CaptureActivity extends AppCompatActivity implements SensorEventListener {
+public class CaptureActivity extends FragmentActivity implements SensorEventListener, OnMapReadyCallback, GoogleMap.OnMarkerClickListener{
     final int STATUS_DISCONNECTED = 0;
     final int STATUS_CONNECTED = 1;
     private final int CAMERA_CODE = 1111;
     private final int GALLERY_CODE = 1112;
     private final String TAG = "CaptureActivity";
+    private GoogleMap mMap;
 
     // socket transmission
     SocketManager socketManager = null;
@@ -75,9 +88,13 @@ public class CaptureActivity extends AppCompatActivity implements SensorEventLis
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_capture);
 
+        //googlemap
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.Googlemap);
+        mapFragment.getMapAsync(this); //getMapAsync must be called on the main thread.
+
         // get views
         rv_selectedImage = findViewById(R.id.rv_selectedImage);
-        tv_azimuth = findViewById(R.id.tv_azimuth);
+      // tv_azimuth = findViewById(R.id.tv_azimuth);
 
         // get sensor manager
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
@@ -107,6 +124,61 @@ public class CaptureActivity extends AppCompatActivity implements SensorEventLis
         findViewById(R.id.btn_capture).setOnClickListener(v -> capture());
         findViewById(R.id.btn_select_picture).setOnClickListener(v -> selectPicture());
         findViewById(R.id.btn_send_data).setOnClickListener(v -> sendData());
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        // 구글 맵 객체를 불러온다.
+        mMap = googleMap;
+
+        // 서울 여의도에 대한 위치 설정
+        LatLng seoul = new LatLng(37.52487, 126.92723);
+        LatLng seoul2 = new LatLng(37.62487, 126.52723);
+
+        // 구글 맵에 표시할 마커에 대한 옵션 설정
+        MarkerOptions makerOptions = new MarkerOptions();
+        makerOptions
+                .position(seoul)
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW))
+                .title("원하는 위치(위도, 경도)에 마커를 표시했습니다.");
+
+        MarkerOptions makerOptions2 = new MarkerOptions();
+        makerOptions2
+                .position(seoul2)
+                .title("원하는 위치(위도, 경도)에 마커를 표시했습니다.");
+        // 마커를 생성한다.
+        mMap.addMarker(makerOptions);
+        mMap.addMarker(makerOptions2);
+        mMap.setOnMarkerClickListener(this);
+
+        PolylineOptions poly = new PolylineOptions();
+        poly.color(Color.RED);
+        poly.width(4);
+        poly.add(seoul);
+        poly.add(seoul2);
+        mMap.addPolyline(poly);
+        //카메라 옵션
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(seoul)      // Sets the center of the map to Mountain View
+                .zoom(18)                   // Sets the zoom
+                .bearing(0)                // Sets the orientation of the camera to east
+                .tilt(30)                   // Sets the tilt of the camera to 30 degrees
+                .build();
+        //카메라를 여의도 위치로 옮긴다.
+        mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+    }
+
+    public void refreshClick(View v){
+        mMap.clear();
+
+    }
+
+    @Override
+    public boolean onMarkerClick(Marker marker){
+
+
+        return true;
     }
 
     @Override
