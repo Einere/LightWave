@@ -911,7 +911,7 @@ void CMainFrame::OnAddTask()
 		Log::log("작업이 등록되었습니다: [작업명: %s\t 대표지번: %s]", newTask->at("name"), newTask->at("lotNumber"));
 	}
 
-	/*auto pManager = CCadManager::GetInstance();
+	/*	auto pManager = CCadManager::GetInstance();
 	pManager->OnShowParcelInfomation();*/
 }
 
@@ -921,9 +921,9 @@ void CMainFrame::OnAccept(const CString& ipAddress, UINT port, int errorCode)
 	updateStateDlg();
 }
 
-void CMainFrame::OnReceive(const CString& ipAddress, UINT port, const CString& msg, int errorCode)
+void CMainFrame::OnReceive(const CString& ipAddress, UINT port, Json::Value props, int errorCode)
 {
-	Log::log("%s:%d %s", ipAddress, port, msg);
+	Log::log("%s:%d %s", ipAddress, port, props["data"].asCString());
 }
 
 void CMainFrame::OnClose(const CString & ipAddress, UINT port, int errorCode)
