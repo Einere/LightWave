@@ -5,8 +5,6 @@
 #include "GlobalUtil\\FileUtil.h"
 #include <math.h>
 
-#include "Common.h"
-
 #define __MSG_TIMER_CHANGE_POSITION_COLOR__	101
 
 // ################################################################
