@@ -138,6 +138,6 @@ public:
 
 public:
 	virtual void OnAccept(const CString& ipAddress, UINT port, int errorCode);
-	virtual void OnReceive(const CString& ipAddress, UINT port, const CString& msg, int errorCode);
+	virtual void OnReceive(const CString& ipAddress, UINT port, Json::Value props, int errorCode);
 	virtual void OnClose(const CString& ipAddress, UINT port, int errorCode);
 };

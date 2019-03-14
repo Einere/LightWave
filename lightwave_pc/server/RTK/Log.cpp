@@ -16,11 +16,14 @@ CString Log::getCurTime() {
 	return nowStr;
 }
 
+
 void Log::log(const char* format, ...) {
 	CString msg;
 	va_list ap;
 
+	std::string s;
 	va_start(ap, format);
+	
 	msg.FormatV(_T(format), ap);
 	va_end(ap);
 

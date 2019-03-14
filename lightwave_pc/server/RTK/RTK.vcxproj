@@ -134,10 +134,10 @@
     <ClInclude Include="BasePoint.h" />
     <ClInclude Include="Caculate.h" />
     <ClInclude Include="CadManager.h" />
-    <ClInclude Include="Common.h" />
     <ClInclude Include="ConnectionStateDlg.h" />
     <ClInclude Include="FileManager.h" />
-    <ClInclude Include="TaskMngDlg.h" />
+    <ClInclude Include="ParcelMonkey.h" />
+    <ClInclude Include="Service.h" />
     <ClInclude Include="GlobalDefine.h" />
     <ClInclude Include="GlobalUtil\FileUtil.h" />
     <ClInclude Include="GlobalUtil\StringUtil.h" />
@@ -155,6 +155,7 @@
     <ClInclude Include="RTK.h" />
     <ClInclude Include="RTKDoc.h" />
     <ClInclude Include="RTKView.h" />
+    <ClInclude Include="SocketAcceptor.h" />
     <ClInclude Include="SocketRecipient.h" />
     <ClInclude Include="Shape\DS_Line.h" />
     <ClInclude Include="Shape\DS_Point.h" />
@@ -169,6 +170,7 @@
     <ClInclude Include="Task.h" />
     <ClInclude Include="TaskAddDlg.h" />
     <ClInclude Include="TaskWnd.h" />
+    <ClInclude Include="TestMonkey.h" />
     <ClInclude Include="VeCad\cadapi.h" />
     <ClInclude Include="WorkerManager.h" />
   </ItemGroup>
@@ -177,10 +179,12 @@
     <ClCompile Include="BasePoint.cpp" />
     <ClCompile Include="Caculate.cpp" />
     <ClCompile Include="CadManager.cpp" />
-    <ClCompile Include="Common.cpp" />
     <ClCompile Include="ConnectionStateDlg.cpp" />
     <ClCompile Include="FileManager.cpp" />
-    <ClCompile Include="TaskMngDlg.cpp" />
+    <ClCompile Include="Monkey.cpp" />
+    <ClCompile Include="ParcelMonkey.cpp" />
+    <ClCompile Include="RequestResolver.cpp" />
+    <ClCompile Include="SocketAcceptor.cpp" />
     <ClCompile Include="SocketWorker.cpp" />
     <ClCompile Include="GlobalUtil\FileUtil.cpp" />
     <ClCompile Include="GlobalUtil\StringUtil.cpp" />
@@ -211,6 +215,7 @@
     <ClCompile Include="Task.cpp" />
     <ClCompile Include="TaskAddDlg.cpp" />
     <ClCompile Include="TaskWnd.cpp" />
+    <ClCompile Include="TestMonkey.cpp" />
     <ClCompile Include="VeCad\cadapi.cpp" />
     <ClCompile Include="WorkerManager.cpp" />
   </ItemGroup>
