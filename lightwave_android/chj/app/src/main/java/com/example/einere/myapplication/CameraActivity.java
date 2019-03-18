@@ -3,9 +3,14 @@ package com.example.einere.myapplication;
 import android.Manifest;
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
@@ -22,6 +27,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -32,24 +38,32 @@ import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.nio.ByteBuffer;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
-
+import java.util.Locale;
 
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-public class CameraActivity extends AppCompatActivity {
+public class CameraActivity extends AppCompatActivity implements SensorEventListener {
     private static final String TAG = "AndroidCameraApi";
     private Button takePictureButton;
     private TextureView textureView;
+    private String captureName = null;
+    String timeStamp = null;
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
     static {
         ORIENTATIONS.append(Surface.ROTATION_0, 90);
@@ -69,6 +83,54 @@ public class CameraActivity extends AppCompatActivity {
     private boolean mFlashSupported;
     private Handler mBackgroundHandler;
     private HandlerThread mBackgroundThread;
+
+    // sensor
+    SensorManager sensorManager = null;
+    Sensor accelerometer = null;
+    Sensor magnetometer = null;
+    float[] gravity = null;
+    float[] geomagnetic = null;
+    float azimuth;
+    private GpsInfo gps;
+
+    // id_number
+    private String c_point_num;
+    private String work_num = "111";
+
+    /* ******************* sensor methods start ******************* */
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            gravity = event.values;
+        }
+        if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
+            geomagnetic = event.values;
+        }
+
+        if (gravity != null && geomagnetic != null) {
+            float R[] = new float[9];
+            float I[] = new float[9];
+
+            boolean success = SensorManager.getRotationMatrix(R, I, gravity, geomagnetic);
+            if (success) {
+                float orientation[] = new float[3];
+                SensorManager.getOrientation(R, orientation);
+                // orientation contains: azimuth, pitch  and roll
+                azimuth = orientation[0];
+                float pitch = orientation[1];
+                float roll = orientation[2];
+
+//                txtPitch.setText("y 좌표:" + String.valueOf(pitch));
+//                txtRoll.setText("z 좌표 : " + String.valueOf(roll));
+            }
+        }
+    }
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+    }
+    /* ******************* sensor methods end ******************* */
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,6 +140,19 @@ public class CameraActivity extends AppCompatActivity {
         textureView.setSurfaceTextureListener(textureListener);
         takePictureButton = (Button) findViewById(R.id.btn_takepicture);
         assert takePictureButton != null;
+
+        // get sensor manager
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        magnetometer = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+
+        //작업정보고유번호, 마커고유번호 가져오기
+        Intent intent = getIntent();
+        Bundle bundleData = intent.getBundleExtra("ID_NUM");
+        work_num = bundleData.getString("work_num");
+        c_point_num = bundleData.getString("c_point_num");
+
+
         takePictureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -148,6 +223,17 @@ public class CameraActivity extends AppCompatActivity {
             Log.e(TAG, "cameraDevice is null");
             return;
         }
+
+        //방위위도경도 구함
+        float takeazimuth = azimuth;
+        double latitude;
+        double longitude;
+
+        gps = new GpsInfo(this);
+            latitude = gps.getLatitude();
+            longitude = gps.getLongitude();
+
+
         CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
         try {
             CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraDevice.getId());
@@ -173,7 +259,10 @@ public class CameraActivity extends AppCompatActivity {
             captureBuilder.set(CaptureRequest.JPEG_ORIENTATION, ORIENTATIONS.get(rotation));
 
             //파일경로
-            final File file = new File(Environment.getExternalStorageDirectory()+"/path"+"/111.jpg");
+            timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
+            captureName = String.format("%s.png", timeStamp);
+           // final File file = new File(Environment.getExternalStoragePublicDirectory( Environment.DIRECTORY_PICTURES )+"/"+captureName);
+           final File file = new File(Environment.getExternalStorageDirectory()+"/"+work_num+"/"+c_point_num+"/"+captureName);
             ImageReader.OnImageAvailableListener readerListener = new ImageReader.OnImageAvailableListener() {
                 @Override
                 public void onImageAvailable(ImageReader reader) {
@@ -197,6 +286,17 @@ public class CameraActivity extends AppCompatActivity {
                 private void save(byte[] bytes) throws IOException {
                     OutputStream output = null;
                     try {
+                        String path = Environment.getExternalStorageDirectory()+"/"+work_num+"/"+c_point_num;
+                        File file2 = new File(path);
+                        String path2 = Environment.getExternalStorageDirectory()+"/"+work_num+"/"+c_point_num+"/"+"textfile";
+                        File file3 = new File(path2);
+                        //메모 불러오기
+                        if(!file2.exists()) {
+                            file2.mkdir();
+                        }
+                        if(!file3.exists()){
+                            file3.mkdir();
+                        }
                         output = new FileOutputStream(file);
                         output.write(bytes);
                     } finally {
@@ -229,6 +329,21 @@ public class CameraActivity extends AppCompatActivity {
                 }
             }, mBackgroundHandler);
         } catch (CameraAccessException e) {
+            e.printStackTrace();
+        }
+
+
+        //위도경도방위 구해서 파일저장
+        try {
+            File file2 = new File(Environment.getExternalStorageDirectory()+"/"+work_num+"/"+c_point_num+"/textfile/"+timeStamp+".txt");
+            FileOutputStream fos = new FileOutputStream(file2);
+            BufferedWriter buw = new BufferedWriter(new OutputStreamWriter(fos, "UTF8"));
+            buw.write(String.valueOf(takeazimuth)+"\n");
+            buw.write(String.valueOf(latitude)+"\n");
+            buw.write(String.valueOf(longitude)+"\n");
+            buw.close();
+            fos.close();
+        }catch(Exception e){
             e.printStackTrace();
         }
     }
@@ -319,6 +434,10 @@ public class CameraActivity extends AppCompatActivity {
         } else {
             textureView.setSurfaceTextureListener(textureListener);
         }
+
+        // register listener
+        sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
+        sensorManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_UI);
     }
     @Override
     protected void onPause() {

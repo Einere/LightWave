@@ -5,6 +5,7 @@
 
 
 WorkerManager::WorkerManager(SocketRecipient* recep)
+	:m_acceptor(this)
 {
 	m_pRecepient = recep;
 }
@@ -31,7 +32,6 @@ std::vector<std::shared_ptr<SocketWorker>> WorkerManager::getWorkers() const
 
 void WorkerManager::startServer()
 {
-	m_acceptor.setWorkerManager(this);
 	m_acceptor.Create(PORT);
 	m_acceptor.Listen();
 	m_isListening = true;
@@ -61,44 +61,38 @@ void WorkerManager::closeAll()
 	}
 }
 
-void WorkerManager::OnAccept(int errorCode)
+void WorkerManager::OnAccept(std::shared_ptr<SocketWorker> pNewWorker)
 {
-	auto newWorker = std::make_shared<SocketWorker>(this);
-	m_acceptor.Accept(*newWorker);
 
-	if (inspect(newWorker)) {
-		m_workers.push_back(newWorker);
+	/*auto newWorker = std::make_shared<SocketWorker>(this);
+	m_acceptor.Accept(*newWorker);*/
+
+	if (inspect(pNewWorker)) {
+		m_workers.push_back(pNewWorker);
 	}
 	else {
 		
 	}
 
-	Log::log("[%d]", m_workers.size());
+	Log::log("[%d번 째 워커]", m_workers.size());
 
 	CString ipAddress;
-	UINT Port;
-	newWorker->GetPeerName(ipAddress, Port);
+	UINT port;
+	pNewWorker->GetPeerName(ipAddress, port);
 
 	assert(m_pRecepient);
-	m_pRecepient->OnAccept(ipAddress, Port, errorCode);
-
-	m_acceptor.Listen();
+	m_pRecepient->OnAccept(ipAddress, port, 0);
+	//m_pRecepient->OnAccept(pNewWorker->getIpAddress(), pNewWorker->getPort(), 0);
 }
 
-void WorkerManager::OnReceive(const CString& ipAddress, UINT port, int errorCode)
+void WorkerManager::OnReceive(SocketWorker * pSocketWorker, std::string json, int errorCode)
 {
-	auto sender = findWorkerOrNull(ipAddress, port);
-	if (!sender) {
-		Log::err("IP:%s, PORT:%d: 비정상적 접근: ", ipAddress, port);
-	}
-
-	CSocketFile file(&(*sender));
-	CArchive ar(&file, CArchive::load);
-	char buf[BUFLEN];
-	ar.ReadString(buf, BUFLEN);
+	CString ipAddress;
+	UINT port;
+	pSocketWorker->GetPeerName(ipAddress, port);
 
 	assert(m_pRecepient);
-	m_pRecepient->OnReceive(ipAddress, port, buf, errorCode);
+	m_pRecepient->OnReceive(ipAddress, port, json, errorCode);
 }
 
 void WorkerManager::OnClose(const CString& ipAddress, UINT port, int errorCode)
