@@ -1,5 +1,8 @@
 package com.example.einere.myapplication.capture;
 
+import android.graphics.ColorFilter;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -15,9 +18,7 @@ import java.util.List;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.RecyclerViewHolder> {
     private List<Uri> uriList = new ArrayList<>();
-
-    RecyclerViewAdapter() {
-    }
+    private List<Integer> selectedList = new ArrayList<>();
 
     @NonNull
     @Override
@@ -31,6 +32,31 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     public void onBindViewHolder(@NonNull RecyclerViewHolder holder, int i) {
         Uri uri = uriList.get(i);
         holder.iv_tmp.setImageURI(uri);
+        holder.iv_tmp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ImageView iv_tmp = (ImageView)v;
+                if(iv_tmp.getColorFilter() == null){
+                    // make gray scale matrix
+                    ColorMatrix matrix = new ColorMatrix();
+                    matrix.setSaturation(0);
+                    // make color filter
+                    ColorFilter colorFilter = new ColorMatrixColorFilter(matrix);
+                    // set filter to ImageView
+                    iv_tmp.setColorFilter(colorFilter);
+                    iv_tmp.setImageAlpha(128);
+                    // add selected list
+                    selectedList.add(i);
+                }
+                else{
+                    // clear filter
+                    iv_tmp.setColorFilter(null);
+                    iv_tmp.setImageAlpha(255);
+                    // remove from selected list
+                    selectedList.remove((Object)i);
+                }
+            }
+        });
     }
 
     @Override

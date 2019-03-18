@@ -1,4 +1,4 @@
-package com.example.einere.myapplication;
+package com.example.einere.myapplication.connection;
 
 import android.app.Service;
 import android.content.Intent;
@@ -6,6 +6,8 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
+
+import com.example.einere.myapplication.IConnectionService;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

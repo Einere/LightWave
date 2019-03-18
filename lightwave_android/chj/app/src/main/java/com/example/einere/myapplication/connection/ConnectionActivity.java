@@ -111,8 +111,9 @@ public class ConnectionActivity extends AppCompatActivity {
             socketManager.setUserName(userName);
             JSONObject packet = new JSONObject();
             try {
-                packet.put("code", 100);
-                packet.put("userName", userName);
+                packet.put("method", "GET");
+                packet.put("subject", "test");
+                packet.put("data", userName);
             } catch (JSONException e) {
                 e.printStackTrace();
             }

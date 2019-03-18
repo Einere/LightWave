@@ -9,6 +9,8 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 
+import com.example.einere.myapplication.connection.ConnectionService;
+
 public class SocketManager extends Application {
     private static final SocketManager instance = new SocketManager();
     private static Context context = null;

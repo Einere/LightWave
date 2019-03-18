@@ -17,22 +17,29 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".capture.CaptureActivity"></activity>
-        <activity android:name=".connection.ConnectionActivity">
+        <activity android:name=".capture.ImagePickerActivity">
+
+        </activity>
+        <activity android:name=".capture.CaptureActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".main.MainActivity"></activity>
+        <activity android:name=".connection.ConnectionActivity"/>
+        <activity android:name=".main.MainActivity" />
         <activity android:name=".ListViewActivity" />
         <activity android:name=".MemoActivity" />
 
         <service
-            android:name=".ConnectionService"
+            android:name=".connection.ConnectionService"
             android:enabled="true"
             android:exported="false" />
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyBMDS0muqB4TRaeHuTDEVUMPwyDizERpZM"/>
     </application>
 
 </manifest>

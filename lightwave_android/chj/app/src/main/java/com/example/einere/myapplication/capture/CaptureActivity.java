@@ -4,20 +4,20 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.media.Image;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.provider.MediaStore;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Base64;
@@ -53,7 +53,7 @@ import java.util.Locale;
 
 import gun0912.tedbottompicker.TedBottomPicker;
 
-public class CaptureActivity extends FragmentActivity implements SensorEventListener, OnMapReadyCallback, GoogleMap.OnMarkerClickListener{
+public class CaptureActivity extends FragmentActivity implements SensorEventListener, OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
     final int STATUS_DISCONNECTED = 0;
     final int STATUS_CONNECTED = 1;
     private final int CAMERA_CODE = 1111;
@@ -67,8 +67,6 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
     // RecyclerView
     RecyclerView rv_selectedImage = null;
     RecyclerViewAdapter recyclerAdapter = null;
-    String captureName = null;
-    String actualPath = null;
     Bitmap tmpBitmap = null;
 
     // sensor
@@ -94,7 +92,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
 
         // get views
         rv_selectedImage = findViewById(R.id.rv_selectedImage);
-      // tv_azimuth = findViewById(R.id.tv_azimuth);
+        tv_azimuth = findViewById(R.id.tv_azimuth);
 
         // get sensor manager
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
@@ -122,9 +120,10 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
 
         // set listener
         findViewById(R.id.btn_capture).setOnClickListener(v -> capture());
-        findViewById(R.id.btn_select_picture).setOnClickListener(v -> selectPicture());
+        findViewById(R.id.btn_select_picture).setOnClickListener(v -> selectGallery());
         findViewById(R.id.btn_send_data).setOnClickListener(v -> sendData());
     }
+
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -169,15 +168,12 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
 
     }
 
-    public void refreshClick(View v){
+    public void refreshClick(View v) {
         mMap.clear();
-
     }
 
     @Override
-    public boolean onMarkerClick(Marker marker){
-
-
+    public boolean onMarkerClick(Marker marker) {
         return true;
     }
 
@@ -206,6 +202,8 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         unregisterReceiver(cameraBroadcastReceiver);
     }
 
+
+    /* ******************* Ted image picker start ******************* */
     void capture() {
         TedBottomPicker.with(this)
                 .show(uri -> {
@@ -229,6 +227,8 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
                     recyclerAdapter.addUriList(uriList);
                 });
     }
+    /* ******************* Ted image picker end ******************* */
+
 
     /* ******************* socket methods start ******************* */
     public void clickPoint(View v) {
@@ -238,42 +238,42 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
 
     public void sendData() {
         // check manager status
-        try{
+        try {
             if (socketManager.getStatus() == STATUS_CONNECTED) {
                 // get uri list
                 List<Uri> uriList = recyclerAdapter.getUriList();
 
                 // make json object
                 JSONObject packet = new JSONObject();
-                packet.put("code", 101);
-                packet.put("userName", socketManager.getUserName());
+                JSONObject data = new JSONObject();
+                packet.put("method", "GET");
+                packet.put("subject", "test");
+                data.put("userName", socketManager.getUserName());
 
                 // put uri data
                 int i = 0;
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                for(Uri uri : uriList){
+                for (Uri uri : uriList) {
                     tmpBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
                     tmpBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
                     byte[] bytes = stream.toByteArray();
                     String serialized = Base64.encodeToString(bytes, Base64.NO_WRAP);
-                    packet.put(String.format(Locale.KOREA ,"image%d", i), serialized);
+                    data.put(String.format(Locale.KOREA, "image%d", i), serialized);
                     i++;
                 }
+                packet.put("data", data);
                 socketManager.send(packet.toString());
+                Toast.makeText(this, "send!", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(this, "not connected to server or no selected image", Toast.LENGTH_SHORT).show();
             }
-        }
-        catch (RemoteException e){
+        } catch (RemoteException e) {
             Toast.makeText(this, "RemoteException occurred!", Toast.LENGTH_SHORT).show();
-        }
-        catch (JSONException e){
+        } catch (JSONException e) {
             Toast.makeText(this, "JSONException occurred!", Toast.LENGTH_SHORT).show();
-        }
-        catch (FileNotFoundException e){
+        } catch (FileNotFoundException e) {
             Toast.makeText(this, "FileNotFoundException occurred!", Toast.LENGTH_SHORT).show();
-        }
-        catch (IOException e){
+        } catch (IOException e) {
             Toast.makeText(this, "IOException occurred!", Toast.LENGTH_SHORT).show();
         }
 
@@ -321,7 +321,6 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
     }
     /* ******************* sensor methods end ******************* */
 
@@ -331,7 +330,6 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         gps = new GpsInfo(this);
         // GPS 사용유무 가져오기
         if (gps.isGetLocation()) {
-
             double latitude = gps.getLatitude();
             double longitude = gps.getLongitude();
 
@@ -348,65 +346,28 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
 
 
     /* ******************* camera & gallery methods start ******************* */
-    /*public void singlePick() {
-        TedBottomPicker.with(this)
-                .show(uri -> {
-                    String scheme = uri.getScheme();
-                    if (scheme.equals("file")) {
-                        Log.d(TAG, uri.getLastPathSegment());
-                    }
-                    recyclerAdapter.addUri(uri);
-                });
-    }
+    public void selectGallery() {
+        // first method
+        /*Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setDataAndType(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");*/
 
-    public void multiPick() {
-        TedBottomPicker.with(this)
-                .setSelectMaxCount(5)
-                .setSelectMaxCountErrorText("최대 5장까지 선택가능합니다")
-                .setPeekHeight(1600)
-                .showTitle(true)
-                .setCompleteButtonText("확인")
-                .setEmptySelectionText("사진을 선택해주세요")
-                .showMultiImage(uriList -> {
-                    recyclerAdapter.addAll(uriList);
-                });
-    }*/
+        // second method
+        /*Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.setType("image/*");
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        startActivityForResult(intent, GALLERY_CODE);*/
 
-    /*public void capture(View v) {
-        String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state)) {
-            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            if (intent.resolveActivity(getPackageManager()) != null) {
-                File photoFile = null;
-                photoFile = createImageFile();
+        // third method
+        /*Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*");
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), GALLERY_CODE);*/
 
-                if (photoFile != null) {
-                    Uri photoUri = FileProvider.getUriForFile(this, getPackageName(), photoFile);
-                    intent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
-                    startActivityForResult(intent, CAMERA_CODE);
-                }
-            }
-        }
-    }
-
-    public void selectGallery(View v) {
-        Intent intent = new Intent(Intent.ACTION_PICK);
-        intent.setDataAndType(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
+        // forth method
+        Intent intent = new Intent(this, ImagePickerActivity.class);
         startActivityForResult(intent, GALLERY_CODE);
-    }
 
-    public File createImageFile() {
-        File dir = new File(Environment.getExternalStorageDirectory() + "/path/");
-        if (!dir.exists()) {
-            dir.mkdirs();
-        }
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
-        captureName = String.format("%s.png", timeStamp);
-
-        File storageDir = new File(Environment.getExternalStorageDirectory().getAbsoluteFile() + "/path/" + captureName);
-        actualPath = storageDir.getAbsolutePath();
-
-        return storageDir;
     }
 
     @Override
@@ -415,13 +376,33 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
                 case GALLERY_CODE: {
-                    if (data != null) {
-                        sendPicture(data.getData()); //갤러리에서 가져오기
+                    // if use forth method
+                    try {
+                        ArrayList<Uri> uris = data.getParcelableArrayListExtra("selected");
+                        for (Uri uri : uris) {
+                            Log.d(TAG, String.format("recived uri : %s", uri.toString()));
+                            recyclerAdapter.addUri(uri);
+                        }
+                    } catch (Exception e) {
+                        Toast.makeText(this, "failed to receive image data...", Toast.LENGTH_SHORT).show();
                     }
+
+                    /*if (data.getClipData() != null) {
+                        // if use third method
+                        *//*ClipData clipData = data.getClipData();
+                        for (int i = 0; i < clipData.getItemCount(); i++) {
+                            Log.d(TAG, String.format("item uri : %s", clipData.getItemAt(i).getUri()));
+                        }
+                        sendPicture(clipData.getItemAt(0).getUri());*//*
+
+                    } else if (data != null) {
+                        //갤러리에서 가져오기
+                        sendPicture(data.getData());
+                    }*/
                     break;
                 }
                 case CAMERA_CODE: {
-                    getPictureForPhoto(); //카메라에서 가져오기
+                    //카메라에서 가져오기
                     break;
                 }
                 default: {
@@ -429,71 +410,6 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
                 }
             }
         }
-    }
-
-    public int dpToPx(int dp) {
-        float density = getResources().getDisplayMetrics().density;
-        return Math.round((float) dp * density);
-    }
-
-    private void addPicture(Bitmap bitmap) {
-        // use ImageView
-        ImageView iv_tmp = new ImageView(this);
-        iv_tmp.setImageBitmap(bitmap);
-        iv_tmp.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-        iv_tmp.setPadding(5, 5, 5, 5);
-        iv_tmp.setMaxHeight(dpToPx(100));
-        iv_tmp.setMaxWidth(dpToPx(100));
-        iv_tmp.setAdjustViewBounds(true);
-        int index = recyclerAdapter.addUri(bitmap);
-        recyclerAdapter.notifyItemInserted(index);
-    }
-
-    public void getPictureForPhoto() {
-        Log.i(TAG, "getPictureForPhoto() called");
-
-        Bitmap bitmap = BitmapFactory.decodeFile(actualPath);
-        ExifInterface exif = null;
-        try {
-            exif = new ExifInterface(actualPath);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        int exifOrientation;
-        int exifDegree;
-
-        if (exif != null) {
-            exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-            exifDegree = exifOrientationToDegrees(exifOrientation);
-        } else {
-            exifDegree = 0;
-        }
-
-        // create tmp image view, set bitmap image
-        addPicture(rotate(bitmap, exifDegree));
-    }
-
-    private void sendPicture(Uri imgUri) {
-        // path 경로
-        String imagePath = getRealPathFromURI(imgUri);
-        ExifInterface exif = null;
-        try {
-            exif = new ExifInterface(imagePath);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        int exifOrientation = 0;
-        if (exif != null) {
-            exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-        }
-        int exifDegree = exifOrientationToDegrees(exifOrientation);
-
-        // translate bitmap from real path
-        Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
-
-        // create tmp image view, set bitmap image
-        addPicture(rotate(bitmap, exifDegree));
     }
 
     private String getRealPathFromURI(Uri contentUri) {
@@ -510,25 +426,5 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
 
         return column;
     }
-
-    private int exifOrientationToDegrees(int exifOrientation) {
-        if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_90) {
-            return 90;
-        } else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_180) {
-            return 180;
-        } else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_270) {
-            return 270;
-        }
-        return 0;
-    }
-
-    private Bitmap rotate(Bitmap src, float degree) {
-        // Matrix 객체 생성
-        Matrix matrix = new Matrix();
-        // 회전 각도 셋팅
-        matrix.postRotate(degree);
-        // 이미지와 Matrix 를 셋팅해서 Bitmap 객체 생성
-        return Bitmap.createBitmap(src, 0, 0, src.getWidth(), src.getHeight(), matrix, true);
-    }*/
     /* ******************* camera & gallery methods end ******************* */
 }

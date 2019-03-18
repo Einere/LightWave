@@ -18,4 +18,5 @@
     <string name="work_place">작업위치</string>
     <string name="server_memo_hint">서버로 부터 받은 메모입니다</string>
     <string name="client_memo_hint">메모를 입력해 주세요</string>
+    <string name="done">완료</string>
 </resources>
