@@ -4,35 +4,35 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.Image;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.RemoteException;
 import android.provider.MediaStore;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.example.einere.myapplication.CameraActivity;
 import com.example.einere.myapplication.GpsInfo;
 import com.example.einere.myapplication.ListViewActivity;
 import com.example.einere.myapplication.R;
 import com.example.einere.myapplication.SocketManager;
-import com.example.einere.myapplication.main.MainActivity;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -43,22 +43,18 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
-import gun0912.tedbottompicker.TedBottomPicker;
-import gun0912.tedbottompicker.TedBottomSheetDialogFragment;
 
 public class CaptureActivity extends FragmentActivity implements SensorEventListener, OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
     final int STATUS_DISCONNECTED = 0;
@@ -98,7 +94,6 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
 
     //imgarraylist
     private ArrayList<Image> images = new ArrayList<>();
-
 
 
     @Override
@@ -193,54 +188,50 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
     }
 
     @Override
-    public boolean onMarkerClick(Marker marker){
+    public boolean onMarkerClick(Marker marker) {
         ArrayList<Uri> urilist = new ArrayList<>();
         c_point_num = marker.getTitle();
 
-        File file = new File(Environment.getExternalStorageDirectory()+"/"+work_num);
-        if(!file.exists()){
+        File file = new File(Environment.getExternalStorageDirectory() + "/" + work_num);
+        if (!file.exists()) {
             file.mkdir();
         }
-        File file2 = new File(Environment.getExternalStorageDirectory()+"/"+work_num+"/"+c_point_num );
-        if(!file2.exists()){
+        File file2 = new File(Environment.getExternalStorageDirectory() + "/" + work_num + "/" + c_point_num);
+        if (!file2.exists()) {
             file2.mkdir();
         }
         //사진파일명 리스트 뽑아오기
-        File[] up_imagelist2  = file2.listFiles(new FilenameFilter() {
+        File[] up_imagelist2 = file2.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String filename) {
                 Boolean bOK = false;
-                if(filename.toLowerCase().endsWith(".png")) bOK = true;
-
-                if(filename.toLowerCase().endsWith(".9.png")) bOK = true;
-
-                if(filename.toLowerCase().endsWith(".gif")) bOK = true;
-
-                if(filename.toLowerCase().endsWith(".jpg")) bOK = true;
-
+                if (filename.toLowerCase().endsWith(".png")) bOK = true;
+                if (filename.toLowerCase().endsWith(".9.png")) bOK = true;
+                if (filename.toLowerCase().endsWith(".gif")) bOK = true;
+                if (filename.toLowerCase().endsWith(".jpg")) bOK = true;
                 return bOK;
             }
         });
 
-        for(int i = 0; i < up_imagelist2.length; i++){
-           up_imagelist.add(up_imagelist2[i]);
-           urilist.add(Uri.parse(up_imagelist2[i].getAbsolutePath()));
+        for (int i = 0; i < up_imagelist2.length; i++) {
+            up_imagelist.add(up_imagelist2[i]);
+            urilist.add(Uri.parse(up_imagelist2[i].getAbsolutePath()));
         }
 
         //텍스트파일 리스트
-        File[] up_textlist2  = file2.listFiles(new FilenameFilter() {
+        File[] up_textlist2 = file2.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String filename) {
-                Boolean bOK = false;
-                if(filename.toLowerCase().endsWith(".txt")) bOK = true;
+                boolean bOK = false;
+                if (filename.toLowerCase().endsWith(".txt")) bOK = true;
                 return bOK;
             }
         });
 
-        for(int i = 0; i < up_textlist2.length; i++){
+        for (int i = 0; i < up_textlist2.length; i++) {
             up_textlist.add(up_textlist2[i]);
         }
 
         recyclerAdapter.clearUriList();
-        if(urilist!=null) {
+        if (urilist != null) {
             recyclerAdapter.addUriList(urilist);
         }
 
@@ -277,8 +268,8 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
     void capture() {
         Intent intent = new Intent(this, CameraActivity.class);
         Bundle bundleData = new Bundle();
-        bundleData.putString("c_point_num",c_point_num);
-        bundleData.putString("work_num",work_num);
+        bundleData.putString("c_point_num", c_point_num);
+        bundleData.putString("work_num", work_num);
         intent.putExtra("ID_NUM", bundleData);
 
         startActivity(intent);
@@ -359,7 +350,6 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
                         }
                     }
                 });*/
-
     }
     /* ******************* Ted image picker end ******************* */
 
@@ -396,6 +386,8 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
                     i++;
                 }
                 packet.put("data", data);
+
+                // send to server
                 socketManager.send(packet.toString());
                 Toast.makeText(this, "send!", Toast.LENGTH_SHORT).show();
             } else {

@@ -17,7 +17,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".capture.CaptureActivity"></activity>
+
         <activity android:name=".connection.ConnectionActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -25,10 +25,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".main.MainActivity"></activity>
+        <activity android:name=".main.MainActivity"/>
+        <activity android:name=".capture.CaptureActivity"/>
         <activity android:name=".ListViewActivity" />
         <activity android:name=".MemoActivity" />
         <activity android:name=".CameraActivity" />
+        <activity android:name=".capture.ImagePickerActivity"/>
 
 
         <service

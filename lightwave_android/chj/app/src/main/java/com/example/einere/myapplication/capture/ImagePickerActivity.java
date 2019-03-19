@@ -61,6 +61,7 @@ public class ImagePickerActivity extends AppCompatActivity {
     class ImagePickerAdapter extends RecyclerView.Adapter<MyHolder> {
         List<String> fileList = new ArrayList<>();
         ArrayList<Uri> selectedList = new ArrayList<>();
+        int maxCount = 5;
 
         @NonNull
         @Override
@@ -92,7 +93,14 @@ public class ImagePickerActivity extends AppCompatActivity {
             else {
                 myHolder.imageView.setOnClickListener(v -> {
                     ImageView iv_tmp = (ImageView) v;
+
                     if (iv_tmp.getColorFilter() == null) {
+                        // if select max count
+                        if(selectedList.size() >= maxCount){
+                            Toast.makeText(ImagePickerActivity.this, "already selected max images", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
                         // make gray scale matrix
                         ColorMatrix matrix = new ColorMatrix();
                         matrix.setSaturation(0);
