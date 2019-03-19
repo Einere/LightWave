@@ -81,6 +81,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     void clearUriList() {
         uriList.clear();
+        notifyDataSetChanged();
     }
 
     List<Uri> getUriList() {

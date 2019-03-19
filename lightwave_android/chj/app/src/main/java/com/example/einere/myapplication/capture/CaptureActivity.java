@@ -81,10 +81,10 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
     TextView tv_azimuth = null;
     private GpsInfo gps;
 
-    // capture braodcast
+    // capture broadcast
     BroadcastReceiver cameraBroadcastReceiver = null;
 
-    // uproad arraylist
+    // upload arraylist
     ArrayList<File> up_imagelist = new ArrayList<>();
     ArrayList<File> up_textlist = new ArrayList<>();
 
@@ -92,7 +92,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
     private String c_point_num;
     private String work_num = "111";
 
-    //imgarraylist
+    //image arraylist
     private ArrayList<Image> images = new ArrayList<>();
 
 
