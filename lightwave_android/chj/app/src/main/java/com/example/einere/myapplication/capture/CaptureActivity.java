@@ -4,18 +4,21 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.Image;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.RemoteException;
 import android.provider.MediaStore;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -89,12 +92,12 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
     BroadcastReceiver cameraBroadcastReceiver = null;
 
     // uproad arraylist
-    ArrayList<File> up_imagelist = new ArrayList<>();
-    ArrayList<File> up_textlist = new ArrayList<>();
+    ArrayList<File> upImageList = new ArrayList<>();
+    ArrayList<File> upTextList = new ArrayList<>();
 
     // id_number
-    private String c_point_num;
-    private String work_num = "111";
+    private String pointNum = null;
+    private String workNum = "111";
 
     //imgarraylist
     private ArrayList<Image> images = new ArrayList<>();
@@ -195,18 +198,26 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
     @Override
     public boolean onMarkerClick(Marker marker){
         ArrayList<Uri> urilist = new ArrayList<>();
-        c_point_num = marker.getTitle();
+        pointNum = marker.getTitle();
 
-        File file = new File(Environment.getExternalStorageDirectory()+"/"+work_num);
+        File file = new File(Environment.getExternalStorageDirectory()+"/"+workNum);
         if(!file.exists()){
             file.mkdir();
         }
-        File file2 = new File(Environment.getExternalStorageDirectory()+"/"+work_num+"/"+c_point_num );
+        File file2 = new File(Environment.getExternalStorageDirectory()+"/"+workNum+"/"+pointNum );
         if(!file2.exists()){
             file2.mkdir();
         }
+        File uploadfile= new File(Environment.getExternalStorageDirectory()+"/"+workNum+"/"+pointNum +"/uploadfile");
+        if(!uploadfile.exists()){
+            uploadfile.mkdir();
+        }
+        File file4 = new File(Environment.getExternalStorageDirectory()+"/"+workNum+"/"+pointNum +"/textfile");
+        if(!file4.exists()){
+            file4.mkdir();
+        }
         //사진파일명 리스트 뽑아오기
-        File[] up_imagelist2  = file2.listFiles(new FilenameFilter() {
+        File[] up_imagelist2  = uploadfile.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String filename) {
                 Boolean bOK = false;
                 if(filename.toLowerCase().endsWith(".png")) bOK = true;
@@ -220,14 +231,24 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
                 return bOK;
             }
         });
-
+        if(up_imagelist2 == null){
+            return true;
+        }
+        //이미지 와 텍스트 파일 list에 넣기
         for(int i = 0; i < up_imagelist2.length; i++){
-           up_imagelist.add(up_imagelist2[i]);
+            upImageList.add(up_imagelist2[i]);
            urilist.add(Uri.parse(up_imagelist2[i].getAbsolutePath()));
+            int idx = up_imagelist2[i].getAbsolutePath().indexOf(".");
+            String txt_fileName = up_imagelist2[i].getAbsolutePath().substring(0, idx)+".txt";
+            File textFile = new File(Environment.getExternalStorageDirectory()+"/"+workNum+"/"+pointNum +"/textfile/"+txt_fileName);
+            if(textFile.exists()) {
+                upTextList.add(textFile);
+            }
         }
 
+        /*
         //텍스트파일 리스트
-        File[] up_textlist2  = file2.listFiles(new FilenameFilter() {
+        File[] up_textlist2  = file4.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String filename) {
                 Boolean bOK = false;
                 if(filename.toLowerCase().endsWith(".txt")) bOK = true;
@@ -237,7 +258,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
 
         for(int i = 0; i < up_textlist2.length; i++){
             up_textlist.add(up_textlist2[i]);
-        }
+        }*/
 
         recyclerAdapter.clearUriList();
         if(urilist!=null) {
@@ -275,13 +296,16 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
 
     /* ******************* Ted image picker start ******************* */
     void capture() {
-        Intent intent = new Intent(this, CameraActivity.class);
-        Bundle bundleData = new Bundle();
-        bundleData.putString("c_point_num",c_point_num);
-        bundleData.putString("work_num",work_num);
-        intent.putExtra("ID_NUM", bundleData);
-
-        startActivity(intent);
+        if(pointNum != null) {
+            Intent intent = new Intent(this, CameraActivity.class);
+            Bundle bundleData = new Bundle();
+            bundleData.putString("c_point_num", pointNum);
+            bundleData.putString("work_num", workNum);
+            intent.putExtra("ID_NUM", bundleData);
+            startActivity(intent);
+        }else{
+            Toast.makeText(getBaseContext(), "작업할 마커를 선택해주세요.", Toast.LENGTH_SHORT).show();
+        }
 
 
        /* TedBottomPicker.with(this)
@@ -499,9 +523,18 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), GALLERY_CODE);*/
 
         // forth method
-        Intent intent = new Intent(this, ImagePickerActivity.class);
-        startActivityForResult(intent, GALLERY_CODE);
+        if(pointNum!= null) {
+            Intent intent = new Intent(this, ImagePickerActivity.class);
 
+            Bundle bundleData = new Bundle();
+            bundleData.putString("c_point_num", pointNum);
+            bundleData.putString("work_num", workNum);
+            intent.putExtra("ID_NUM", bundleData);
+
+            startActivityForResult(intent, GALLERY_CODE);
+        }else{
+            Toast.makeText(getBaseContext(), "작업할 마커를 선택해주세요.", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -516,6 +549,39 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
                         for (Uri uri : uris) {
                             Log.d(TAG, String.format("recived uri : %s", uri.toString()));
                             recyclerAdapter.addUri(uri);
+                            String img_fileName = null;
+                            String txt_fileName = null;
+                            String path = uri.getPath();
+                            int cut = path.lastIndexOf('/');
+                            if(cut != -1){
+                                img_fileName = path.substring(cut+1);
+                            }
+                            //갤러리에서 마커폴더로 이미지 이동
+                             File imgfile = new File(path);
+                            if(imgfile!=null&&imgfile.exists()){
+                                try {
+                                    FileInputStream fis = new FileInputStream(imgfile);
+                                    FileOutputStream newfos = new FileOutputStream(Environment.getExternalStorageDirectory()+"/"+workNum+"/"+pointNum+"/uploadfile/"+img_fileName);
+                                    int readcount=0;
+                                    byte[] buffer = new byte[1024];
+                                    while((readcount = fis.read(buffer,0,1024))!= -1){
+                                        newfos.write(buffer,0,readcount);
+                                    }
+                                    newfos.close();
+                                    fis.close();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }else {
+                            }
+
+                            //리스트에 추가
+                            int idx = img_fileName.indexOf(".");
+                            txt_fileName = img_fileName.substring(0, idx)+".txt";
+                            upImageList.add(imgfile);
+                            File txtfile = new File(Environment.getExternalStorageDirectory()+"/"+workNum+"/"+pointNum+"/"
+                                    +"textfile"+"/"+txt_fileName);
+                            upTextList.add(txtfile);
                         }
                     } catch (Exception e) {
                         Toast.makeText(this, "failed to receive image data...", Toast.LENGTH_SHORT).show();

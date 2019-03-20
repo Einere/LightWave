@@ -32,10 +32,19 @@ public class ImagePickerActivity extends AppCompatActivity {
     final String TAG = "ImagePickerActivity";
     Button btn_select_done = null;
 
+    // id_number
+    private String c_point_num;
+    private String work_num;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_picker);
+
+        //작업정보고유번호, 마커고유번호 가져오기
+        Intent intent = getIntent();
+        Bundle bundleData = intent.getBundleExtra("ID_NUM");
+        work_num = bundleData.getString("work_num");
+        c_point_num = bundleData.getString("c_point_num");
 
         // set recycler view
         RecyclerView recyclerView = findViewById(R.id.recycler);
@@ -44,7 +53,7 @@ public class ImagePickerActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
 
         // get directory by path
-        String filePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download";
+        String filePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/"+work_num+"/"+c_point_num;
         File file = new File(filePath);
 
         // filter only file
