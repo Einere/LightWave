@@ -11,7 +11,6 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,10 +35,19 @@ public class ImagePickerActivity extends AppCompatActivity {
     int horizontalItemNumber = 2;
     int verticalItemNumber = 3;
 
+    // id_number
+    private String c_point_num;
+    private String work_num;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_picker);
+
+        //작업정보고유번호, 마커고유번호 가져오기
+        Intent intent = getIntent();
+        Bundle bundleData = intent.getBundleExtra("ID_NUM");
+        work_num = bundleData.getString("work_num");
+        c_point_num = bundleData.getString("c_point_num");
 
         // get dynamic item size
         DisplayMetrics displaymetrics = new DisplayMetrics();
@@ -55,7 +63,7 @@ public class ImagePickerActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
 
         // get directory by path
-        String filePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download";
+        String filePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/"+work_num+"/"+c_point_num;
         File file = new File(filePath);
 
         // filter only file

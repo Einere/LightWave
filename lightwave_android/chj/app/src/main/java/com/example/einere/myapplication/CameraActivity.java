@@ -91,8 +91,8 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
     private GpsInfo gps;
 
     // id_number
-    private String c_point_num;
-    private String work_num = "111";
+    private String pointNum;
+    private String workNum;
 
     /* ******************* sensor methods start ******************* */
     @Override
@@ -146,8 +146,8 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
         //작업정보고유번호, 마커고유번호 가져오기
         Intent intent = getIntent();
         Bundle bundleData = intent.getBundleExtra("ID_NUM");
-        work_num = bundleData.getString("work_num");
-        c_point_num = bundleData.getString("c_point_num");
+        workNum = bundleData.getString("work_num");
+        pointNum = bundleData.getString("c_point_num");
 
 
         takePictureButton.setOnClickListener(new View.OnClickListener() {
@@ -259,7 +259,7 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
             timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
             captureName = String.format("%s.png", timeStamp);
            // final File file = new File(Environment.getExternalStoragePublicDirectory( Environment.DIRECTORY_PICTURES )+"/"+captureName);
-           final File file = new File(Environment.getExternalStorageDirectory()+"/"+work_num+"/"+c_point_num+"/"+captureName);
+           final File file = new File(Environment.getExternalStorageDirectory()+"/"+workNum+"/"+pointNum+"/"+captureName);
             ImageReader.OnImageAvailableListener readerListener = new ImageReader.OnImageAvailableListener() {
                 @Override
                 public void onImageAvailable(ImageReader reader) {
@@ -283,16 +283,21 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
                 private void save(byte[] bytes) throws IOException {
                     OutputStream output = null;
                     try {
-                        String path = Environment.getExternalStorageDirectory()+"/"+work_num+"/"+c_point_num;
+                        String path = Environment.getExternalStorageDirectory()+"/"+workNum+"/"+pointNum;
                         File file2 = new File(path);
-                        String path2 = Environment.getExternalStorageDirectory()+"/"+work_num+"/"+c_point_num+"/"+"textfile";
+                        String path2 = Environment.getExternalStorageDirectory()+"/"+workNum+"/"+pointNum+"/"+"textfile";
                         File file3 = new File(path2);
+                        String path3 = Environment.getExternalStorageDirectory()+"/"+workNum+"/"+pointNum+"/uploadfile";
+                        File file4 = new File(path2);
                         //메모 불러오기
                         if(!file2.exists()) {
                             file2.mkdir();
                         }
                         if(!file3.exists()){
                             file3.mkdir();
+                        }
+                        if(!file4.exists()) {
+                            file4.mkdir();
                         }
                         output = new FileOutputStream(file);
                         output.write(bytes);
@@ -332,7 +337,7 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
 
         //위도경도방위 구해서 파일저장
         try {
-            File file2 = new File(Environment.getExternalStorageDirectory()+"/"+work_num+"/"+c_point_num+"/textfile/"+timeStamp+".txt");
+            File file2 = new File(Environment.getExternalStorageDirectory()+"/"+workNum+"/"+pointNum+"/textfile/"+timeStamp+".txt");
             FileOutputStream fos = new FileOutputStream(file2);
             BufferedWriter buw = new BufferedWriter(new OutputStreamWriter(fos, "UTF8"));
             buw.write(String.valueOf(takeazimuth)+"\n");
