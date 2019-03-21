@@ -11,6 +11,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,6 +39,8 @@ public class ImagePickerActivity extends AppCompatActivity {
     // id_number
     private String c_point_num;
     private String work_num;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,7 +66,7 @@ public class ImagePickerActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
 
         // get directory by path
-        String filePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/"+work_num+"/"+c_point_num;
+        String filePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + work_num + "/" + c_point_num;
         File file = new File(filePath);
 
         // filter only file
@@ -97,7 +100,7 @@ public class ImagePickerActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(@NonNull MyHolder myHolder, int position) {
             // if button
-            if(position == fileList.size()){
+            if (position == fileList.size()) {
                 // set size
                 // 높이 설정이 되긴 하지만, 같은 행의 다른 아이템의 높이에 영향을 받는 듯 하다.
                 /*myHolder.button.getLayoutParams().width = itemWidth / 2;
@@ -105,12 +108,12 @@ public class ImagePickerActivity extends AppCompatActivity {
 
                 // set click listener
                 myHolder.button.setOnClickListener(v -> {
-                    if(selectedList.size() != 0){
+                    if (selectedList.size() != 0) {
                         Intent intent = new Intent();
                         intent.putParcelableArrayListExtra("selected", selectedList);
                         setResult(RESULT_OK, intent);
                         finish();
-                    }else{
+                    } else {
                         Toast.makeText(ImagePickerActivity.this, "no image selected...", Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -126,7 +129,7 @@ public class ImagePickerActivity extends AppCompatActivity {
                     ImageView iv_tmp = (ImageView) v;
                     if (iv_tmp.getColorFilter() == null) {
                         // if select max count
-                        if(selectedList.size() >= maxCount){
+                        if (selectedList.size() >= maxCount) {
                             Toast.makeText(ImagePickerActivity.this, "already selected max images", Toast.LENGTH_SHORT).show();
                             return;
                         }
@@ -146,7 +149,7 @@ public class ImagePickerActivity extends AppCompatActivity {
                         selectedList.add(Uri.fromFile(new File(fileList.get(position))));
 
                         // check
-                        for(Uri uri : selectedList){
+                        for (Uri uri : selectedList) {
                             Log.d(TAG, String.format("selected Uri : %s", uri.toString()));
                         }
                     } else {
@@ -158,7 +161,7 @@ public class ImagePickerActivity extends AppCompatActivity {
                         selectedList.remove(Uri.fromFile(new File(fileList.get(position))));
 
                         // check
-                        for(Uri uri : selectedList){
+                        for (Uri uri : selectedList) {
                             Log.d(TAG, String.format("selected Uri : %s", uri.toString()));
                         }
                     }

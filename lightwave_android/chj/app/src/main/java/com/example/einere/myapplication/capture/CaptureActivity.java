@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.hardware.Sensor;
@@ -49,7 +48,9 @@ import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -84,7 +85,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
     // capture broadcast
     BroadcastReceiver cameraBroadcastReceiver = null;
 
-    // uproad arraylist
+    // upload ArrayList
     ArrayList<File> upImageList = new ArrayList<>();
     ArrayList<File> upTextList = new ArrayList<>();
 
@@ -92,7 +93,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
     private String pointNum = null;
     private String workNum = "111";
 
-    //image arraylist
+    //image ArrayList
     private ArrayList<Image> images = new ArrayList<>();
 
 
@@ -101,7 +102,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_capture);
 
-        //googlemap
+        // google map
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.Googlemap);
         mapFragment.getMapAsync(this); //getMapAsync must be called on the main thread.
 
@@ -139,7 +140,33 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         findViewById(R.id.btn_send_data).setOnClickListener(v -> sendData());
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
 
+        // get SocketManager instance
+        socketManager = SocketManager.getInstance();
+
+        // register listener
+        sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
+        sensorManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_UI);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        // unregister broadcast receiver
+        unregisterReceiver(cameraBroadcastReceiver);
+    }
+
+
+    /* ******************* google map start ******************* */
     @Override
     public void onMapReady(GoogleMap googleMap) {
         // 구글 맵 객체를 불러온다.
@@ -192,24 +219,24 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         ArrayList<Uri> urilist = new ArrayList<>();
         pointNum = marker.getTitle();
 
-        File file = new File(Environment.getExternalStorageDirectory()+"/"+workNum);
-        if(!file.exists()){
+        File file = new File(Environment.getExternalStorageDirectory() + "/" + workNum);
+        if (!file.exists()) {
             file.mkdir();
         }
-        File file2 = new File(Environment.getExternalStorageDirectory()+"/"+workNum+"/"+pointNum );
-        if(!file2.exists()){
+        File file2 = new File(Environment.getExternalStorageDirectory() + "/" + workNum + "/" + pointNum);
+        if (!file2.exists()) {
             file2.mkdir();
         }
-        File uploadfile= new File(Environment.getExternalStorageDirectory()+"/"+workNum+"/"+pointNum +"/uploadfile");
-        if(!uploadfile.exists()){
+        File uploadfile = new File(Environment.getExternalStorageDirectory() + "/" + workNum + "/" + pointNum + "/uploadfile");
+        if (!uploadfile.exists()) {
             uploadfile.mkdir();
         }
-        File file4 = new File(Environment.getExternalStorageDirectory()+"/"+workNum+"/"+pointNum +"/textfile");
-        if(!file4.exists()){
+        File file4 = new File(Environment.getExternalStorageDirectory() + "/" + workNum + "/" + pointNum + "/textfile");
+        if (!file4.exists()) {
             file4.mkdir();
         }
         //사진파일명 리스트 뽑아오기
-        File[] up_imagelist2  = uploadfile.listFiles(new FilenameFilter() {
+        File[] up_imagelist2 = uploadfile.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String filename) {
                 Boolean bOK = false;
                 if (filename.toLowerCase().endsWith(".png")) bOK = true;
@@ -219,17 +246,17 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
                 return bOK;
             }
         });
-        if(up_imagelist2 == null){
+        if (up_imagelist2 == null) {
             return true;
         }
         //이미지 와 텍스트 파일 list에 넣기
-        for(int i = 0; i < up_imagelist2.length; i++){
+        for (int i = 0; i < up_imagelist2.length; i++) {
             upImageList.add(up_imagelist2[i]);
-           urilist.add(Uri.parse(up_imagelist2[i].getAbsolutePath()));
+            urilist.add(Uri.parse(up_imagelist2[i].getAbsolutePath()));
             int idx = up_imagelist2[i].getAbsolutePath().indexOf(".");
-            String txt_fileName = up_imagelist2[i].getAbsolutePath().substring(0, idx)+".txt";
-            File textFile = new File(Environment.getExternalStorageDirectory()+"/"+workNum+"/"+pointNum +"/textfile/"+txt_fileName);
-            if(textFile.exists()) {
+            String txt_fileName = up_imagelist2[i].getAbsolutePath().substring(0, idx) + ".txt";
+            File textFile = new File(Environment.getExternalStorageDirectory() + "/" + workNum + "/" + pointNum + "/textfile/" + txt_fileName);
+            if (textFile.exists()) {
                 upTextList.add(textFile);
             }
         }
@@ -255,124 +282,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
 
         return true;
     }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        // get SocketManager instance
-        socketManager = SocketManager.getInstance();
-
-        // register listener
-        sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
-        sensorManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_UI);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        // unregister broadcast receiver
-        unregisterReceiver(cameraBroadcastReceiver);
-    }
-
-
-    /* ******************* Ted image picker start ******************* */
-    void capture() {
-        if(pointNum != null) {
-            Intent intent = new Intent(this, CameraActivity.class);
-            Bundle bundleData = new Bundle();
-            bundleData.putString("c_point_num", pointNum);
-            bundleData.putString("work_num", workNum);
-            intent.putExtra("ID_NUM", bundleData);
-            startActivity(intent);
-        }else{
-            Toast.makeText(getBaseContext(), "작업할 마커를 선택해주세요.", Toast.LENGTH_SHORT).show();
-        }
-
-
-       /* TedBottomPicker.with(this)
-                .show(uri -> {
-                    String scheme = uri.getScheme();
-                    if (scheme != null && scheme.equals("file")) {
-                        Log.d(TAG, uri.getLastPathSegment());
-                    }
-                    recyclerAdapter.addUri(uri);
-                });*/
-    }
-
-    void selectPicture() {
-   /*   TedBottomPicker.with(this)
-                .setSelectMaxCount(5)
-                .setSelectMaxCountErrorText("최대 5장까지 선택가능합니다")
-                .setPeekHeight(1600)
-                .showTitle(true)
-                .setCompleteButtonText("확인")
-                .setEmptySelectionText("사진을 선택해주세요")
-                .showMultiImage(uriList -> {
-                    recyclerAdapter.addUriList(uriList);
-                   /* for(int i = 0; i < uriList.size(); i++){
-                        String img_fileName = null;
-                        String txt_fileName = null;
-                        String path = uriList.get(i).getPath();
-                        int cut = path.lastIndexOf('/');
-                        if(cut != -1){
-                           img_fileName = path.substring(cut+1);
-                        }
-                        int idx = img_fileName.indexOf(".");
-                        txt_fileName = img_fileName.substring(0, idx)+".txt";
-                      File imgfile = new File(path);
-                      up_imagelist.add(imgfile);
-                      File txtfile = new File(Environment.getExternalStorageDirectory()+"/"+work_num+"/"+c_point_num+"/"
-                              +"textfile"+"/"+txt_fileName);
-                      up_textlist.add(txtfile);
-
-                       //갤러리에서 마커폴더로 이미지 이동
-                        if(imgfile!=null&&imgfile.exists()){
-                            try {
-                                FileInputStream fis = new FileInputStream(imgfile);
-                                FileOutputStream newfos = new FileOutputStream(Environment.getExternalStorageDirectory()+"/"+work_num+"/"+c_point_num+"/"+img_fileName);
-                                int readcount=0;
-                                byte[] buffer = new byte[1024];
-                                while((readcount = fis.read(buffer,0,1024))!= -1){
-                                    newfos.write(buffer,0,readcount);
-                                }
-                                newfos.close();
-                                fis.close();
-                                imgfile.delete();
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }else {
-                        }
-
-                        //임시폴더에서 마커폴더로 텍스트 이동
-                        if(txtfile!=null&&txtfile.exists()){
-                            try {
-                                FileInputStream fis = new FileInputStream(txtfile);
-                                FileOutputStream newfos = new FileOutputStream(Environment.getExternalStorageDirectory()+"/"+work_num+"/"+c_point_num+"/"+"textfile/"+txt_fileName);
-                                int readcount=0;
-                                byte[] buffer = new byte[1024];
-                                while((readcount = fis.read(buffer,0,1024))!= -1){
-                                    newfos.write(buffer,0,readcount);
-                                }
-                                newfos.close();
-                                fis.close();
-                                txtfile.delete();
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }else {
-                        }
-                    }
-                });*/
-    }
-    /* ******************* Ted image picker end ******************* */
+    /* ******************* google map end ******************* */
 
 
     /* ******************* socket methods start ******************* */
@@ -454,6 +364,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
             if (success) {
                 float orientation[] = new float[3];
                 SensorManager.getOrientation(R, orientation);
+
                 // orientation contains: azimuth, pitch  and roll
                 float azimuth = orientation[0];
                 float pitch = orientation[1];
@@ -493,26 +404,23 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
 
 
     /* ******************* camera & gallery methods start ******************* */
+    public void capture() {
+        if (pointNum != null) {
+            Intent intent = new Intent(this, CameraActivity.class);
+            Bundle bundleData = new Bundle();
+            bundleData.putString("c_point_num", pointNum);
+            bundleData.putString("work_num", workNum);
+            intent.putExtra("ID_NUM", bundleData);
+            startActivity(intent);
+        } else {
+            Toast.makeText(getBaseContext(), "작업할 마커를 선택해주세요.", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
     public void selectGallery() {
-        // first method
-        /*Intent intent = new Intent(Intent.ACTION_PICK);
-        intent.setDataAndType(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");*/
-
-        // second method
-        /*Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        intent.setType("image/*");
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        startActivityForResult(intent, GALLERY_CODE);*/
-
-        // third method
-        /*Intent intent = new Intent();
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        intent.setType("image/*");
-        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-        startActivityForResult(Intent.createChooser(intent, "Select Picture"), GALLERY_CODE);*/
-
-        // forth method
-        if(pointNum!= null) {
+        // call ImagePickerActivity
+        if (pointNum != null) {
             Intent intent = new Intent(this, ImagePickerActivity.class);
 
             Bundle bundleData = new Bundle();
@@ -521,7 +429,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
             intent.putExtra("ID_NUM", bundleData);
 
             startActivityForResult(intent, GALLERY_CODE);
-        }else{
+        } else {
             Toast.makeText(getBaseContext(), "작업할 마커를 선택해주세요.", Toast.LENGTH_SHORT).show();
         }
     }
@@ -536,58 +444,53 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
                     try {
                         ArrayList<Uri> uris = data.getParcelableArrayListExtra("selected");
                         for (Uri uri : uris) {
-                            Log.d(TAG, String.format("recived uri : %s", uri.toString()));
+                            // add to RecyclerView
                             recyclerAdapter.addUri(uri);
+                            Log.d(TAG, String.format("received uri : %s", uri.toString()));
+
                             String img_fileName = null;
                             String txt_fileName = null;
                             String path = uri.getPath();
+
+                            // get image file name
                             int cut = path.lastIndexOf('/');
-                            if(cut != -1){
-                                img_fileName = path.substring(cut+1);
+                            if (cut != -1) {
+                                img_fileName = path.substring(cut + 1);
                             }
-                            //갤러리에서 마커폴더로 이미지 이동
-                             File imgfile = new File(path);
-                            if(imgfile!=null&&imgfile.exists()){
+
+                            // 갤러리에서 마커폴더로 이미지 이동
+                            // 업로드용 폴더에 추가 (비정상 종료를 대비하기 위함)
+                            File imgFile = new File(path);
+                            if (imgFile != null && imgFile.exists()) {
                                 try {
-                                    FileInputStream fis = new FileInputStream(imgfile);
-                                    FileOutputStream newfos = new FileOutputStream(Environment.getExternalStorageDirectory()+"/"+workNum+"/"+pointNum+"/uploadfile/"+img_fileName);
-                                    int readcount=0;
+                                    FileInputStream fis = new FileInputStream(imgFile);
+                                    FileOutputStream newfos = new FileOutputStream(Environment.getExternalStorageDirectory() + "/" + workNum + "/" + pointNum + "/uploadfile/" + img_fileName);
+                                    int readcount = 0;
                                     byte[] buffer = new byte[1024];
-                                    while((readcount = fis.read(buffer,0,1024))!= -1){
-                                        newfos.write(buffer,0,readcount);
+                                    while ((readcount = fis.read(buffer, 0, 1024)) != -1) {
+                                        newfos.write(buffer, 0, readcount);
                                     }
                                     newfos.close();
                                     fis.close();
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
-                            }else {
+                            } else {
                             }
 
-                            //리스트에 추가
+                            // 리스트에 추가
+                            //
                             int idx = img_fileName.indexOf(".");
-                            txt_fileName = img_fileName.substring(0, idx)+".txt";
-                            upImageList.add(imgfile);
-                            File txtfile = new File(Environment.getExternalStorageDirectory()+"/"+workNum+"/"+pointNum+"/"
-                                    +"textfile"+"/"+txt_fileName);
+                            txt_fileName = img_fileName.substring(0, idx) + ".txt";
+                            upImageList.add(imgFile);
+                            File txtfile = new File(Environment.getExternalStorageDirectory() + "/" + workNum + "/" + pointNum + "/"
+                                    + "textfile" + "/" + txt_fileName);
                             upTextList.add(txtfile);
                         }
                     } catch (Exception e) {
                         Toast.makeText(this, "failed to receive image data...", Toast.LENGTH_SHORT).show();
                     }
 
-                    /*if (data.getClipData() != null) {
-                        // if use third method
-                        *//*ClipData clipData = data.getClipData();
-                        for (int i = 0; i < clipData.getItemCount(); i++) {
-                            Log.d(TAG, String.format("item uri : %s", clipData.getItemAt(i).getUri()));
-                        }
-                        sendPicture(clipData.getItemAt(0).getUri());*//*
-
-                    } else if (data != null) {
-                        //갤러리에서 가져오기
-                        sendPicture(data.getData());
-                    }*/
                     break;
                 }
                 case CAMERA_CODE: {
@@ -599,21 +502,6 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
                 }
             }
         }
-    }
-
-    private String getRealPathFromURI(Uri contentUri) {
-        int column_index = 0;
-        String[] proj = {MediaStore.Images.Media.DATA};
-        Cursor cursor = getContentResolver().query(contentUri, proj, null, null, null);
-        String column = "";
-
-        if (cursor != null && cursor.moveToFirst()) {
-            column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-            column = cursor.getString(column_index);
-            cursor.close();
-        }
-
-        return column;
     }
     /* ******************* camera & gallery methods end ******************* */
 }
