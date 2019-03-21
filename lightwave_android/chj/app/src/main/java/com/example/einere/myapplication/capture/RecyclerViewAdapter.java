@@ -57,6 +57,11 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                 }
             }
         });
+        holder.iv_tmp.setOnLongClickListener(v -> {
+            uriList.remove(i);
+            notifyDataSetChanged();
+            return false;
+        });
     }
 
     @Override
@@ -76,6 +81,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     void clearUriList() {
         uriList.clear();
+        notifyDataSetChanged();
     }
 
     List<Uri> getUriList() {

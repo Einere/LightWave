@@ -11,6 +11,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,11 +31,16 @@ import java.util.List;
 
 public class ImagePickerActivity extends AppCompatActivity {
     final String TAG = "ImagePickerActivity";
-    Button btn_select_done = null;
+    int itemWidth = 0;
+    int itemHeight = 0;
+    int horizontalItemNumber = 2;
+    int verticalItemNumber = 3;
 
     // id_number
     private String c_point_num;
     private String work_num;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,14 +52,21 @@ public class ImagePickerActivity extends AppCompatActivity {
         work_num = bundleData.getString("work_num");
         c_point_num = bundleData.getString("c_point_num");
 
+        // get dynamic item size
+        DisplayMetrics displaymetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+        itemWidth = displaymetrics.widthPixels / horizontalItemNumber;
+        itemHeight = displaymetrics.heightPixels / verticalItemNumber;
+        Log.d(TAG, String.format("width : %d, height : %d", itemWidth, itemHeight));
+
         // set recycler view
         RecyclerView recyclerView = findViewById(R.id.recycler);
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
+        recyclerView.setLayoutManager(new GridLayoutManager(this, horizontalItemNumber));
         ImagePickerAdapter adapter = new ImagePickerAdapter();
         recyclerView.setAdapter(adapter);
 
         // get directory by path
-        String filePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/"+work_num+"/"+c_point_num;
+        String filePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + work_num + "/" + c_point_num;
         File file = new File(filePath);
 
         // filter only file
@@ -70,6 +83,7 @@ public class ImagePickerActivity extends AppCompatActivity {
     class ImagePickerAdapter extends RecyclerView.Adapter<MyHolder> {
         List<String> fileList = new ArrayList<>();
         ArrayList<Uri> selectedList = new ArrayList<>();
+        int maxCount = 5;
 
         @NonNull
         @Override
@@ -85,23 +99,41 @@ public class ImagePickerActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(@NonNull MyHolder myHolder, int position) {
-            // set onClickListener
-            if(position == fileList.size()){
+            // if button
+            if (position == fileList.size()) {
+                // set size
+                // 높이 설정이 되긴 하지만, 같은 행의 다른 아이템의 높이에 영향을 받는 듯 하다.
+                /*myHolder.button.getLayoutParams().width = itemWidth / 2;
+                myHolder.button.getLayoutParams().height = itemHeight / 2;*/
+
+                // set click listener
                 myHolder.button.setOnClickListener(v -> {
-                    if(selectedList.size() != 0){
+                    if (selectedList.size() != 0) {
                         Intent intent = new Intent();
                         intent.putParcelableArrayListExtra("selected", selectedList);
                         setResult(RESULT_OK, intent);
                         finish();
-                    }else{
+                    } else {
                         Toast.makeText(ImagePickerActivity.this, "no image selected...", Toast.LENGTH_SHORT).show();
                     }
                 });
             }
+            // if imageView
             else {
+                // set size
+                /*myHolder.imageView.getLayoutParams().width = itemWidth;
+                myHolder.imageView.getLayoutParams().height = itemHeight;*/
+
+                // set click listener
                 myHolder.imageView.setOnClickListener(v -> {
                     ImageView iv_tmp = (ImageView) v;
                     if (iv_tmp.getColorFilter() == null) {
+                        // if select max count
+                        if (selectedList.size() >= maxCount) {
+                            Toast.makeText(ImagePickerActivity.this, "already selected max images", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
                         // make gray scale matrix
                         ColorMatrix matrix = new ColorMatrix();
                         matrix.setSaturation(0);
@@ -117,7 +149,7 @@ public class ImagePickerActivity extends AppCompatActivity {
                         selectedList.add(Uri.fromFile(new File(fileList.get(position))));
 
                         // check
-                        for(Uri uri : selectedList){
+                        for (Uri uri : selectedList) {
                             Log.d(TAG, String.format("selected Uri : %s", uri.toString()));
                         }
                     } else {
@@ -129,7 +161,7 @@ public class ImagePickerActivity extends AppCompatActivity {
                         selectedList.remove(Uri.fromFile(new File(fileList.get(position))));
 
                         // check
-                        for(Uri uri : selectedList){
+                        for (Uri uri : selectedList) {
                             Log.d(TAG, String.format("selected Uri : %s", uri.toString()));
                         }
                     }

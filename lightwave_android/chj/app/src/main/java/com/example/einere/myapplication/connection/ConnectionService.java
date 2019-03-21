@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.einere.myapplication.IConnectionService;
 
@@ -187,6 +188,7 @@ public class ConnectionService extends Service {
                     writer.flush();
                 } catch (IOException e) {
                     e.printStackTrace();
+                    Toast.makeText(ConnectionService.this, "error at send data...", Toast.LENGTH_SHORT).show();
                 }
             }
         }).start();
