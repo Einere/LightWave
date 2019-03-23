@@ -30,6 +30,7 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
             <fragment
                 android:id="@+id/Googlemap"
                 android:name="com.google.android.gms.maps.SupportMapFragment"
@@ -40,12 +41,11 @@
                 android:id="@+id/btn_refresh"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_alignBottom="@id/Googlemap"
                 android:layout_alignRight="@id/Googlemap"
-                android:scaleType="fitXY"
+                android:layout_alignBottom="@id/Googlemap"
                 android:background="@drawable/ic_refresh"
                 android:onClick="refreshClick"
-                />
+                android:scaleType="fitXY" />
 
         </RelativeLayout>
 
@@ -64,19 +64,21 @@
             android:id="@+id/et_server_memo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
             android:layout_marginStart="25dp"
+            android:layout_marginTop="20dp"
             android:layout_marginEnd="25dp"
-            android:hint="@string/server_memo_hint"/>
+            android:hint="@string/server_memo_hint"
+            android:inputType="textMultiLine" />
 
         <EditText
             android:id="@+id/et_client_memo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
             android:layout_marginStart="25dp"
+            android:layout_marginTop="20dp"
             android:layout_marginEnd="25dp"
-            android:hint="@string/client_memo_hint"/>
+            android:hint="@string/client_memo_hint"
+            android:inputType="textMultiLine" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -114,6 +116,16 @@
                 android:layout_marginEnd="10dp"
                 android:layout_weight="1"
                 android:text="@string/send_data" />
+
+            <Button
+                android:id="@+id/btn_test"
+                style="@android:style/Widget.Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_weight="1"
+                android:text="test" />
         </LinearLayout>
 
         <LinearLayout

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -16,11 +17,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.RemoteException;
-import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
@@ -46,15 +47,17 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FilenameFilter;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
 public class CaptureActivity extends FragmentActivity implements SensorEventListener, OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
@@ -138,6 +141,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         findViewById(R.id.btn_capture).setOnClickListener(v -> capture());
         findViewById(R.id.btn_select_picture).setOnClickListener(v -> selectGallery());
         findViewById(R.id.btn_send_data).setOnClickListener(v -> sendData());
+        findViewById(R.id.btn_test).setOnClickListener(v -> checkArrayListForUpload());
     }
 
     @Override
@@ -198,14 +202,14 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         poly.add(seoul);
         poly.add(seoul2);
         mMap.addPolyline(poly);
-        //카메라 옵션
+        // 카메라 옵션
         CameraPosition cameraPosition = new CameraPosition.Builder()
                 .target(seoul)      // Sets the center of the map to Mountain View
                 .zoom(18)                   // Sets the zoom
                 .bearing(0)                // Sets the orientation of the camera to east
                 .tilt(30)                   // Sets the tilt of the camera to 30 degrees
                 .build();
-        //카메라를 여의도 위치로 옮긴다.
+        // 카메라를 여의도 위치로 옮긴다.
         mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
     }
@@ -216,7 +220,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        ArrayList<Uri> urilist = new ArrayList<>();
+        ArrayList<Uri> uriList = new ArrayList<>();
         pointNum = marker.getTitle();
 
         File file = new File(Environment.getExternalStorageDirectory() + "/" + workNum);
@@ -227,57 +231,49 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         if (!file2.exists()) {
             file2.mkdir();
         }
-        File uploadfile = new File(Environment.getExternalStorageDirectory() + "/" + workNum + "/" + pointNum + "/uploadfile");
-        if (!uploadfile.exists()) {
-            uploadfile.mkdir();
+        File uploadFile = new File(Environment.getExternalStorageDirectory() + "/" + workNum + "/" + pointNum + "/uploadfile");
+        if (!uploadFile.exists()) {
+            uploadFile.mkdir();
         }
         File file4 = new File(Environment.getExternalStorageDirectory() + "/" + workNum + "/" + pointNum + "/textfile");
         if (!file4.exists()) {
             file4.mkdir();
         }
-        //사진파일명 리스트 뽑아오기
-        File[] up_imagelist2 = uploadfile.listFiles(new FilenameFilter() {
-            public boolean accept(File dir, String filename) {
-                Boolean bOK = false;
-                if (filename.toLowerCase().endsWith(".png")) bOK = true;
-                if (filename.toLowerCase().endsWith(".9.png")) bOK = true;
-                if (filename.toLowerCase().endsWith(".gif")) bOK = true;
-                if (filename.toLowerCase().endsWith(".jpg")) bOK = true;
-                return bOK;
-            }
+        // 사진파일명 리스트 뽑아오기
+        File[] uploadImageList2 = uploadFile.listFiles((dir, name) -> {
+            Boolean bOK = false;
+            if (name.toLowerCase().endsWith(".png")) bOK = true;
+            if (name.toLowerCase().endsWith(".9.png")) bOK = true;
+            if (name.toLowerCase().endsWith(".gif")) bOK = true;
+            if (name.toLowerCase().endsWith(".jpg")) bOK = true;
+            return bOK;
         });
-        if (up_imagelist2 == null) {
+
+        if (uploadImageList2 == null) {
             return true;
         }
-        //이미지 와 텍스트 파일 list에 넣기
-        for (int i = 0; i < up_imagelist2.length; i++) {
-            upImageList.add(up_imagelist2[i]);
-            urilist.add(Uri.parse(up_imagelist2[i].getAbsolutePath()));
-            int idx = up_imagelist2[i].getAbsolutePath().indexOf(".");
-            String txt_fileName = up_imagelist2[i].getAbsolutePath().substring(0, idx) + ".txt";
-            File textFile = new File(Environment.getExternalStorageDirectory() + "/" + workNum + "/" + pointNum + "/textfile/" + txt_fileName);
+
+        // 이미지와 텍스트 파일 list에 넣기
+        for (File uploadImageFile : uploadImageList2) {
+            upImageList.add(uploadImageFile);
+            uriList.add(Uri.parse(uploadImageFile.getAbsolutePath()));
+
+            // get path and fileName
+            String path = uploadImageFile.getAbsolutePath();
+            String textFileName = uploadImageFile.getAbsolutePath().substring(0, path.indexOf(".")) + ".txt";
+            Log.d(TAG, String.format("textFileName : %s", textFileName));
+
+            File textFile = new File(textFileName);
             if (textFile.exists()) {
                 upTextList.add(textFile);
+                Log.d(TAG, String.format("exist textFileName : %s", textFile.getAbsolutePath()));
             }
         }
 
-        /*
-        //텍스트파일 리스트
-        File[] up_textlist2  = file4.listFiles(new FilenameFilter() {
-            public boolean accept(File dir, String filename) {
-                boolean bOK = false;
-                if (filename.toLowerCase().endsWith(".txt")) bOK = true;
-                return bOK;
-            }
-        });
-
-        for (int i = 0; i < up_textlist2.length; i++) {
-            up_textlist.add(up_textlist2[i]);
-        }*/
-
+        // clear RecyclerView
         recyclerAdapter.clearUriList();
-        if (urilist != null) {
-            recyclerAdapter.addUriList(urilist);
+        if (uriList.size() > 0) {
+            recyclerAdapter.addUriList(uriList);
         }
 
         return true;
@@ -296,7 +292,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         try {
             if (socketManager.getStatus() == STATUS_CONNECTED) {
                 // get uri list
-                List<Uri> uriList = recyclerAdapter.getUriList();
+//                ArrayList<Uri> uriList = recyclerAdapter.getSelectedUriList();
 
                 // make json object
                 JSONObject packet = new JSONObject();
@@ -305,17 +301,27 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
                 packet.put("subject", "test");
                 data.put("userName", socketManager.getUserName());
 
-                // put uri data
+                // put bitmap data
                 int i = 0;
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                for (Uri uri : uriList) {
+                /*for (Uri uri : uriList) {
                     tmpBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
                     tmpBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
                     byte[] bytes = stream.toByteArray();
                     String serialized = Base64.encodeToString(bytes, Base64.NO_WRAP);
                     data.put(String.format(Locale.KOREA, "image%d", i), serialized);
                     i++;
+                }*/
+                for (File file : upImageList) {
+                    Bitmap tmpBitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+                    tmpBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+                    byte[] bytes = stream.toByteArray();
+                    String serialized = Base64.encodeToString(bytes, Base64.NO_WRAP);
+                    data.put(String.format(Locale.KOREA, "image%d", i), serialized);
                 }
+                // put text data
+                String content = getFileContents(upTextList.get(0));
+
                 packet.put("data", data);
 
                 // send to server
@@ -328,11 +334,11 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
             Toast.makeText(this, "RemoteException occurred!", Toast.LENGTH_SHORT).show();
         } catch (JSONException e) {
             Toast.makeText(this, "JSONException occurred!", Toast.LENGTH_SHORT).show();
-        } catch (FileNotFoundException e) {
+        } /*catch (FileNotFoundException e) {
             Toast.makeText(this, "FileNotFoundException occurred!", Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
             Toast.makeText(this, "IOException occurred!", Toast.LENGTH_SHORT).show();
-        }
+        }*/
 
     }
 
@@ -448,46 +454,17 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
                             recyclerAdapter.addUri(uri);
                             Log.d(TAG, String.format("received uri : %s", uri.toString()));
 
-                            String img_fileName = null;
-                            String txt_fileName = null;
+                            // get image file path from uri
                             String path = uri.getPath();
 
-                            // get image file name
-                            int cut = path.lastIndexOf('/');
-                            if (cut != -1) {
-                                img_fileName = path.substring(cut + 1);
-                            }
+                            // 선택한 이미지를 업로드용 폴더에 추가 (비정상 종료를 대비하기 위함)
+                            upImageList.add(copyAndReturnFile(path, "IMAGE"));
 
-                            // 갤러리에서 마커폴더로 이미지 이동
-                            // 업로드용 폴더에 추가 (비정상 종료를 대비하기 위함)
-                            File imgFile = new File(path);
-                            if (imgFile != null && imgFile.exists()) {
-                                try {
-                                    FileInputStream fis = new FileInputStream(imgFile);
-                                    FileOutputStream newfos = new FileOutputStream(Environment.getExternalStorageDirectory() + "/" + workNum + "/" + pointNum + "/uploadfile/" + img_fileName);
-                                    int readcount = 0;
-                                    byte[] buffer = new byte[1024];
-                                    while ((readcount = fis.read(buffer, 0, 1024)) != -1) {
-                                        newfos.write(buffer, 0, readcount);
-                                    }
-                                    newfos.close();
-                                    fis.close();
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            } else {
-                            }
-
-                            // 리스트에 추가
-                            //
-                            int idx = img_fileName.indexOf(".");
-                            txt_fileName = img_fileName.substring(0, idx) + ".txt";
-                            upImageList.add(imgFile);
-                            File txtfile = new File(Environment.getExternalStorageDirectory() + "/" + workNum + "/" + pointNum + "/"
-                                    + "textfile" + "/" + txt_fileName);
-                            upTextList.add(txtfile);
+                            // 선택한 이미지와 같은 이름의 텍스트 파일을 업로드용 폴더에 추가 (비정상 종료를 대비하기 위함)
+                            upTextList.add(copyAndReturnFile(path, "TEXT"));
                         }
                     } catch (Exception e) {
+                        e.printStackTrace();
                         Toast.makeText(this, "failed to receive image data...", Toast.LENGTH_SHORT).show();
                     }
 
@@ -503,5 +480,103 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
             }
         }
     }
+
+    public File copyAndReturnFile(String path, String mode) {
+        // get file name, path
+        String fileName;
+        String filePath;
+
+        String[] splitPath = path.split("/");
+        fileName = splitPath[splitPath.length - 1];
+        if (mode.equals("TEXT")) {
+            fileName = splitPath[splitPath.length - 1];
+            fileName = fileName.substring(0, fileName.indexOf(".")) + ".txt";
+            splitPath[splitPath.length - 1] = "textfile/";
+        }
+        filePath = TextUtils.join("/", splitPath);
+        if (mode.equals("TEXT")) filePath += fileName;
+        Log.d(TAG, String.format("path : %s, filePath : %s, fileName : %s", path, filePath, fileName));
+
+        // get file
+        File file = new File(filePath);
+        if (file.exists()) {
+            try {
+                // make streams
+                FileInputStream fis = new FileInputStream(file);
+                FileOutputStream newFos = new FileOutputStream(String.format("%s/%s/%s/%s/%s", Environment.getExternalStorageDirectory(), workNum, pointNum, "uploadfile", fileName));
+
+                // copy
+                int readCount = 0;
+                byte[] buffer = new byte[1024];
+                while ((readCount = fis.read(buffer, 0, 1024)) != -1) {
+                    newFos.write(buffer, 0, readCount);
+                }
+
+                // close streams
+                newFos.close();
+                fis.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return file;
+        }
+        return null;
+    }
     /* ******************* camera & gallery methods end ******************* */
+
+
+    /* ******************* text file methods start ******************* */
+    public String getFileContents(final File file) {
+        final StringBuilder stringBuilder = new StringBuilder();
+
+        try {
+            final InputStream inputStream = new FileInputStream(file);
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            boolean done = false;
+
+            while (!done) {
+                final String line = reader.readLine();
+                done = (line == null);
+
+                if (line != null) {
+                    stringBuilder.append(line);
+                }
+            }
+
+            reader.close();
+            inputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return stringBuilder.toString();
+    }
+    /* ******************* text file methods end ******************* */
+
+    /* ******************* ArrayList for upload test methods start ******************* */
+    public void checkArrayListForUpload() {
+        if (upImageList != null) {
+            for (File file : upImageList) {
+                Log.d(TAG, String.format("image : %s", file.getAbsolutePath()));
+            }
+        }
+
+        char[] buf = new char[1024];
+        int size = 0;
+        if (upTextList != null) {
+            for (File file : upTextList) {
+                Log.d(TAG, file.getPath());
+                try {
+                    FileReader fr = new FileReader(file);
+                    BufferedReader br = new BufferedReader(fr);
+                    Log.d(TAG, String.format("text : %s", br.readLine()));
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+    /* ******************* ArrayList for upload test methods end ******************* */
 }

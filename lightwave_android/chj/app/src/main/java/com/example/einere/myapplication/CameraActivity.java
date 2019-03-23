@@ -62,12 +62,14 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
     private String captureName = null;
     String timeStamp = null;
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
+
     static {
         ORIENTATIONS.append(Surface.ROTATION_0, 90);
         ORIENTATIONS.append(Surface.ROTATION_90, 0);
         ORIENTATIONS.append(Surface.ROTATION_180, 270);
         ORIENTATIONS.append(Surface.ROTATION_270, 180);
     }
+
     private String cameraId;
     protected CameraDevice cameraDevice;
     protected CameraCaptureSession cameraCaptureSessions;
@@ -122,6 +124,7 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
             }
         }
     }
+
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
@@ -157,20 +160,24 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
             }
         });
     }
+
     TextureView.SurfaceTextureListener textureListener = new TextureView.SurfaceTextureListener() {
         @Override
         public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
             //open your camera here
             openCamera();
         }
+
         @Override
         public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
             // Transform you image captured size according to the surface width and height
         }
+
         @Override
         public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
             return false;
         }
+
         @Override
         public void onSurfaceTextureUpdated(SurfaceTexture surface) {
         }
@@ -183,16 +190,19 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
             cameraDevice = camera;
             createCameraPreview();
         }
+
         @Override
         public void onDisconnected(CameraDevice camera) {
             cameraDevice.close();
         }
+
         @Override
         public void onError(CameraDevice camera, int error) {
             cameraDevice.close();
             cameraDevice = null;
         }
     };
+
     final CameraCaptureSession.CaptureCallback captureCallbackListener = new CameraCaptureSession.CaptureCallback() {
         @Override
         public void onCaptureCompleted(CameraCaptureSession session, CaptureRequest request, TotalCaptureResult result) {
@@ -200,11 +210,13 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
             createCameraPreview();
         }
     };
+
     protected void startBackgroundThread() {
         mBackgroundThread = new HandlerThread("Camera Background");
         mBackgroundThread.start();
         mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
     }
+
     protected void stopBackgroundThread() {
         mBackgroundThread.quitSafely();
         try {
@@ -215,8 +227,9 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
             e.printStackTrace();
         }
     }
+
     protected void takePicture() {
-        if(null == cameraDevice) {
+        if (null == cameraDevice) {
             Log.e(TAG, "cameraDevice is null");
             return;
         }
@@ -227,8 +240,8 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
         double longitude;
 
         gps = new GpsInfo(this);
-            latitude = gps.getLatitude();
-            longitude = gps.getLongitude();
+        latitude = gps.getLatitude();
+        longitude = gps.getLongitude();
 
 
         CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
@@ -258,8 +271,8 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
             //파일경로
             timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
             captureName = String.format("%s.png", timeStamp);
-           // final File file = new File(Environment.getExternalStoragePublicDirectory( Environment.DIRECTORY_PICTURES )+"/"+captureName);
-           final File file = new File(Environment.getExternalStorageDirectory()+"/"+workNum+"/"+pointNum+"/"+captureName);
+            // final File file = new File(Environment.getExternalStoragePublicDirectory( Environment.DIRECTORY_PICTURES )+"/"+captureName);
+            final File file = new File(Environment.getExternalStorageDirectory() + "/" + workNum + "/" + pointNum + "/" + captureName);
             ImageReader.OnImageAvailableListener readerListener = new ImageReader.OnImageAvailableListener() {
                 @Override
                 public void onImageAvailable(ImageReader reader) {
@@ -280,23 +293,24 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
                         }
                     }
                 }
+
                 private void save(byte[] bytes) throws IOException {
                     OutputStream output = null;
                     try {
-                        String path = Environment.getExternalStorageDirectory()+"/"+workNum+"/"+pointNum;
+                        String path = Environment.getExternalStorageDirectory() + "/" + workNum + "/" + pointNum;
                         File file2 = new File(path);
-                        String path2 = Environment.getExternalStorageDirectory()+"/"+workNum+"/"+pointNum+"/"+"textfile";
+                        String path2 = Environment.getExternalStorageDirectory() + "/" + workNum + "/" + pointNum + "/" + "textfile";
                         File file3 = new File(path2);
-                        String path3 = Environment.getExternalStorageDirectory()+"/"+workNum+"/"+pointNum+"/uploadfile";
+                        String path3 = Environment.getExternalStorageDirectory() + "/" + workNum + "/" + pointNum + "/uploadfile";
                         File file4 = new File(path2);
                         //메모 불러오기
-                        if(!file2.exists()) {
+                        if (!file2.exists()) {
                             file2.mkdir();
                         }
-                        if(!file3.exists()){
+                        if (!file3.exists()) {
                             file3.mkdir();
                         }
-                        if(!file4.exists()) {
+                        if (!file4.exists()) {
                             file4.mkdir();
                         }
                         output = new FileOutputStream(file);
@@ -326,6 +340,7 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
                         e.printStackTrace();
                     }
                 }
+
                 @Override
                 public void onConfigureFailed(CameraCaptureSession session) {
                 }
@@ -337,18 +352,19 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
 
         //위도경도방위 구해서 파일저장
         try {
-            File file2 = new File(Environment.getExternalStorageDirectory()+"/"+workNum+"/"+pointNum+"/textfile/"+timeStamp+".txt");
+            File file2 = new File(Environment.getExternalStorageDirectory() + "/" + workNum + "/" + pointNum + "/textfile/" + timeStamp + ".txt");
             FileOutputStream fos = new FileOutputStream(file2);
             BufferedWriter buw = new BufferedWriter(new OutputStreamWriter(fos, "UTF8"));
-            buw.write(String.valueOf(takeazimuth)+"\n");
-            buw.write(String.valueOf(latitude)+"\n");
-            buw.write(String.valueOf(longitude)+"\n");
+            buw.write(String.valueOf(takeazimuth) + "\n");
+            buw.write(String.valueOf(latitude) + "\n");
+            buw.write(String.valueOf(longitude) + "\n");
             buw.close();
             fos.close();
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
     protected void createCameraPreview() {
         try {
             SurfaceTexture texture = textureView.getSurfaceTexture();
@@ -357,7 +373,7 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
             Surface surface = new Surface(texture);
             captureRequestBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
             captureRequestBuilder.addTarget(surface);
-            cameraDevice.createCaptureSession(Arrays.asList(surface), new CameraCaptureSession.StateCallback(){
+            cameraDevice.createCaptureSession(Arrays.asList(surface), new CameraCaptureSession.StateCallback() {
                 @Override
                 public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
                     //The camera is already closed
@@ -368,6 +384,7 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
                     cameraCaptureSessions = cameraCaptureSession;
                     updatePreview();
                 }
+
                 @Override
                 public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession) {
                 }
@@ -376,6 +393,7 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
             e.printStackTrace();
         }
     }
+
     private void openCamera() {
         CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
         Log.e(TAG, "is camera open");
@@ -396,8 +414,9 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
         }
         Log.e(TAG, "openCamera X");
     }
+
     protected void updatePreview() {
-        if(null == cameraDevice) {
+        if (null == cameraDevice) {
             Log.e(TAG, "updatePreview error, return");
         }
         captureRequestBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
@@ -407,6 +426,7 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
             e.printStackTrace();
         }
     }
+
     private void closeCamera() {
         if (null != cameraDevice) {
             cameraDevice.close();
@@ -417,6 +437,7 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
             imageReader = null;
         }
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == REQUEST_CAMERA_PERMISSION) {
@@ -426,6 +447,7 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
             }
         }
     }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -441,6 +463,7 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
         sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
         sensorManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_UI);
     }
+
     @Override
     protected void onPause() {
         Log.e(TAG, "onPause");

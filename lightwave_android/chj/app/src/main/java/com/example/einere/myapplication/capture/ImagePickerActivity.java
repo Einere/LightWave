@@ -51,6 +51,7 @@ public class ImagePickerActivity extends AppCompatActivity {
         Bundle bundleData = intent.getBundleExtra("ID_NUM");
         work_num = bundleData.getString("work_num");
         c_point_num = bundleData.getString("c_point_num");
+        Log.d(TAG, String.format("work_num : %s, c_point_num : %s", work_num, c_point_num));
 
         // get dynamic item size
         DisplayMetrics displaymetrics = new DisplayMetrics();
@@ -72,12 +73,17 @@ public class ImagePickerActivity extends AppCompatActivity {
         // filter only file
         File[] files = file.listFiles();
         List<String> filePathList = new ArrayList<>();
-        for (File f : files) {
-            if (f.isFile()) {
-                filePathList.add(f.getAbsolutePath());
+        if(files != null){
+            for (File f : files) {
+                if (f.isFile()) {
+                    filePathList.add(f.getAbsolutePath());
+                }
             }
+            adapter.addAll(filePathList);
         }
-        adapter.addAll(filePathList);
+        else{
+            Toast.makeText(this, "folder is empty...", Toast.LENGTH_SHORT).show();
+        }
     }
 
     class ImagePickerAdapter extends RecyclerView.Adapter<MyHolder> {
@@ -170,6 +176,7 @@ public class ImagePickerActivity extends AppCompatActivity {
                 // set image by Glide
                 Glide.with(myHolder.itemView.getContext())
                         .load(fileList.get(position))
+                        .override(itemWidth, itemHeight)
                         .apply(new RequestOptions().transform(new RoundedCorners(20)))
                         .into(myHolder.imageView);
             }
