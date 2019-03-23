@@ -249,6 +249,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
             return bOK;
         });
 
+        // if not exist any file in workNum/point/upload
         if (uploadImageList2 == null) {
             return true;
         }
@@ -273,6 +274,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         // clear RecyclerView
         recyclerAdapter.clearUriList();
         if (uriList.size() > 0) {
+            // add RecyclerView
             recyclerAdapter.addUriList(uriList);
         }
 
@@ -457,10 +459,10 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
                             // get image file path from uri
                             String path = uri.getPath();
 
-                            // 선택한 이미지를 업로드용 폴더에 추가 (비정상 종료를 대비하기 위함)
+                            // 선택한 이미지를 업로드용 폴더에 추가한 후, upImageList에 추가
                             upImageList.add(copyAndReturnFile(path, "IMAGE"));
 
-                            // 선택한 이미지와 같은 이름의 텍스트 파일을 업로드용 폴더에 추가 (비정상 종료를 대비하기 위함)
+                            // add text file to upTextList
                             upTextList.add(copyAndReturnFile(path, "TEXT"));
                         }
                     } catch (Exception e) {
@@ -482,10 +484,10 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
     }
 
     public File copyAndReturnFile(String path, String mode) {
-        // get file name, path
         String fileName;
         String filePath;
 
+        // get file name, path
         String[] splitPath = path.split("/");
         fileName = splitPath[splitPath.length - 1];
         if (mode.equals("TEXT")) {
@@ -500,24 +502,27 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         // get file
         File file = new File(filePath);
         if (file.exists()) {
-            try {
-                // make streams
-                FileInputStream fis = new FileInputStream(file);
-                FileOutputStream newFos = new FileOutputStream(String.format("%s/%s/%s/%s/%s", Environment.getExternalStorageDirectory(), workNum, pointNum, "uploadfile", fileName));
+            if (mode.equals("IMAGE")) {
+                try {
+                    // make streams
+                    FileInputStream fis = new FileInputStream(file);
+                    FileOutputStream newFos = new FileOutputStream(String.format("%s/%s/%s/%s/%s", Environment.getExternalStorageDirectory(), workNum, pointNum, "uploadfile", fileName));
 
-                // copy
-                int readCount = 0;
-                byte[] buffer = new byte[1024];
-                while ((readCount = fis.read(buffer, 0, 1024)) != -1) {
-                    newFos.write(buffer, 0, readCount);
+                    // copy
+                    int readCount = 0;
+                    byte[] buffer = new byte[1024];
+                    while ((readCount = fis.read(buffer, 0, 1024)) != -1) {
+                        newFos.write(buffer, 0, readCount);
+                    }
+
+                    // close streams
+                    newFos.close();
+                    fis.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-
-                // close streams
-                newFos.close();
-                fis.close();
-            } catch (Exception e) {
-                e.printStackTrace();
             }
+            // return image or text file
             return file;
         }
         return null;
