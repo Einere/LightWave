@@ -32,30 +32,32 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     public void onBindViewHolder(@NonNull RecyclerViewHolder holder, int i) {
         Uri uri = uriList.get(i);
         holder.iv_tmp.setImageURI(uri);
-        holder.iv_tmp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ImageView iv_tmp = (ImageView)v;
-                if(iv_tmp.getColorFilter() == null){
-                    // make gray scale matrix
-                    ColorMatrix matrix = new ColorMatrix();
-                    matrix.setSaturation(0);
-                    // make color filter
-                    ColorFilter colorFilter = new ColorMatrixColorFilter(matrix);
-                    // set filter to ImageView
-                    iv_tmp.setColorFilter(colorFilter);
-                    iv_tmp.setImageAlpha(128);
-                    // add selected list
-                    selectedList.add(i);
-                }
-                else{
-                    // clear filter
-                    iv_tmp.setColorFilter(null);
-                    iv_tmp.setImageAlpha(255);
-                    // remove from selected list
-                    selectedList.remove((Object)i);
-                }
+        holder.iv_tmp.setOnClickListener(v -> {
+            ImageView iv_tmp = (ImageView)v;
+            if(iv_tmp.getColorFilter() == null){
+                // make gray scale matrix
+                ColorMatrix matrix = new ColorMatrix();
+                matrix.setSaturation(0);
+                // make color filter
+                ColorFilter colorFilter = new ColorMatrixColorFilter(matrix);
+                // set filter to ImageView
+                iv_tmp.setColorFilter(colorFilter);
+                iv_tmp.setImageAlpha(128);
+                // add selected list
+                selectedList.add(i);
             }
+            else{
+                // clear filter
+                iv_tmp.setColorFilter(null);
+                iv_tmp.setImageAlpha(255);
+                // remove from selected list
+                selectedList.remove((Integer) i);
+            }
+        });
+        holder.iv_tmp.setOnLongClickListener(v -> {
+            uriList.remove(i);
+            notifyDataSetChanged();
+            return false;
         });
         holder.iv_tmp.setOnLongClickListener(v -> {
             uriList.remove(i);
@@ -84,8 +86,16 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         notifyDataSetChanged();
     }
 
-    List<Uri> getUriList() {
+    ArrayList<Uri> getUriList() {
         return new ArrayList<>(uriList);
+    }
+
+    ArrayList<Uri> getSelectedUriList(){
+        ArrayList<Uri> selectedUriList = new ArrayList<>();
+        for(int i : selectedList){
+            selectedUriList.add(uriList.get(i));
+        }
+        return selectedUriList;
     }
 
     class RecyclerViewHolder extends RecyclerView.ViewHolder {
