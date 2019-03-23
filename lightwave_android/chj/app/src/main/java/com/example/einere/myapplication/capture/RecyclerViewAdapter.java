@@ -59,6 +59,11 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             notifyDataSetChanged();
             return false;
         });
+        holder.iv_tmp.setOnLongClickListener(v -> {
+            uriList.remove(i);
+            notifyDataSetChanged();
+            return false;
+        });
     }
 
     @Override

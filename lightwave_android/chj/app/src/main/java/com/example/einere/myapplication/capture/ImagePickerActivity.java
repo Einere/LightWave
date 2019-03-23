@@ -60,6 +60,13 @@ public class ImagePickerActivity extends AppCompatActivity {
         itemHeight = displaymetrics.heightPixels / verticalItemNumber;
         Log.d(TAG, String.format("width : %d, height : %d", itemWidth, itemHeight));
 
+        // get dynamic item size
+        DisplayMetrics displaymetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+        itemWidth = displaymetrics.widthPixels / horizontalItemNumber;
+        itemHeight = displaymetrics.heightPixels / verticalItemNumber;
+        Log.d(TAG, String.format("width : %d, height : %d", itemWidth, itemHeight));
+
         // set recycler view
         RecyclerView recyclerView = findViewById(R.id.recycler);
         recyclerView.setLayoutManager(new GridLayoutManager(this, horizontalItemNumber));
