@@ -25,6 +25,7 @@ import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,6 +49,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -57,6 +59,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -75,6 +78,10 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
     RecyclerView rv_selectedImage = null;
     RecyclerViewAdapter recyclerAdapter = null;
     Bitmap tmpBitmap = null;
+
+    //memoView
+    EditText et_client_memo = null;
+    EditText et_server_memo = null;
 
     // sensor
     SensorManager sensorManager = null;
@@ -112,6 +119,8 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         // get views
         rv_selectedImage = findViewById(R.id.rv_selectedImage);
         tv_azimuth = findViewById(R.id.tv_azimuth);
+        et_client_memo = findViewById(R.id.et_client_memo);
+        et_server_memo = findViewById(R.id.et_server_memo);
 
         // get sensor manager
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
@@ -142,6 +151,9 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         findViewById(R.id.btn_select_picture).setOnClickListener(v -> selectGallery());
         findViewById(R.id.btn_send_data).setOnClickListener(v -> sendData());
         findViewById(R.id.btn_test).setOnClickListener(v -> checkArrayListForUpload());
+        findViewById(R.id.btn_memo_save).setOnClickListener(v -> saveMemo());
+        findViewById(R.id.btn_memo_delete).setOnClickListener(v -> deleteMemo());
+
     }
 
     @Override
@@ -239,6 +251,10 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         if (!file4.exists()) {
             file4.mkdir();
         }
+        File file5 = new File(Environment.getExternalStorageDirectory() + "/" + workNum + "/" + pointNum + "/memofile");
+        if (!file5.exists()) {
+            file5.mkdir();
+        }
         // 사진파일명 리스트 뽑아오기
         File[] uploadImageList2 = uploadFile.listFiles((dir, name) -> {
             Boolean bOK = false;
@@ -248,6 +264,30 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
             if (name.toLowerCase().endsWith(".jpg")) bOK = true;
             return bOK;
         });
+
+
+        // 마커의 메모 불러오기
+        String clientMemoPath = Environment.getExternalStorageDirectory() + "/" + workNum + "/" + pointNum + "/memofile/"+ workNum+"_"+pointNum+"_"+"memo.txt";
+        File clientMemoFile = new File(clientMemoPath);
+
+        if(!clientMemoFile.exists()){
+        }else{
+            StringBuffer strBuffer = new StringBuffer();
+            try{
+                InputStream is = new FileInputStream(clientMemoPath);
+                BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+                String line="";
+                while((line=reader.readLine())!=null){
+                    strBuffer.append(line+"\n");
+                }
+                reader.close();
+                is.close();
+                et_client_memo.setText(strBuffer.toString());
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+        }
+
 
         // if not exist any file in workNum/point/upload
         if (uploadImageList2 == null) {
@@ -410,6 +450,52 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
     }
     /* ******************* GPS methods end ******************* */
 
+    /* ****************** Memo methods start ********************** */
+    public void saveMemo(){
+        if (pointNum == null) {
+            Toast.makeText(getBaseContext(), "작업할 마커를 선택해주세요.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String clientMemoPath = Environment.getExternalStorageDirectory() + "/" + workNum + "/" + pointNum + "/memofile/"+ workNum+"_"+pointNum+"_"+"memo.txt";
+        File clientMemoFile = new File(clientMemoPath);
+
+        String memoStr = et_client_memo.getText().toString();
+        try{
+            if(!clientMemoFile.exists()) {
+                try {
+                    FileOutputStream fos = new FileOutputStream(clientMemoFile);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            FileOutputStream fos = new FileOutputStream(clientMemoFile);
+            BufferedWriter buw = new BufferedWriter(new OutputStreamWriter(fos, "UTF8"));
+            buw.write(memoStr);
+            buw.close();
+            fos.close();
+            Toast.makeText(this, "저장완료", Toast.LENGTH_SHORT).show();
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+
+    }
+
+    public void deleteMemo(){
+        if (pointNum == null) {
+            Toast.makeText(getBaseContext(), "작업할 마커를 선택해주세요.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String clientMemoPath = Environment.getExternalStorageDirectory() + "/" + workNum + "/" + pointNum + "/memofile/"+ workNum+"_"+pointNum+"_"+"memo.txt";
+        File clientMemoFile = new File(clientMemoPath);
+        et_client_memo.setText("");
+
+        if(clientMemoFile.exists()) {
+            clientMemoFile.delete();
+            Toast.makeText(this, "삭제 완료", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    /* ****************** Memo methods end ********************** */
 
     /* ******************* camera & gallery methods start ******************* */
     public void capture() {
