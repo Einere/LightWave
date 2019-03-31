@@ -9,6 +9,7 @@
 #include "SocketRecipient.h"
 #include "WorkerManager.h"
 #include "FileManager.h"
+#include "SurveyView.h"
 
 class Task;
 class TaskAddDlg;
@@ -61,6 +62,7 @@ protected:  // 컨트롤 모음이 포함된 멤버입니다.
 	StatePane			m_wndStatePane;
 	TaskWnd				m_wndTask;
 	ConnectionStateDlg*	m_pStateDlg = NULL;
+	MapEx::SurveyView m_surveyView;
 
 public:
 	void updateStateDlg();
@@ -69,6 +71,7 @@ public:
 // 생성된 메시지 맵 함수
 protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+	afx_msg void OnWindowPosChanged(WINDOWPOS *lpWinPos);
 	afx_msg void OnViewCustomize();
 	afx_msg LRESULT OnToolbarCreateNew(WPARAM wp, LPARAM lp);
 	afx_msg void OnApplicationLook(UINT id);
@@ -88,9 +91,7 @@ public:
 	afx_msg long OnCommunication(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnParentNotify(UINT message, LPARAM lParam);
 
-
 public:
-
 	int m_OldBuffLen;
 	int m_NewBuffLen;
 	int m_OldBuffLen_EN;
@@ -140,4 +141,6 @@ public:
 	virtual void OnAccept(const CString& ipAddress, UINT port, int errorCode);
 	virtual void OnReceive(const CString& ipAddress, UINT port, Json::Value props, int errorCode);
 	virtual void OnClose(const CString& ipAddress, UINT port, int errorCode);
+	afx_msg void OnSetParcel();
+	afx_msg void OnDevTest();
 };

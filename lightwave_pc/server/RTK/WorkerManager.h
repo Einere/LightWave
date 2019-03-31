@@ -28,6 +28,8 @@ public:
 	void stopServer();
 
 	void OnAccept(std::shared_ptr<SocketWorker> pNewWorker);
+
+	/* Deprecated: 이전 구현에서 사용되는 함수 */
 	void OnReceive(SocketWorker * pSocketWorker, std::string json, int errorCode);
 	void OnClose(const CString& ipAddress, UINT port, int errorCode);
 

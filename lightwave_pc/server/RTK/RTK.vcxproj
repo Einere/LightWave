@@ -136,7 +136,9 @@
     <ClInclude Include="CadManager.h" />
     <ClInclude Include="ConnectionStateDlg.h" />
     <ClInclude Include="FileManager.h" />
+    <ClInclude Include="ParcelAddDlg.h" />
     <ClInclude Include="ParcelMonkey.h" />
+    <ClInclude Include="path.h" />
     <ClInclude Include="Service.h" />
     <ClInclude Include="GlobalDefine.h" />
     <ClInclude Include="GlobalUtil\FileUtil.h" />
@@ -166,9 +168,13 @@
     <ClInclude Include="SocketWorker.h" />
     <ClInclude Include="StatePane.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="File.h" />
+    <ClInclude Include="Survey.h" />
+    <ClInclude Include="SurveyView.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Task.h" />
     <ClInclude Include="TaskAddDlg.h" />
+    <ClInclude Include="SurveyInfoPainter.h" />
     <ClInclude Include="TaskWnd.h" />
     <ClInclude Include="TestMonkey.h" />
     <ClInclude Include="VeCad\cadapi.h" />
@@ -182,6 +188,7 @@
     <ClCompile Include="ConnectionStateDlg.cpp" />
     <ClCompile Include="FileManager.cpp" />
     <ClCompile Include="Monkey.cpp" />
+    <ClCompile Include="ParcelAddDlg.cpp" />
     <ClCompile Include="ParcelMonkey.cpp" />
     <ClCompile Include="RequestResolver.cpp" />
     <ClCompile Include="SocketAcceptor.cpp" />
@@ -212,8 +219,12 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="File.cpp" />
+    <ClCompile Include="Survey.cpp" />
+    <ClCompile Include="SurveyView.cpp" />
     <ClCompile Include="Task.cpp" />
     <ClCompile Include="TaskAddDlg.cpp" />
+    <ClCompile Include="SurveyInfoPainter.cpp" />
     <ClCompile Include="TaskWnd.cpp" />
     <ClCompile Include="TestMonkey.cpp" />
     <ClCompile Include="VeCad\cadapi.cpp" />

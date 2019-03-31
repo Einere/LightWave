@@ -4,6 +4,7 @@
 #include "Shape\\DS_Polygon.h"
 #include "Shape\\DS_Rect.h"
 #include "Shape\\DS_Line.h"
+#include "Parcel.h"
 #include "BasePoint.h"
 
 //using namespace CadApi;
@@ -172,6 +173,9 @@ namespace ProgramManager
 	public:
 		void WantGetMousePoint();							// 마우스 포인트를 입력받도록 설정한다.
 		void OnShowParcelInfomation();						// 선택한 도형의 필지 정보를 확인한다.
+
+		// 현재 선택된 필지들의 리스트를 반환.
+		std::vector<std::reference_wrapper<DataType::CParcel>> getSelectedParcels();
 		void OnMouseClick( double fX, double fY );			// 마우스가 클릭되었을때
 
 		void SetMouseClickEventFunction( FnMouseClickCallback fnMouseClickEvent );
@@ -184,5 +188,8 @@ namespace ProgramManager
 		// 이벤트 처리
 		// #######################################
 
+	public:
+		HWND GetHwnd() const;
+		VDWG GetVDwg() const;
 	};
 };

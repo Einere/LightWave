@@ -50,7 +50,7 @@ bool FileManager::saveTask(const Task& task)
 	assert(isOpenSucceed);
 
 	std::ostringstream os;
-	for (std::map<LPCTSTR, LPCTSTR>::const_iterator itor = task.begin(); itor != task.end(); ++itor) {
+	for (std::map<CString, CString>::const_iterator itor = task.begin(); itor != task.end(); ++itor) {
 		os << itor->first << ':' << itor->second << '\n';
 	}
 

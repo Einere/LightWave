@@ -23,7 +23,9 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 public:
-	BOOL appendTask(std::shared_ptr<Task> pTask);
+	BOOL appendTask(const Task& task);
+	const std::vector<Task>& getTasks() const;
+	std::shared_ptr<Task> getSelectedTaskOrNull() const;
 
 public:
 	afx_msg void OnBnClickedButtonAddTask();
@@ -33,17 +35,7 @@ public:
 
 private:
 	CListCtrl m_listTask;
-};
-
-
-class TaskList : public CListBox {
-public:
-	TaskList();
-	~TaskList();
-
-	afx_msg void OnViewTask();
-
-	DECLARE_MESSAGE_MAP()
+	std::vector<Task> m_tasks;
 };
 
 class TaskWnd : public CDockablePane {
@@ -51,10 +43,8 @@ public:
 	TaskWnd();
 	~TaskWnd();
 
-	void appendTask(std::shared_ptr<Task> pTask);
-
-protected:
-	TaskList m_wndTaskList;
+	void appendTask(const Task& task);
+	const std::vector<Task>& getTasks() const;
 
 protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);

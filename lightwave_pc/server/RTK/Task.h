@@ -2,20 +2,28 @@
 
 #include <map>
 #include "./Shape/DS_Point.h"
+#include "./Parcel.h"
+#include "File.h"
 
-using DataType::ShapeType::CDS_Point;
 
 // 작업에 대한 클래스
-class Task : public std::map<LPCTSTR, LPCTSTR>{
+class Task : public std::map<CString, CString>, public File::Save {
 public:
-	const std::vector<CDS_Point>& getParcelPoints() const;
+	Task();
+	Task(const Task& other);
+	const std::vector< std::reference_wrapper<DataType::CParcel>>& getParcels() const;
 
 	void clearParcelPoints();
-	int addParcelPoints(const CDS_Point* pts, size_t offset, size_t count);
-	int addParcelPoints(const std::vector<CDS_Point>& pts);
+	//int addParcels(const DataType::CParcel* pts, size_t offset, size_t count);
+	int addParcels(std::vector<std::reference_wrapper<DataType::CParcel>> pts);
 	//void addParcelPoint(const CDS_Point pt);
 
+public: // Override
+	virtual CString toFileContent();
+
+protected:
+	virtual CString getDefaultPath();
 
 private:
-	std::vector<CDS_Point> m_parcelPoints;
+	std::vector< std::reference_wrapper<DataType::CParcel>> m_parcels;
 };
