@@ -274,7 +274,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         File clientMemoFile = new File(clientMemoPath);
 
         if (!clientMemoFile.exists()) {
-            et_client_memo.setText(R.string.no_memo);
+            et_client_memo.setHint(R.string.no_memo);
         } else {
             StringBuilder sb = new StringBuilder();
             try {
@@ -309,14 +309,19 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
 
             // get path and fileName
             String path = uploadImageFile.getAbsolutePath();
-            String textFileName = uploadImageFile.getAbsolutePath().substring(0, path.indexOf(".")) + ".txt";
-            Log.d(TAG, String.format("textFileName : %s", textFileName));
+            String[] splitPath = path.split("/");
+            String textFileName = splitPath[splitPath.length - 1];
+            textFileName = textFileName.replace(".png", ".txt");
+            splitPath[splitPath.length - 2] = "textfile";
+            splitPath[splitPath.length - 1] = textFileName;
+            String textFilePath = TextUtils.join("/", splitPath);
+            Log.d(TAG, String.format("path : %s", path));
+            Log.d(TAG, String.format("textFilePath : %s", textFilePath));
 
-            File textFile = new File(textFileName);
-            if (textFile.exists()) {
+            File textFile = new File(textFilePath);
+            if (textFile.exists() && !upTextList.contains(textFile)) {
                 // prevent to add duplicated text file
-                if (!upTextList.contains(textFile)) upTextList.add(textFile);
-                Log.d(TAG, String.format("exist textFileName : %s", textFile.getAbsolutePath()));
+                upTextList.add(textFile);
             }
         }
 
@@ -341,7 +346,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
     public void sendData() {
         // check manager status
         try {
-            if (socketManager.getStatus() == STATUS_CONNECTED) {
+            if (socketManager.getStatus() != STATUS_CONNECTED) {
                 // get uri list
 //                ArrayList<Uri> uriList = recyclerAdapter.getSelectedUriList();
 
@@ -365,13 +370,19 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
                 }*/
                 for (File file : upImageList) {
                     Bitmap tmpBitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
-                    tmpBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+                    tmpBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
                     byte[] bytes = stream.toByteArray();
                     String serialized = Base64.encodeToString(bytes, Base64.NO_WRAP);
                     data.put(String.format(Locale.KOREA, "image%d", i), serialized);
+                    Log.d(TAG, String.format("encoded string : %s", serialized));
+                    i++;
                 }
                 // put text data
-                String content = getFileContents(upTextList.get(0));
+                i = 0;
+                for (File file : upTextList){
+                    data.put(String.format(Locale.KOREA, "text%d", i), getFileContents(file));
+                    i++;
+                }
 
                 packet.put("data", data);
 
@@ -385,12 +396,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
             Toast.makeText(this, "RemoteException occurred!", Toast.LENGTH_SHORT).show();
         } catch (JSONException e) {
             Toast.makeText(this, "JSONException occurred!", Toast.LENGTH_SHORT).show();
-        } /*catch (FileNotFoundException e) {
-            Toast.makeText(this, "FileNotFoundException occurred!", Toast.LENGTH_SHORT).show();
-        } catch (IOException e) {
-            Toast.makeText(this, "IOException occurred!", Toast.LENGTH_SHORT).show();
-        }*/
-
+        }
     }
 
     public void receiveData(View v) throws RemoteException {
@@ -499,8 +505,8 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         et_client_memo.setText("");
 
         if (clientMemoFile.exists()) {
-            clientMemoFile.delete();
-            Toast.makeText(this, "삭제 완료", Toast.LENGTH_LONG).show();
+            if(clientMemoFile.delete()) Toast.makeText(this, "삭제 완료", Toast.LENGTH_LONG).show();
+            else Toast.makeText(this, "삭제 실패", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -564,7 +570,6 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
                         e.printStackTrace();
                         Toast.makeText(this, "failed to receive image data...", Toast.LENGTH_SHORT).show();
                     }
-
                     break;
                 }
                 case CAMERA_CODE: {
@@ -586,8 +591,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         String[] splitPath = path.split("/");
         fileName = splitPath[splitPath.length - 1];
         if (mode.equals("TEXT")) {
-            fileName = splitPath[splitPath.length - 1];
-            fileName = fileName.substring(0, fileName.indexOf(".")) + ".txt";
+            fileName = fileName.replace(".png", ".txt");
             splitPath[splitPath.length - 1] = "textfile/";
         }
         filePath = TextUtils.join("/", splitPath);
@@ -657,7 +661,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
     public void checkArrayListForUpload() {
         if (upImageList != null) {
             for (File file : upImageList) {
-                Log.d(TAG, String.format("image : %s", file.getAbsolutePath()));
+                Log.d(TAG, String.format("check image : %s", file.getAbsolutePath()));
             }
         }
 
@@ -665,11 +669,11 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         int size = 0;
         if (upTextList != null) {
             for (File file : upTextList) {
-                Log.d(TAG, file.getPath());
+                Log.d(TAG, String.format("check text : %s", file.getAbsolutePath()));
                 try {
                     FileReader fr = new FileReader(file);
                     BufferedReader br = new BufferedReader(fr);
-                    Log.d(TAG, String.format("text : %s", br.readLine()));
+                    Log.d(TAG, String.format("check text content : %s", br.readLine()));
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
