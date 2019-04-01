@@ -47,9 +47,11 @@ END_MESSAGE_MAP()
 
 
 
-BOOL CTaskMngDlg::appendTask(std::shared_ptr<Task> pTask)
+BOOL CTaskMngDlg::appendTask(const Task& task)
 {
-	const std::vector<LPCTSTR> values = { pTask->at("name"), pTask->at("lotNumber") };
+	m_tasks.push_back(Task(task));
+
+	const std::vector<LPCTSTR> values = { task.at("name"), task.at("lotNumber") };
 	const int valueCount = values.size();
 
 	const int itemIndex = m_listTask.GetItemCount();
@@ -61,6 +63,27 @@ BOOL CTaskMngDlg::appendTask(std::shared_ptr<Task> pTask)
 
 	return TRUE;
 }
+
+const std::vector<Task>& CTaskMngDlg::getTasks() const
+{
+	return m_tasks;
+}
+
+//std::shared_ptr<Task> CTaskMngDlg::getSelectedTaskOrNull() const
+//{
+//	int row = m_listTask.GetSelectionMark();
+//
+//	if (row < 0) return nullptr;
+//	CString name = m_listTask.GetItemText(row, 0);
+//	for (auto t : m_tasks) {
+//		if (t.get()["name"] == name) return pTask;
+//	}
+//
+//	// 찾지 못하면 로직 에러
+//	assert(true);
+//
+//	return nullptr;
+//}
 
 void CTaskMngDlg::OnBnClickedButtonAddTask()
 {
@@ -96,11 +119,21 @@ TaskWnd::~TaskWnd()
 {
 }
 
-void TaskWnd::appendTask(std::shared_ptr<Task> pTask)
+void TaskWnd::appendTask(const Task& task)
 {
-	BOOL result = m_dlg.appendTask(pTask);
+	BOOL result = m_dlg.appendTask(task);
 	assert(result);
 }
+
+const std::vector<Task>& TaskWnd::getTasks() const
+{
+	return m_dlg.getTasks();
+}
+
+//std::shared_ptr<Task> TaskWnd::getSelectedTask() const
+//{
+//	return m_dlg.getSelectedTaskOrNull();
+//}
 
 BEGIN_MESSAGE_MAP(TaskWnd, CDockablePane)
 	ON_WM_CREATE()
@@ -141,32 +174,4 @@ void TaskWnd::OnSize(UINT nType, int cx, int cy)
 	CDockablePane::OnSize(nType, cx, cy);
 	m_dlg.SetWindowPos(NULL, -1, -1, cx, cy, SWP_NOMOVE | SWP_NOACTIVATE | SWP_NOZORDER); 
 	/*m_wndTaskList.SetWindowPos(NULL, -1, -1, cx, cy, SWP_NOMOVE | SWP_NOACTIVATE | SWP_NOZORDER);*/
-}
-
-TaskList::TaskList()
-{
-}
-
-TaskList::~TaskList()
-{
-}
-
-BEGIN_MESSAGE_MAP(TaskList, CListBox)
-	ON_WM_CONTEXTMENU()
-	ON_COMMAND(ID_VIEW_TASKWND, OnViewTask)
-	ON_WM_WINDOWPOSCHANGING()
-END_MESSAGE_MAP()
-
-void TaskList::OnViewTask()
-{
-	CDockablePane* pParentBar = DYNAMIC_DOWNCAST(CDockablePane, GetOwner());
-	CMDIFrameWndEx* pMainFrame = DYNAMIC_DOWNCAST(CMDIFrameWndEx, GetTopLevelFrame());
-
-	if (pMainFrame != NULL && pParentBar != NULL)
-	{
-		pMainFrame->SetFocus();
-		pMainFrame->ShowPane(pParentBar, FALSE, FALSE, FALSE);
-		pMainFrame->RecalcLayout();
-
-	}
 }

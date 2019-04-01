@@ -12,6 +12,7 @@ SocketAcceptor::SocketAcceptor(WorkerManager* pManager)
 
 SocketAcceptor::~SocketAcceptor()
 {
+	Close();
 }
 
 void SocketAcceptor::OnAccept(int nErrorCode)

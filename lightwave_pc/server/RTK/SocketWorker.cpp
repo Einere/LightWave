@@ -29,7 +29,7 @@ void SocketWorker::OnReceive(int nErrorCode)
 
 	//m_pWorkerManager->OnReceive(this, json, nErrorCode);
 	//Log::log("局敲府纳捞记 颇飘 贸府 场...");
-		
+	
 	const std::string response = m_requestResolver.resolve(this, json);
 	Log::log("response: %s", response.c_str());
 
@@ -47,6 +47,7 @@ void SocketWorker::OnClose(int nErrorCode)
 std::string SocketWorker::readIn()
 {
 	std::string buf;
+	Log::log("max_size: %d", buf.max_size());
 
 	const int BLOCK_SIZE = 1024;
 	int receivedLength = 0;

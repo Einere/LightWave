@@ -87,6 +87,9 @@ void WorkerManager::OnAccept(std::shared_ptr<SocketWorker> pNewWorker)
 
 void WorkerManager::OnReceive(SocketWorker * pSocketWorker, std::string json, int errorCode)
 {
+	/* 이 함수는 임시 함수로 사용하지 말 것*/
+	assert(true);
+
 	CString ipAddress;
 	UINT port;
 	pSocketWorker->GetPeerName(ipAddress, port);
@@ -97,6 +100,9 @@ void WorkerManager::OnReceive(SocketWorker * pSocketWorker, std::string json, in
 
 void WorkerManager::OnClose(const CString& ipAddress, UINT port, int errorCode)
 {
+	/* 이 함수는 임시 함수로 사용하지 말 것*/
+	assert(true);
+
 	bool removeSuccess = removeOrFalse(ipAddress, port);
 	if (!removeSuccess) {
 		Log::err("IP:%s, PORT:%d: 비정상적 접근: ", ipAddress, port);
