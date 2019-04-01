@@ -307,7 +307,7 @@ void CMainFrame::OnWindowPosChanged(WINDOWPOS * lpWinPos)
 		HWND hCadWnd = CCadManager::GetInstance()->GetHwnd();
 		RECT cadRect;
 		::GetWindowRect(hCadWnd, &cadRect);
-		m_surveyView.updatePos(lpWinPos);
+		m_surveyView.updatePos();
 	}
 }
 
@@ -695,55 +695,54 @@ void CMainFrame::AddLog( CString sLog )
 
 void CMainFrame::OnZoomExtent()
 {
-	// TODO: 여기에 명령 처리기 코드를 추가합니다.
 	CCadManager *pCad = CCadManager::GetInstance();
 	pCad->ZoomExtent();
+	m_surveyView.updatePos();
 }
 
 
 void CMainFrame::OnZoomIn()
 {
-	// TODO: 여기에 명령 처리기 코드를 추가합니다.
 	CCadManager *pCad = CCadManager::GetInstance();
 	pCad->ZoomIn();
+	m_surveyView.updatePos();
 }
 
 
 void CMainFrame::OnZoomOut()
 {
-	// TODO: 여기에 명령 처리기 코드를 추가합니다.
 	CCadManager *pCad = CCadManager::GetInstance();
 	pCad->ZoomOut();
+	m_surveyView.updatePos();
 }
 
 
 void CMainFrame::OnMoveNowposition()
 {
-	// TODO: 여기에 명령 처리기 코드를 추가합니다.
 	CCadManager *pCad = CCadManager::GetInstance();
 	pCad->MoveViewForPositionSymbol(100);
+	m_surveyView.updatePos();
 
 }
 
 
 void CMainFrame::OnZoomWindow()
 {
-	// TODO: 여기에 명령 처리기 코드를 추가합니다.
 	CCadManager *pCad = CCadManager::GetInstance();
 	pCad->ZoomWindow();
+	m_surveyView.updatePos();
 }
 
 
 void CMainFrame::OnMovePan()
 {
-	// TODO: 여기에 명령 처리기 코드를 추가합니다.
 	CCadManager *pCad = CCadManager::GetInstance();
 	pCad->PanRTime();
+	m_surveyView.updatePos();
 }
 
 void CMainFrame::OnLayerOpencontroller()
 {
-	// TODO: 여기에 명령 처리기 코드를 추가합니다.
 	CCadManager *pCadManager = CCadManager::GetInstance();
 	pCadManager->CadOpenLayerDlg();
 }
@@ -931,16 +930,16 @@ void CMainFrame::OnShowLog()
 
 void CMainFrame::OnAddTask()
 {
-	TaskAddDlg taskAddDlg(this);
+	/*TaskAddDlg taskAddDlg(this);
 	if (IDOK == taskAddDlg.DoModal()) {
 		Task& newTask = taskAddDlg.getTask();
 		m_wndTask.appendTask(newTask);
 		assert(newTask.save());
 		
-		//m_fileManager.saveTask(newTask);
+		m_fileManager.saveTask(newTask);
 
 		Log::log("작업이 등록되었습니다: [작업명: %s\t 대표지번: %s]", newTask.at("name"), newTask.at("lotNumber"));
-	}
+	}*/
 }
 
 void CMainFrame::OnAccept(const CString& ipAddress, UINT port, int errorCode)

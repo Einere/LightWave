@@ -2,6 +2,8 @@
 #include "MainFrm.h"
 #include "TaskWnd.h"
 #include "Task.h"
+#include "TaskAddDlg.h"
+#include "FileManager.h"
 #include "afxdialogex.h"
 #include "resource.h"
 
@@ -36,6 +38,8 @@ BOOL CTaskMngDlg::OnInitDialog()
 	m_listTask.InsertColumn(1, _T("작업명"), LVCFMT_LEFT, width*0.5, 2);
 	m_listTask.InsertColumn(2, _T("지번"), LVCFMT_LEFT, width*0.5, 2);
 
+
+
 	return TRUE;
 }
 
@@ -47,11 +51,11 @@ END_MESSAGE_MAP()
 
 
 
-BOOL CTaskMngDlg::appendTask(const Task& task)
+void CTaskMngDlg::appendTask(const Task& task)
 {
 	m_tasks.push_back(Task(task));
 
-	const std::vector<LPCTSTR> values = { task.at("name"), task.at("lotNumber") };
+	const std::vector<LPCTSTR> values = { task.getTaskName(), task.getLotNumber()};
 	const int valueCount = values.size();
 
 	const int itemIndex = m_listTask.GetItemCount();
@@ -60,8 +64,6 @@ BOOL CTaskMngDlg::appendTask(const Task& task)
 	for (int i = 1; i < valueCount; ++i) {
 		m_listTask.SetItemText(itemIndex, i, values[i]);
 	}
-
-	return TRUE;
 }
 
 const std::vector<Task>& CTaskMngDlg::getTasks() const
@@ -69,26 +71,20 @@ const std::vector<Task>& CTaskMngDlg::getTasks() const
 	return m_tasks;
 }
 
-//std::shared_ptr<Task> CTaskMngDlg::getSelectedTaskOrNull() const
-//{
-//	int row = m_listTask.GetSelectionMark();
-//
-//	if (row < 0) return nullptr;
-//	CString name = m_listTask.GetItemText(row, 0);
-//	for (auto t : m_tasks) {
-//		if (t.get()["name"] == name) return pTask;
-//	}
-//
-//	// 찾지 못하면 로직 에러
-//	assert(true);
-//
-//	return nullptr;
-//}
-
 void CTaskMngDlg::OnBnClickedButtonAddTask()
 {
-	auto pMainWnd = (CMainFrame*)AfxGetMainWnd();
-	pMainWnd->OnAddTask();
+	TaskAddDlg dlg;
+	if (dlg.DoModal() == IDOK) {
+		Task newTask = dlg.getTask();
+
+
+		appendTask(newTask);
+		assert(newTask.save());
+
+		newTask.save();
+
+		Log::log("작업이 등록되었습니다: [작업명: %s\t 대표지번: %s]", newTask.getTaskName(), newTask.getLotNumber());
+	}
 }
 
 
@@ -121,8 +117,7 @@ TaskWnd::~TaskWnd()
 
 void TaskWnd::appendTask(const Task& task)
 {
-	BOOL result = m_dlg.appendTask(task);
-	assert(result);
+	m_dlg.appendTask(task);
 }
 
 const std::vector<Task>& TaskWnd::getTasks() const

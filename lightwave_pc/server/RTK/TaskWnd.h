@@ -4,7 +4,6 @@
 
 class Task;
 
-// CTaskMngDlg 대화 상자
 class CTaskMngDlg : public CDialogEx
 {
 	DECLARE_DYNAMIC(CTaskMngDlg)
@@ -13,7 +12,6 @@ public:
 	CTaskMngDlg(CWnd* pParent = nullptr);   // 표준 생성자입니다.
 	virtual ~CTaskMngDlg();
 
-	// 대화 상자 데이터입니다.
 #ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_DLG_TASK_MANAGEMENT };
 #endif
@@ -23,7 +21,7 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 public:
-	BOOL appendTask(const Task& task);
+	void appendTask(const Task& task);
 	const std::vector<Task>& getTasks() const;
 	std::shared_ptr<Task> getSelectedTaskOrNull() const;
 
@@ -34,6 +32,7 @@ public:
 	afx_msg BOOL OnInitDialog();
 
 private:
+
 	CListCtrl m_listTask;
 	std::vector<Task> m_tasks;
 };

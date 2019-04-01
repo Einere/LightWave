@@ -19,9 +19,6 @@
     <Filter Include="DataType">
       <UniqueIdentifier>{f38ebbb5-3dc0-4dcd-ac92-092c68ab4701}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Manager">
-      <UniqueIdentifier>{82e7114e-952c-4dcc-84f7-af377ab4da82}</UniqueIdentifier>
-    </Filter>
     <Filter Include="DataType\ShapeType">
       <UniqueIdentifier>{d9b7998a-fd5f-452c-b365-7e579323b5da}</UniqueIdentifier>
     </Filter>
