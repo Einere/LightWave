@@ -16,6 +16,9 @@
 #include "SocketWorker.h"
 #include "SocketRecipient.h"
 #include "TaskAddDlg.h"
+#include "ParcelAddDlg.h"
+#include "SurveyView.h"
+#include "Survey.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -32,6 +35,7 @@ const UINT uiLastUserToolBarId = uiFirstUserToolBarId + iMaxUserToolbars - 1;
 
 BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_WM_CREATE()
+	ON_WM_WINDOWPOSCHANGED()
 	ON_COMMAND(ID_VIEW_CUSTOMIZE, &CMainFrame::OnViewCustomize)
 	ON_REGISTERED_MESSAGE(AFX_WM_CREATETOOLBAR, &CMainFrame::OnToolbarCreateNew)
 	ON_COMMAND_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_WINDOWS_7, &CMainFrame::OnApplicationLook)
@@ -73,6 +77,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_WM_PARENTNOTIFY()
 	ON_COMMAND(ID_SHOW_LOG, &CMainFrame::OnShowLog)
 	ON_COMMAND(ID_ADD_TASK, &CMainFrame::OnAddTask)
+	ON_COMMAND(ID_ADD_PARCEL, &CMainFrame::OnSetParcel)
+	ON_COMMAND(ID_DEV_TEST, &CMainFrame::OnDevTest)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -97,8 +103,8 @@ CMainFrame::CMainFrame()
 	GetDockingManager()->DisableRestoreDockState(true);
 }
 
-CMainFrame::~CMainFrame()
-{
+CMainFrame::~CMainFrame() {
+
 }
 
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
@@ -217,7 +223,18 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	// 빠른(<Alt> 키를 누른 채 끌기) 도구 모음 사용자 지정을 활성화합니다.
 	CMFCToolBar::EnableQuickCustomization();
 
-	
+	m_surveyView.setManager(CCadManager::GetInstance());
+	BOOL surveyViewCreated = m_surveyView.Create(IDD_SURVEY_VIEW_LAYER, this);
+	if (!surveyViewCreated) {
+		MessageBox("SurveyView 창을 만들 수 없습니다.");
+		return -1;
+	}
+
+	m_surveyView.ShowWindow(SW_SHOW);
+
+	Survey survey(446800.614, 193000.033);
+	m_surveyView.addSurvey(survey);
+
 	/*
 	if (CMFCToolBar::GetUserImages() == NULL)
 	{
@@ -280,6 +297,18 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	*/
 
 	return 0;
+}
+
+
+void CMainFrame::OnWindowPosChanged(WINDOWPOS * lpWinPos)
+{
+	CFrameWndEx::OnWindowPosChanged(lpWinPos);
+	if (m_surveyView) {
+		HWND hCadWnd = CCadManager::GetInstance()->GetHwnd();
+		RECT cadRect;
+		::GetWindowRect(hCadWnd, &cadRect);
+		m_surveyView.updatePos();
+	}
 }
 
 void CMainFrame::addTask(Task task)
@@ -666,55 +695,54 @@ void CMainFrame::AddLog( CString sLog )
 
 void CMainFrame::OnZoomExtent()
 {
-	// TODO: 여기에 명령 처리기 코드를 추가합니다.
 	CCadManager *pCad = CCadManager::GetInstance();
 	pCad->ZoomExtent();
+	m_surveyView.updatePos();
 }
 
 
 void CMainFrame::OnZoomIn()
 {
-	// TODO: 여기에 명령 처리기 코드를 추가합니다.
 	CCadManager *pCad = CCadManager::GetInstance();
 	pCad->ZoomIn();
+	m_surveyView.updatePos();
 }
 
 
 void CMainFrame::OnZoomOut()
 {
-	// TODO: 여기에 명령 처리기 코드를 추가합니다.
 	CCadManager *pCad = CCadManager::GetInstance();
 	pCad->ZoomOut();
+	m_surveyView.updatePos();
 }
 
 
 void CMainFrame::OnMoveNowposition()
 {
-	// TODO: 여기에 명령 처리기 코드를 추가합니다.
 	CCadManager *pCad = CCadManager::GetInstance();
 	pCad->MoveViewForPositionSymbol(100);
+	m_surveyView.updatePos();
 
 }
 
 
 void CMainFrame::OnZoomWindow()
 {
-	// TODO: 여기에 명령 처리기 코드를 추가합니다.
 	CCadManager *pCad = CCadManager::GetInstance();
 	pCad->ZoomWindow();
+	m_surveyView.updatePos();
 }
 
 
 void CMainFrame::OnMovePan()
 {
-	// TODO: 여기에 명령 처리기 코드를 추가합니다.
 	CCadManager *pCad = CCadManager::GetInstance();
 	pCad->PanRTime();
+	m_surveyView.updatePos();
 }
 
 void CMainFrame::OnLayerOpencontroller()
 {
-	// TODO: 여기에 명령 처리기 코드를 추가합니다.
 	CCadManager *pCadManager = CCadManager::GetInstance();
 	pCadManager->CadOpenLayerDlg();
 }
@@ -902,17 +930,16 @@ void CMainFrame::OnShowLog()
 
 void CMainFrame::OnAddTask()
 {
-	TaskAddDlg taskAddDlg(this);
+	/*TaskAddDlg taskAddDlg(this);
 	if (IDOK == taskAddDlg.DoModal()) {
-		auto newTask = std::make_shared<Task>(taskAddDlg.getTask());
+		Task& newTask = taskAddDlg.getTask();
 		m_wndTask.appendTask(newTask);
-		m_fileManager.saveTask(*newTask);
+		assert(newTask.save());
+		
+		m_fileManager.saveTask(newTask);
 
-		Log::log("작업이 등록되었습니다: [작업명: %s\t 대표지번: %s]", newTask->at("name"), newTask->at("lotNumber"));
-	}
-
-	/*	auto pManager = CCadManager::GetInstance();
-	pManager->OnShowParcelInfomation();*/
+		Log::log("작업이 등록되었습니다: [작업명: %s\t 대표지번: %s]", newTask.at("name"), newTask.at("lotNumber"));
+	}*/
 }
 
 void CMainFrame::OnAccept(const CString& ipAddress, UINT port, int errorCode)
@@ -930,4 +957,29 @@ void CMainFrame::OnClose(const CString & ipAddress, UINT port, int errorCode)
 {
 	Log::log("%s:%d 연결종료", ipAddress, port);
 	updateStateDlg();
+}
+
+
+void CMainFrame::OnSetParcel()
+{
+	const std::vector<Task>& tasks = m_wndTask.getTasks();
+	ParcelAddDlg parcelAddDlg(tasks);
+	if (IDOK == parcelAddDlg.DoModal()) {
+		Task selectedTask;
+		bool isSelected = parcelAddDlg.getSelectedTask(selectedTask);
+		if (!isSelected) return;
+
+		auto pManager = CCadManager::GetInstance();
+		std::vector<std::reference_wrapper<DataType::CParcel>> pts = pManager->getSelectedParcels();
+		selectedTask.addParcels(pts);
+		selectedTask.save();
+	}
+}
+
+
+void CMainFrame::OnDevTest()
+{
+	
+	/*auto cadManager = CCadManager::GetInstance();
+	cadManager->addServeyInfo();*/
 }

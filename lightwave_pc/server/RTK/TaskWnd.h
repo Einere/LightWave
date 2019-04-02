@@ -4,7 +4,6 @@
 
 class Task;
 
-// CTaskMngDlg 대화 상자
 class CTaskMngDlg : public CDialogEx
 {
 	DECLARE_DYNAMIC(CTaskMngDlg)
@@ -13,7 +12,6 @@ public:
 	CTaskMngDlg(CWnd* pParent = nullptr);   // 표준 생성자입니다.
 	virtual ~CTaskMngDlg();
 
-	// 대화 상자 데이터입니다.
 #ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_DLG_TASK_MANAGEMENT };
 #endif
@@ -23,7 +21,9 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 public:
-	BOOL appendTask(std::shared_ptr<Task> pTask);
+	void appendTask(const Task& task);
+	const std::vector<Task>& getTasks() const;
+	std::shared_ptr<Task> getSelectedTaskOrNull() const;
 
 public:
 	afx_msg void OnBnClickedButtonAddTask();
@@ -32,18 +32,9 @@ public:
 	afx_msg BOOL OnInitDialog();
 
 private:
+
 	CListCtrl m_listTask;
-};
-
-
-class TaskList : public CListBox {
-public:
-	TaskList();
-	~TaskList();
-
-	afx_msg void OnViewTask();
-
-	DECLARE_MESSAGE_MAP()
+	std::vector<Task> m_tasks;
 };
 
 class TaskWnd : public CDockablePane {
@@ -51,10 +42,8 @@ public:
 	TaskWnd();
 	~TaskWnd();
 
-	void appendTask(std::shared_ptr<Task> pTask);
-
-protected:
-	TaskList m_wndTaskList;
+	void appendTask(const Task& task);
+	const std::vector<Task>& getTasks() const;
 
 protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);

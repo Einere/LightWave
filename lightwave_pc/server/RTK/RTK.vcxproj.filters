@@ -13,17 +13,11 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="VeCad">
-      <UniqueIdentifier>{86dd3a69-8a94-41ed-81a0-d1566ff1cbde}</UniqueIdentifier>
-    </Filter>
     <Filter Include="GlobalUtil">
       <UniqueIdentifier>{c8ed84c5-9cee-4a11-b649-b205bc3a847c}</UniqueIdentifier>
     </Filter>
     <Filter Include="DataType">
       <UniqueIdentifier>{f38ebbb5-3dc0-4dcd-ac92-092c68ab4701}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Manager">
-      <UniqueIdentifier>{82e7114e-952c-4dcc-84f7-af377ab4da82}</UniqueIdentifier>
     </Filter>
     <Filter Include="DataType\ShapeType">
       <UniqueIdentifier>{d9b7998a-fd5f-452c-b365-7e579323b5da}</UniqueIdentifier>
@@ -45,6 +39,12 @@
     </Filter>
     <Filter Include="models">
       <UniqueIdentifier>{3b160242-fe19-4eaa-bc0a-0c0c65ef7fdf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Map">
+      <UniqueIdentifier>{41f92e6d-8965-4687-a2cb-f65274c678df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Map\VeCad">
+      <UniqueIdentifier>{86dd3a69-8a94-41ed-81a0-d1566ff1cbde}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -134,7 +134,7 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="VeCad\cadapi.h">
-      <Filter>VeCad</Filter>
+      <Filter>Map\VeCad</Filter>
     </ClInclude>
     <ClInclude Include="GlobalUtil\FileUtil.h">
       <Filter>GlobalUtil</Filter>
@@ -163,9 +163,6 @@
     <ClInclude Include="BasePoint.h">
       <Filter>DataType</Filter>
     </ClInclude>
-    <ClInclude Include="CadManager.h">
-      <Filter>Manager</Filter>
-    </ClInclude>
     <ClInclude Include="Parcel.h">
       <Filter>DataType</Filter>
     </ClInclude>
@@ -174,9 +171,6 @@
     </ClInclude>
     <ClInclude Include="GPSPoint.h">
       <Filter>DataType</Filter>
-    </ClInclude>
-    <ClInclude Include="ParcelManager.h">
-      <Filter>Manager</Filter>
     </ClInclude>
     <ClInclude Include="ParcelInfoDlg.h">
       <Filter>CustomController And Dialog</Filter>
@@ -244,14 +238,38 @@
     <ClInclude Include="Log.h">
       <Filter>common</Filter>
     </ClInclude>
-    <ClInclude Include="FileManager.h">
-      <Filter>Manager</Filter>
-    </ClInclude>
     <ClInclude Include="TestMonkey.h">
       <Filter>service</Filter>
     </ClInclude>
     <ClInclude Include="SocketAcceptor.h">
       <Filter>service</Filter>
+    </ClInclude>
+    <ClInclude Include="ParcelAddDlg.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="File.h">
+      <Filter>models</Filter>
+    </ClInclude>
+    <ClInclude Include="path.h">
+      <Filter>GlobalUtil</Filter>
+    </ClInclude>
+    <ClInclude Include="ParcelManager.h">
+      <Filter>Map</Filter>
+    </ClInclude>
+    <ClInclude Include="CadManager.h">
+      <Filter>Map</Filter>
+    </ClInclude>
+    <ClInclude Include="FileManager.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="Survey.h">
+      <Filter>models</Filter>
+    </ClInclude>
+    <ClInclude Include="SurveyInfoPainter.h">
+      <Filter>Map</Filter>
+    </ClInclude>
+    <ClInclude Include="SurveyView.h">
+      <Filter>Map</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -259,7 +277,7 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="VeCad\cadapi.cpp">
-      <Filter>VeCad</Filter>
+      <Filter>Map\VeCad</Filter>
     </ClCompile>
     <ClCompile Include="GlobalUtil\FileUtil.cpp">
       <Filter>GlobalUtil</Filter>
@@ -285,17 +303,11 @@
     <ClCompile Include="BasePoint.cpp">
       <Filter>DataType</Filter>
     </ClCompile>
-    <ClCompile Include="CadManager.cpp">
-      <Filter>Manager</Filter>
-    </ClCompile>
     <ClCompile Include="GPSPoint.cpp">
       <Filter>DataType</Filter>
     </ClCompile>
     <ClCompile Include="Parcel.cpp">
       <Filter>DataType</Filter>
-    </ClCompile>
-    <ClCompile Include="ParcelManager.cpp">
-      <Filter>Manager</Filter>
     </ClCompile>
     <ClCompile Include="MapBound.cpp">
       <Filter>DataType</Filter>
@@ -366,14 +378,35 @@
     <ClCompile Include="Log.cpp">
       <Filter>common</Filter>
     </ClCompile>
-    <ClCompile Include="FileManager.cpp">
-      <Filter>Manager</Filter>
-    </ClCompile>
     <ClCompile Include="TestMonkey.cpp">
       <Filter>service</Filter>
     </ClCompile>
     <ClCompile Include="SocketAcceptor.cpp">
       <Filter>service</Filter>
+    </ClCompile>
+    <ClCompile Include="ParcelAddDlg.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="File.cpp">
+      <Filter>models</Filter>
+    </ClCompile>
+    <ClCompile Include="ParcelManager.cpp">
+      <Filter>Map</Filter>
+    </ClCompile>
+    <ClCompile Include="CadManager.cpp">
+      <Filter>Map</Filter>
+    </ClCompile>
+    <ClCompile Include="FileManager.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="Survey.cpp">
+      <Filter>models</Filter>
+    </ClCompile>
+    <ClCompile Include="SurveyInfoPainter.cpp">
+      <Filter>Map</Filter>
+    </ClCompile>
+    <ClCompile Include="SurveyView.cpp">
+      <Filter>Map</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
