@@ -145,8 +145,9 @@ namespace SurveyTask {
 
 			Json::ArrayIndex size = jsonParcel["parcelPoints"].size();
 			for (int i = 0; i < size; ++i) {
-				parcel.points[i].first = jsonParcel["parcelPoints"]["X"].asDouble();
-				parcel.points[i].second = jsonParcel["parcelPoints"]["Y"].asDouble();
+				double x = jsonParcel["parcelPoints"][i]["X"].asDouble();
+				double y = jsonParcel["parcelPoints"][i]["Y"].asDouble();
+				parcel.points.push_back({ x,y });
 			}
 
 			m_parcels.push_back(parcel);

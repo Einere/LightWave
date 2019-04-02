@@ -24,7 +24,7 @@ namespace File {
 		}
 
 		CFile file;
-		const bool isOpenSucceed = file.Open(path, CFile::modeWrite | CFile::modeCreate | CFile::modeNoTruncate);
+		const bool isOpenSucceed = file.Open(path, CFile::modeWrite | CFile::modeCreate );
 		assert(isOpenSucceed);
 
 		CString buf = toFileContent();
