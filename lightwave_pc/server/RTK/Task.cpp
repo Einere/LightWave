@@ -1,4 +1,6 @@
 #include "stdafx.h"
+#include <ctime>
+#include <chrono>
 #include "Shape/DS_Polygon.h"
 #include "json/json.h"
 #include "Task.h"
@@ -9,16 +11,57 @@ using namespace DataType::ShapeType;
 
 Task::Task()
 {
+	m_id = generateId();
 }
 
-Task::Task(const Task & other)
+CString Task::getTaskName() const
 {
-	Task::const_iterator itor = other.begin();
-	for (; itor != other.end(); ++itor) {
-		insert(std::pair<CString, CString>(itor->first, itor->second));
-	}
+	return m_taskName;
+}
 
-	addParcels(other.m_parcels);
+void Task::setTaskName(CString taskName)
+{
+	m_taskName = taskName;
+}
+
+CString Task::getTaskDesc() const
+{
+	return m_taskDesc;
+}
+
+void Task::setTaskDesc(CString taskDesc)
+{
+	m_taskDesc = taskDesc;
+}
+
+CString Task::getFileName() const
+{
+	return m_fileName;
+}
+
+void Task::setFileName(CString fileName)
+{
+	m_fileName = fileName;
+}
+
+CString Task::getLotNumber() const
+{
+	return m_lotNumber;
+}
+
+void Task::setLotNumber(CString lotNumber)
+{
+	m_lotNumber = lotNumber;
+}
+
+UINT Task::getId() const
+{
+	return m_id;
+}
+
+void Task::setId(UINT id)
+{
+	m_id = id;
 }
 
 const std::vector<std::reference_wrapper<DataType::CParcel>>& Task::getParcels() const
@@ -30,35 +73,24 @@ void Task::clearParcelPoints()
 {
 	m_parcels.clear();
 }
-//
-//int Task::addParcels(const CParcel* pts, size_t offset, size_t count)
-//{
-//	assert(pts);
-//	for (int i = offset; i < offset + count; ++i) {
-//		m_parcels.push_back((CParcel&)pts[i]);
-//	}
-//
-//	return m_parcels.size();
-//}
 
 int Task::addParcels(std::vector<std::reference_wrapper<DataType::CParcel>> pts)
 {
 	for (int i = 0; i < pts.size(); ++i) {
 		m_parcels.push_back(pts[i]);
 	}
-	/*for (auto pt : pts) {
-		m_parcels.push_back(pt);
-	}*/
-
 	return m_parcels.size();
 }
 
 CString Task::toFileContent()
 {
+	/* 저장할 필드 목록: [id, taskName, taskDesc, lotNumber, fileName, parcelPoints]	*/
 	Json::Value root;
-	for (auto itor = begin(); itor != end(); ++itor) {
-		root[itor->first] = (LPCTSTR)itor->second;
-	}
+	root["id"] = m_id;
+	root["taskName"] = (LPCTSTR)m_taskName;
+	root["taskDesc"] = (LPCTSTR)m_taskDesc;
+	root["lotNumber"] = (LPCTSTR)m_lotNumber;
+	root["fileName"] = (LPCTSTR)m_fileName;
 
 	root["parcels"] = Json::Value(Json::arrayValue);
 	for (auto itor = m_parcels.begin(); itor != m_parcels.end(); ++itor) {
@@ -89,8 +121,17 @@ CString Task::toFileContent()
 
 CString Task::getDefaultPath()
 {
-	CString name = find("name")->second;
 	CString path;
-	path.Format("%s/%s/%s.tsk", rootDir, name, name);
+	path.Format("%s/%s/%s.tsk", rootDir, m_taskName, m_taskName);
 	return path;
+}
+
+BOOL Task::resolveFileData(const char* data)
+{
+	return FALSE;
+}
+
+UINT Task::generateId() const
+{
+	return (UINT)time(NULL);
 }

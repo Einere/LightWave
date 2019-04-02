@@ -5,8 +5,6 @@
 using GlobalUtil::CFileUtil;
 
 namespace File {
-
-
 	Save::Save()
 	{
 	}
@@ -24,7 +22,6 @@ namespace File {
 		if (GetFileAttributes(dirPath) == INVALID_FILE_ATTRIBUTES) {
 			CreateDirectory(dirPath, NULL);
 		}
-
 		
 		MessageBox(NULL, path, dirPath, MB_OK);
 		CFile file;
@@ -37,25 +34,23 @@ namespace File {
 		file.Close();
 
 		return true;
-		/**************/
-
-
-		/*bool isOpened = m_fileUtil.FileOpen(path, "w");
-		if (!isOpened) return false;
-
-		CString buf = toFileContent();
-		bool isWritten = m_fileUtil.Write(buf);
-		if (!isWritten) return false;
-
-		bool isClosed=m_fileUtil.FileClose();
-		assert(isClosed);
-		
-		return true;*/
 	}
 
 	bool Save::load(CString path)
 	{
-		return false;
+		CFile file;
+		const bool isOpenSucceed = file.Open(path, CFile::modeRead);
+		assert(isOpenSucceed);
+
+		int length = file.GetLength();
+		char *buf = new char[length];
+		file.Read((void*)buf, length);
+
+
+
+		file.Close();
+
+		return true;
 	}
 
 	CString Save::getDefaultPath()
