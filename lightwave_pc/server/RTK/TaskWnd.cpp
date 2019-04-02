@@ -4,6 +4,7 @@
 #include "Task.h"
 #include "TaskAddDlg.h"
 #include "FileManager.h"
+#include "TaskManager.h"
 #include "ParcelManager.h"
 #include "afxdialogex.h"
 #include "resource.h"
@@ -31,6 +32,8 @@ void CTaskMngDlg::DoDataExchange(CDataExchange* pDX)
 BOOL CTaskMngDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
+
+	m_listTask.SetExtendedStyle(m_listTask.GetExtendedStyle() | LVS_EX_FULLROWSELECT);
 
 	CRect listRect;
 	m_listTask.GetWindowRect(&listRect);
@@ -60,13 +63,15 @@ BEGIN_MESSAGE_MAP(CTaskMngDlg, CDialogEx)
 	ON_NOTIFY(NM_CLICK, IDC_LIST_TASK, &CTaskMngDlg::OnNMClickListTask)
 	ON_COMMAND(ID_TASK_MNG_DELETE, &CTaskMngDlg::OnTaskMngDelete)
 	ON_COMMAND(ID_TASK_MNG_ACTIVE, &CTaskMngDlg::OnTaskMngActive)
+	ON_NOTIFY(LVN_ITEMACTIVATE, IDC_LIST_TASK, &CTaskMngDlg::OnLvnItemActivateListTask)
 END_MESSAGE_MAP()
 
 
 
 SurveyTask::Task& CTaskMngDlg::appendTask(const SurveyTask::Task& task)
 {
-	m_tasks.push_back(SurveyTask::Task(task));
+	auto taskManager = ProgramManager::TaskManager::GetInstance();
+	taskManager->appendTask(task);
 
 	CString idInString;
 	idInString.Format("%d", task.getId());
@@ -80,21 +85,25 @@ SurveyTask::Task& CTaskMngDlg::appendTask(const SurveyTask::Task& task)
 		m_listTask.SetItemText(itemIndex, i, values[i]);
 	}
 
-	return m_tasks[m_tasks.size() - 1];
+	return taskManager->getTaskByIndex(taskManager->getTasksCount()-1);
 }
 
-const std::vector<SurveyTask::Task>& CTaskMngDlg::getTasks() const
+UINT CTaskMngDlg::getSelectedId() const
 {
-	return m_tasks;
+	int mark = m_listTask.GetSelectionMark();
+	if (-1 == mark) return -1;
+
+	CString idInString = m_listTask.GetItemText(mark, 0);
+	return _ttoi(idInString);
 }
 
 int CTaskMngDlg::deleteSelectedTask()
 {
-	UINT index = getSelectedTaskIndex();
-	assert(-1 != index);
+	UINT id = getSelectedId();
+	if (-1 == id) return 0;
 
-	m_tasks[index].remove();
-	m_tasks.erase(m_tasks.begin() + index);
+	auto taskManager = ProgramManager::TaskManager::GetInstance();
+	taskManager->removeTask(id);
 
 	int mark = m_listTask.GetSelectionMark();
 	BOOL success = m_listTask.DeleteItem(mark);
@@ -103,40 +112,29 @@ int CTaskMngDlg::deleteSelectedTask()
 	return 1;
 }
 
-BOOL CTaskMngDlg::findTaskById(UINT id, SurveyTask::Task& task_Out) const
-{
-	for (auto task : m_tasks) {
-		if (id == task.getId()) {
-			task_Out = task;
-			return TRUE;
-		}
-	}
-	return FALSE;
-}
-
-BOOL CTaskMngDlg::getSelectedTask(SurveyTask::Task & task_Out) const
-{
-	UINT taskIndex = getSelectedTaskIndex();
-	if (-1 == taskIndex) return FALSE;
-
-	task_Out = m_tasks[taskIndex];
-	return TRUE;
-}
-
-UINT CTaskMngDlg::getSelectedTaskIndex() const
-{
-	int mark = m_listTask.GetSelectionMark();
-	CString idInString = m_listTask.GetItemText(mark, 0);
-
-	UINT id = _ttoi(idInString);
-	UINT tasksCount = m_tasks.size();
-
-	for (int i = 0; i < tasksCount; ++i) {
-		if (id == m_tasks[i].getId()) return i;
-	}
-
-	return -1;
-}
+//BOOL CTaskMngDlg::getSelectedTask(SurveyTask::Task & task_Out) const
+//{
+//	UINT taskIndex = getSelectedTaskIndex();
+//	if (-1 == taskIndex) return FALSE;
+//
+//	task_Out = m_tasks[taskIndex];
+//	return TRUE;
+//}
+//
+//UINT CTaskMngDlg::getSelectedTaskIndex() const
+//{
+//	int mark = m_listTask.GetSelectionMark();
+//	CString idInString = m_listTask.GetItemText(mark, 0);
+//
+//	UINT id = _ttoi(idInString);
+//	UINT tasksCount = m_tasks.size();
+//
+//	for (int i = 0; i < tasksCount; ++i) {
+//		if (id == m_tasks[i].getId()) return i;
+//	}
+//
+//	return -1;
+//}
 
 void CTaskMngDlg::OnBnClickedButtonAddTask()
 {
@@ -175,21 +173,6 @@ TaskWnd::~TaskWnd()
 {
 }
 
-void TaskWnd::appendTask(const SurveyTask::Task& task)
-{
-	m_dlg.appendTask(task);
-}
-
-const std::vector<SurveyTask::Task>& TaskWnd::getTasks() const
-{
-	return m_dlg.getTasks();
-}
-
-//std::shared_ptr<Task> TaskWnd::getSelectedTask() const
-//{
-//	return m_dlg.getSelectedTaskOrNull();
-//}
-
 BEGIN_MESSAGE_MAP(TaskWnd, CDockablePane)
 	ON_WM_CREATE()
 	ON_WM_SIZE()
@@ -223,7 +206,7 @@ void TaskWnd::OnSize(UINT nType, int cx, int cy)
 
 void CTaskMngDlg::OnContextMenu(CWnd * pWnd, CPoint point)
 {
-	if (-1 == getSelectedTaskIndex()) {
+	if (-1 == getSelectedId()) {
 		CDialogEx::OnContextMenu(pWnd, point);
 		return;
 	}
@@ -241,7 +224,19 @@ void CTaskMngDlg::OnNMClickListTask(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
 	
-	getSelectedTaskIndex();
+	auto taskManager = ProgramManager::TaskManager::GetInstance();
+
+	int index = pNMItemActivate->iItem; // 클릭한 아이템의 인덱스 얻어옴
+	if (index >= 0 ) // 표시된 아이템들중에 클릭시 아래 코드 실행
+	{
+		CString idInString = m_listTask.GetItemText(index, 0);
+		UINT id = _ttoi(idInString);
+		
+		taskManager->setSelection(id, TRUE);
+	}
+	else {
+		taskManager->setSelection(0, FALSE);
+	}
 
 	*pResult = 0;
 }
@@ -253,8 +248,11 @@ void CTaskMngDlg::OnTaskMngDelete()
 
 void CTaskMngDlg::OnTaskMngActive()
 {
+	UINT id = getSelectedId();
+	auto taskManager = ProgramManager::TaskManager::GetInstance();
+
 	SurveyTask::Task task;
-	BOOL exist = getSelectedTask(task);
+	BOOL exist = taskManager->getTaskById(id, task);
 	if (!exist) return;
 
 	CString fileName = task.getFileName();
@@ -266,3 +264,14 @@ void CTaskMngDlg::OnTaskMngActive()
 	auto manager = ProgramManager::CParcelManager::GetInstance();
 	manager->LoadCif(task.getFileName());
 }
+
+
+void CTaskMngDlg::OnLvnItemActivateListTask(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMITEMACTIVATE pNMIA = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
+	
+	OnTaskMngActive();
+
+	*pResult = 0;
+}
+
