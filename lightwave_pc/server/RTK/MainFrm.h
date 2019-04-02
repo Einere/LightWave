@@ -10,8 +10,8 @@
 #include "WorkerManager.h"
 #include "FileManager.h"
 #include "SurveyView.h"
+#include "Task.h"
 
-class Task;
 class TaskAddDlg;
 class CViewHMoveDlg;
 class CViewVMoveDlg;
@@ -34,7 +34,7 @@ private:
 
 // 작업입니다.
 public:
-	void addTask(Task task);
+	void addTask(SurveyTask::Task task);
 
 // 재정의입니다.
 public:

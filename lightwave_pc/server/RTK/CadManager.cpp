@@ -1032,9 +1032,9 @@ namespace ProgramManager
 	}
 
 	
-	std::vector<std::reference_wrapper<DataType::CParcel>> CCadManager::getSelectedParcels()
+	std::vector<DataType::CParcel> CCadManager::getSelectedParcels()
 	{
-		std::vector<std::reference_wrapper<DataType::CParcel>> parcels;
+		std::vector<DataType::CParcel> parcels;
 
 		VHANDLE hSearchEntPtr = CadSelGetFirstPtr(m_hDwg);
 		while (hSearchEntPtr) {

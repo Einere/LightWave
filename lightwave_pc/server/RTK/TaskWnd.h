@@ -1,8 +1,7 @@
 #pragma once
 
 #include "ConnectionStateDlg.h"
-
-class Task;
+#include "Task.h"
 
 class CTaskMngDlg : public CDialogEx
 {
@@ -21,9 +20,8 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 public:
-	void appendTask(const Task& task);
-	const std::vector<Task>& getTasks() const;
-	std::shared_ptr<Task> getSelectedTaskOrNull() const;
+	SurveyTask::Task& appendTask(const SurveyTask::Task& task);
+	const std::vector<SurveyTask::Task>& getTasks() const;
 
 public:
 	afx_msg void OnBnClickedButtonAddTask();
@@ -32,9 +30,20 @@ public:
 	afx_msg BOOL OnInitDialog();
 
 private:
+	int deleteSelectedTask();
+	BOOL findTaskById(UINT id, SurveyTask::Task& task_Out) const;
+	BOOL getSelectedTask(SurveyTask::Task& task_Out) const;
+	UINT getSelectedTaskIndex() const;
 
 	CListCtrl m_listTask;
-	std::vector<Task> m_tasks;
+	std::vector<SurveyTask::Task> m_tasks;
+
+	CMenu submenu;
+public:
+	afx_msg void OnContextMenu(CWnd *pWnd, CPoint point);
+	afx_msg void OnNMClickListTask(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnTaskMngDelete();
+	afx_msg void OnTaskMngActive();
 };
 
 class TaskWnd : public CDockablePane {
@@ -42,8 +51,8 @@ public:
 	TaskWnd();
 	~TaskWnd();
 
-	void appendTask(const Task& task);
-	const std::vector<Task>& getTasks() const;
+	void appendTask(const SurveyTask::Task& task);
+	const std::vector<SurveyTask::Task>& getTasks() const;
 
 protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);

@@ -136,6 +136,7 @@
     <ClInclude Include="CadManager.h" />
     <ClInclude Include="ConnectionStateDlg.h" />
     <ClInclude Include="FileManager.h" />
+    <ClInclude Include="json.h" />
     <ClInclude Include="ParcelAddDlg.h" />
     <ClInclude Include="ParcelMonkey.h" />
     <ClInclude Include="path.h" />
@@ -187,6 +188,7 @@
     <ClCompile Include="CadManager.cpp" />
     <ClCompile Include="ConnectionStateDlg.cpp" />
     <ClCompile Include="FileManager.cpp" />
+    <ClCompile Include="json.cpp" />
     <ClCompile Include="Monkey.cpp" />
     <ClCompile Include="ParcelAddDlg.cpp" />
     <ClCompile Include="ParcelMonkey.cpp" />

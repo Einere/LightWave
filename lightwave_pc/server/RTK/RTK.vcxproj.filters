@@ -271,6 +271,9 @@
     <ClInclude Include="SurveyView.h">
       <Filter>Map</Filter>
     </ClInclude>
+    <ClInclude Include="json.h">
+      <Filter>common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -407,6 +410,9 @@
     </ClCompile>
     <ClCompile Include="SurveyView.cpp">
       <Filter>Map</Filter>
+    </ClCompile>
+    <ClCompile Include="json.cpp">
+      <Filter>common</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -7,6 +7,8 @@
 #include "ParcelMonkey.h"
 #include "TestMonkey.h"
 
+#include "json.h"
+
 namespace Service {
 	RequestResolver::RequestResolver()
 	{
@@ -22,10 +24,8 @@ namespace Service {
 
 	std::string RequestResolver::resolve(SocketWorker* pSocket, std::string json)
 	{
-		Json::Reader reader;
-		Json::Value props;
-		bool parsingResult = reader.parse(json, props);
-		if (!parsingResult) {
+		Json::Value props = Json::parse(json);
+		if (props==Json::nullValue) {
 			// 요청이 정상적이지 않음을 반환
 			// if 처리문장이 구현되면 아래 assert는 지울 것
 			assert(false);

@@ -15,15 +15,14 @@ namespace File {
 
 	bool Save::save(CString path)
 	{
-		Log::log("%s", path);
-		if (!path || path=="") path = getDefaultPath();
+		if (!path || path == "") path = getDefaultPath();
+		srcPath = CString(path);
 
 		auto dirPath = Path::getDirPath(path);
 		if (GetFileAttributes(dirPath) == INVALID_FILE_ATTRIBUTES) {
 			CreateDirectory(dirPath, NULL);
 		}
-		
-		MessageBox(NULL, path, dirPath, MB_OK);
+
 		CFile file;
 		const bool isOpenSucceed = file.Open(path, CFile::modeWrite | CFile::modeCreate | CFile::modeNoTruncate);
 		assert(isOpenSucceed);
@@ -46,15 +45,45 @@ namespace File {
 		char *buf = new char[length];
 		file.Read((void*)buf, length);
 
-
+		assert(resolveFileData(buf));
 
 		file.Close();
+
+		srcPath = path;
 
 		return true;
 	}
 
+	bool Save::remove()
+	{
+		bool success = DeleteFile(srcPath);
+
+		auto dirPath = Path::getDirPath(srcPath);
+		std::experimental::filesystem::directory_iterator itor((LPCTSTR)dirPath);
+		UINT filesCount = 0;
+		for (auto& file : itor) { ++filesCount; }
+		if (0 == filesCount) {
+			RemoveDirectory(dirPath);
+		}
+
+		return success;
+	}
+
 	CString Save::getDefaultPath()
 	{
-		return rootDir+"sample.tsk";
+		return rootDir + "sample.tsk";
+	}
+	void findFile(const path & dirPath, const std::regex & regex, std::vector<path>& filesFound)
+	{
+		if (!exists(dirPath)) return;
+		directory_iterator end_itr;
+		for (directory_iterator itr(dirPath); itr != end_itr; ++itr) {
+			if (is_directory(itr->status())) {
+				findFile(itr->path(), regex, filesFound);
+			}
+			else if (std::regex_match(itr->path().generic_string().c_str(), regex)) {
+				filesFound.push_back(itr->path());
+			}
+		}
 	}
 }

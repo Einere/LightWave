@@ -3,6 +3,8 @@
 //
 
 #include "stdafx.h"
+#include <experimental/filesystem>
+
 #include "RTK.h"
 
 #include "OutputWnd.h"
@@ -311,7 +313,7 @@ void CMainFrame::OnWindowPosChanged(WINDOWPOS * lpWinPos)
 	}
 }
 
-void CMainFrame::addTask(Task task)
+void CMainFrame::addTask(SurveyTask::Task task)
 {
 }
 
@@ -962,15 +964,15 @@ void CMainFrame::OnClose(const CString & ipAddress, UINT port, int errorCode)
 
 void CMainFrame::OnSetParcel()
 {
-	const std::vector<Task>& tasks = m_wndTask.getTasks();
+	const std::vector<SurveyTask::Task>& tasks = m_wndTask.getTasks();
 	ParcelAddDlg parcelAddDlg(tasks);
 	if (IDOK == parcelAddDlg.DoModal()) {
-		Task selectedTask;
+		SurveyTask::Task selectedTask;
 		bool isSelected = parcelAddDlg.getSelectedTask(selectedTask);
 		if (!isSelected) return;
 
 		auto pManager = CCadManager::GetInstance();
-		std::vector<std::reference_wrapper<DataType::CParcel>> pts = pManager->getSelectedParcels();
+		std::vector<DataType::CParcel> pts = pManager->getSelectedParcels();
 		selectedTask.addParcels(pts);
 		selectedTask.save();
 	}
@@ -979,7 +981,11 @@ void CMainFrame::OnSetParcel()
 
 void CMainFrame::OnDevTest()
 {
-	
-	/*auto cadManager = CCadManager::GetInstance();
-	cadManager->addServeyInfo();*/
+	std::regex reg(".*tsk$");
+	std::vector<path> files;
+	File::findFile("E:\\private\\graduation-project\\src_root\\lightwave_pc\\server\\RTK\\working-data", reg, files);
+
+	for (auto file : files) {
+		Log::log("%s",file.generic_string().c_str());
+	}
 }

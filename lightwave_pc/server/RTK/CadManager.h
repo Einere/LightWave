@@ -175,7 +175,7 @@ namespace ProgramManager
 		void OnShowParcelInfomation();						// 선택한 도형의 필지 정보를 확인한다.
 
 		// 현재 선택된 필지들의 리스트를 반환.
-		std::vector<std::reference_wrapper<DataType::CParcel>> getSelectedParcels();
+		std::vector<DataType::CParcel> getSelectedParcels();
 		void OnMouseClick( double fX, double fY );			// 마우스가 클릭되었을때
 
 		void SetMouseClickEventFunction( FnMouseClickCallback fnMouseClickEvent );
