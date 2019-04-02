@@ -19,18 +19,9 @@ void SocketWorker::setWorkerManager(WorkerManager * pWorkerManager)
 void SocketWorker::OnReceive(int nErrorCode)
 {
 	Log::log("요청 들어옴. 처리 중...");
-	const std::string json = readIn();
-
-	//Log::log("받은 내용: %s", json.c_str());
-	//Log::log("길이: %d", json.size());
-
-	// 아래 코드는 요청을 처리하고 응답하는 부분임
-	// 요청으로 들어온 문자열을 출력만 하고 끝내기 위해 임시적으로 주석처리함
-
-	//m_pWorkerManager->OnReceive(this, json, nErrorCode);
-	//Log::log("애플리케이션 파트 처리 끝...");
+	const std::string data = readIn();
 	
-	const std::string response = m_requestResolver.resolve(this, json);
+	const std::string response = m_requestResolver.resolve(this, data);
 	Log::log("response: %s", response.c_str());
 
 	this->Send((void*)(&response), response.size(), sends);

@@ -40,7 +40,7 @@ namespace Service {
 		props["port"] = port;
 		Json::Value result = monkey->handle(props);
 
-		return result["message"].asString();
+		return Json::json2Str(result);
 	}
 
 	std::shared_ptr<Monkey> RequestResolver::getMonkeyOrNull(Json::Value root)

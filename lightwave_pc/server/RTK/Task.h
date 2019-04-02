@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include "json/json.h"
 #include "./Shape/DS_Point.h"
 #include "./Parcel.h"
 #include "File.h"
@@ -31,6 +32,7 @@ namespace SurveyTask {
 
 		void clearParcelPoints();
 
+		Json::Value toJson();
 	public: // Override
 		virtual CString toFileContent();
 

@@ -85,7 +85,7 @@ namespace SurveyTask {
 		return m_parcels.size();
 	}
 
-	CString Task::toFileContent()
+	Json::Value Task::toJson()
 	{
 		/* 저장할 필드 목록: [id, taskName, taskDesc, lotNumber, fileName, parcelPoints]	*/
 		Json::Value root;
@@ -112,9 +112,13 @@ namespace SurveyTask {
 			root["parcels"].append(parcelRoot);
 		}
 
-		Json::FastWriter writer;
-		std::string buf = writer.write(root);
-		return buf.c_str();
+		return root;
+	}
+
+	CString Task::toFileContent()
+	{
+		auto jsonInString = Json::json2Str(toJson());
+		return jsonInString.c_str();
 	}
 
 	CString Task::getDefaultPath()
