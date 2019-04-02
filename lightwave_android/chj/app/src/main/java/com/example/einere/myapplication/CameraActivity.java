@@ -22,6 +22,7 @@ import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
+import android.media.MediaActionSound;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -302,7 +303,7 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
                         String path2 = Environment.getExternalStorageDirectory() + "/" + workNum + "/" + pointNum + "/" + "textfile";
                         File file3 = new File(path2);
                         String path3 = Environment.getExternalStorageDirectory() + "/" + workNum + "/" + pointNum + "/uploadfile";
-                        File file4 = new File(path2);
+                        File file4 = new File(path3);
                         //메모 불러오기
                         if (!file2.exists()) {
                             file2.mkdir();
@@ -363,6 +364,10 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        MediaActionSound mediaActionSound = new MediaActionSound();
+        mediaActionSound.play(MediaActionSound.SHUTTER_CLICK);
+
     }
 
     protected void createCameraPreview() {
