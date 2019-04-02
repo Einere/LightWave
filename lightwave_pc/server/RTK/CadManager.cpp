@@ -3,6 +3,7 @@
 #include "ParcelManager.h"
 #include "RTK.h"
 #include "GlobalUtil\\FileUtil.h"
+#include "TaskManager.h"
 #include <math.h>
 
 #define __MSG_TIMER_CHANGE_POSITION_COLOR__	101
@@ -11,6 +12,9 @@
 // USER CM DEFINE
 #define __CAD_CM_SHOW_PARCEL_INFOMATION__		CAD_CMD_CUSTOM + 1
 #define __CAD_CM_GETGETXY__						CAD_CMD_CUSTOM + 2
+
+#define __CAD_CM_REGISTER_TASK_PARCELS__			CAD_CMD_CUSTOM + 10
+
 // = Polyline Edit ContextMenu=
 #define __CAD_CM_EDIT_PLINE_COMPLATE__			CAD_CMD_CUSTOM + 3
 #define __CAD_CM_EDIT_PLINE_CLOSE_COMPLATE__	CAD_CMD_CUSTOM + 4
@@ -167,6 +171,7 @@ namespace ProgramManager
 		CadMenuAdd(CAD_MENU_EDIT, _T("객체정보"), CAD_CMD_ENTPROP);
 		CadMenuAdd(CAD_MENU_EDIT, _T("-"), 0);  // separator
 		CadMenuAdd(CAD_MENU_EDIT, _T("필지정보보기"), __CAD_CM_SHOW_PARCEL_INFOMATION__);
+		CadMenuAdd(CAD_MENU_EDIT, _T("작업에 선택된 필지 등록"), __CAD_CM_REGISTER_TASK_PARCELS__);
 
 		//CadAddCommand(
 		CadMenuClear(CAD_MENU_POLYLINE);	//CAD_CMD_PLINE_CLOSE
@@ -1031,7 +1036,7 @@ namespace ProgramManager
 		}
 	}
 
-	
+
 	std::vector<DataType::CParcel> CCadManager::getSelectedParcels()
 	{
 		std::vector<DataType::CParcel> parcels;
@@ -1057,9 +1062,9 @@ namespace ProgramManager
 	void CCadManager::OnMouseClick(double fX, double fY)
 	{
 		Log::log("X: %.3f, Y: %.3f", fY, fX);
-		if( m_fnMouseClickEvent != NULL )
+		if (m_fnMouseClickEvent != NULL)
 		{
-			(*m_fnMouseClickEvent)(fX, fY );
+			(*m_fnMouseClickEvent)(fX, fY);
 		}
 	}
 
@@ -1126,6 +1131,24 @@ namespace ProgramManager
 		case __CAD_CM_SHOW_PARCEL_INFOMATION__:
 		{
 			pCad->OnShowParcelInfomation();
+		}
+		break;
+		case __CAD_CM_REGISTER_TASK_PARCELS__:
+		{
+			auto pTaskManager = TaskManager::GetInstance();
+			UINT id = pTaskManager->getSelectedTaskId();
+			if (-1 == id) break;
+
+			SurveyTask::Task task;
+			BOOL exist = pTaskManager->getTaskById(id, task);
+			assert(exist);
+
+			auto pCadManager = CCadManager::GetInstance();
+			auto selectedParcels = pCadManager->getSelectedParcels();
+			task.clearParcelPoints();
+			int size = task.addParcels(selectedParcels);
+			
+			task.save();
 		}
 		break;
 		/*

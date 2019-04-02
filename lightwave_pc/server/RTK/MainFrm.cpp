@@ -14,6 +14,7 @@
 #include "GlobalDefine.h"
 #include "ParcelManager.h"
 #include "WorkerManager.h"
+#include "TaskManager.h"
 #include "ConnectionStateDlg.h"
 #include "SocketWorker.h"
 #include "SocketRecipient.h"
@@ -529,7 +530,6 @@ void CMainFrame::OnSettingChange(UINT uFlags, LPCTSTR lpszSection)
 
 void CMainFrame::OnVecadOpen()
 {
-	// TODO: 여기에 명령 처리기 코드를 추가합니다.
 	CCadManager *pCadManager = CCadManager::GetInstance();
 	pCadManager->CadFileOpen("D:\\Work\\RTK\\RTK\\Debug\\결과도8호.dwg");
 }
@@ -964,7 +964,8 @@ void CMainFrame::OnClose(const CString & ipAddress, UINT port, int errorCode)
 
 void CMainFrame::OnSetParcel()
 {
-	const std::vector<SurveyTask::Task>& tasks = m_wndTask.getTasks();
+	auto taskManager = TaskManager::GetInstance();
+	const std::vector<SurveyTask::Task>& tasks = taskManager->getTasks();
 	ParcelAddDlg parcelAddDlg(tasks);
 	if (IDOK == parcelAddDlg.DoModal()) {
 		SurveyTask::Task selectedTask;
