@@ -2,9 +2,7 @@ package com.example.einere.myapplication.connection;
 
 import android.app.Service;
 import android.content.Intent;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -31,6 +29,7 @@ public class ConnectionService extends Service {
     private BufferedWriter writer = null;
     private String receivedData = null;
     private Boolean existReceivedData = false;
+    private Boolean connectionFlag = false;
 
     IConnectionService.Stub binder = new IConnectionService.Stub() {
         @Override
@@ -46,6 +45,7 @@ public class ConnectionService extends Service {
         @Override
         public void connect() {
             myConnect();
+            checkStatus();
         }
 
         @Override
@@ -194,14 +194,6 @@ public class ConnectionService extends Service {
         }).start();
     }
 
-    private Handler handler = new Handler(){
-        @Override
-        public void handleMessage(Message msg) {
-            existReceivedData = true;
-            super.handleMessage(msg);
-        }
-    };
-
     String myReceive() {
         /*ReceiveThread receiveThread = new ReceiveThread();
         receiveThread.execute(true);*/
@@ -211,8 +203,6 @@ public class ConnectionService extends Service {
                 try{
                     // polling whether available data is exist...
                     while(!Thread.currentThread().isInterrupted() && (receivedData = reader.readLine()) != null){
-                        Message message = new Message();
-                        handler.sendMessage(message);
                         existReceivedData = true;
                     }
                 }
@@ -222,13 +212,6 @@ public class ConnectionService extends Service {
             }
         }).start();
 
-        /*while(!existReceivedData){
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }*/
         for(int i = 0; i < 3; i++){
             if(!existReceivedData){
                 break;
@@ -240,5 +223,28 @@ public class ConnectionService extends Service {
             }
         }
         return receivedData;
+    }
+
+    void checkStatus(){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(status == STATUS_DISCONNECTED){
+                    try{
+                        if(socket.isClosed()){
+                            socket.connect(socketAddress, TIME_OUT);
+                            writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                            status = STATUS_CONNECTED;
+                            Log.i("ConnectionService", "myConnect2()");
+                        }
+                    }
+                    catch(IOException e) {
+                        e.printStackTrace();
+                        status = STATUS_DISCONNECTED;
+                    }
+                }
+            }
+        }).start();
     }
 }
