@@ -53,7 +53,7 @@ namespace ProgramManager {
 		std::vector<SurveyTask::Task>::iterator itor;
 		for (itor = m_tasks.begin(); itor != m_tasks.end(); ++itor) {
 			if (id == itor->getId()) {
-				BOOL removed = itor->remove();
+				BOOL removed = itor->remove(TRUE);
 				if (!removed) return FALSE;
 
 				m_tasks.erase(itor);

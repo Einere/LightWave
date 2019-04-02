@@ -3,6 +3,7 @@
 #include "path.h"
 
 using GlobalUtil::CFileUtil;
+namespace fs = std::experimental::filesystem;
 
 namespace File {
 	Save::Save()
@@ -24,7 +25,7 @@ namespace File {
 		}
 
 		CFile file;
-		const bool isOpenSucceed = file.Open(path, CFile::modeWrite | CFile::modeCreate );
+		const bool isOpenSucceed = file.Open(path, CFile::modeWrite | CFile::modeCreate);
 		assert(isOpenSucceed);
 
 		CString buf = toFileContent();
@@ -54,14 +55,20 @@ namespace File {
 		return true;
 	}
 
-	bool Save::remove()
+	bool Save::remove(BOOL everything)
 	{
 		bool success = DeleteFile(srcPath);
 
 		auto dirPath = Path::getDirPath(srcPath);
-		std::experimental::filesystem::directory_iterator itor((LPCTSTR)dirPath);
+		fs::directory_iterator itor((LPCTSTR)dirPath);
 		UINT filesCount = 0;
+
+		if (everything) {
+			for (auto& file : itor) { deleteFileOrDirectory(file); }
+		}
+
 		for (auto& file : itor) { ++filesCount; }
+
 		if (0 == filesCount) {
 			RemoveDirectory(dirPath);
 		}
@@ -73,6 +80,18 @@ namespace File {
 	{
 		return rootDir + "sample.tsk";
 	}
+
+	void Save::deleteFileOrDirectory(fs::v1::directory_entry entry)
+	{
+		LPCWSTR path = entry.path().c_str();
+		if (fs::is_directory(entry.status())) {
+			RemoveDirectoryW(path);
+		}
+		else {
+			DeleteFileW(path);
+		}
+	}
+
 	void findFile(const path & dirPath, const std::regex & regex, std::vector<path>& filesFound)
 	{
 		if (!exists(dirPath)) return;

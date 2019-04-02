@@ -21,7 +21,7 @@ namespace File {
 
 		bool save(CString path = NULL);
 		bool load(CString path);
-		bool remove();
+		bool remove(BOOL everything=FALSE);
 
 		virtual CString toFileContent() = 0;
 
@@ -32,6 +32,7 @@ namespace File {
 		virtual BOOL resolveFileData(const char* data) = 0;
 
 	private:
+		void deleteFileOrDirectory(std::experimental::filesystem::v1::directory_entry entry);
 		CString m_defaultPath;
 		GlobalUtil::CFileUtil m_fileUtil;
 	};
