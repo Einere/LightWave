@@ -24,7 +24,9 @@ void SocketWorker::OnReceive(int nErrorCode)
 	const std::string response = m_requestResolver.resolve(this, data);
 	Log::log("response: %s", response.c_str());
 
-	this->Send((void*)(&response), response.size(), sends);
+	auto res = response.c_str();
+
+	this->Send((void*)(res), response.length(), sends);
 }
 
 void SocketWorker::OnClose(int nErrorCode)
