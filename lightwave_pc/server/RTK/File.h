@@ -19,7 +19,7 @@ namespace File {
 		Save();
 		~Save();
 
-		bool save(CString path = NULL);
+		bool store(CString path = NULL);
 		bool load(CString path);
 		bool remove(BOOL everything=FALSE);
 

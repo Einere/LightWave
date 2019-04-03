@@ -14,7 +14,7 @@ namespace File {
 	{
 	}
 
-	bool Save::save(CString path)
+	bool Save::store(CString path)
 	{
 		if (!path || path == "") path = getDefaultPath();
 		srcPath = CString(path);

@@ -1148,7 +1148,7 @@ namespace ProgramManager
 			task.clearParcelPoints();
 			int size = task.addParcels(selectedParcels);
 			
-			task.save();
+			task.store();
 		}
 		break;
 		/*
