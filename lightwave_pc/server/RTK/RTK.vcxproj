@@ -178,6 +178,7 @@
     <ClInclude Include="TaskAddDlg.h" />
     <ClInclude Include="SurveyInfoPainter.h" />
     <ClInclude Include="TaskManager.h" />
+    <ClInclude Include="TaskMonkey.h" />
     <ClInclude Include="TaskWnd.h" />
     <ClInclude Include="TestMonkey.h" />
     <ClInclude Include="VeCad\cadapi.h" />
@@ -232,6 +233,7 @@
     <ClCompile Include="TaskAddDlg.cpp" />
     <ClCompile Include="SurveyInfoPainter.cpp" />
     <ClCompile Include="TaskManager.cpp" />
+    <ClCompile Include="TaskMonkey.cpp" />
     <ClCompile Include="TaskWnd.cpp" />
     <ClCompile Include="TestMonkey.cpp" />
     <ClCompile Include="VeCad\cadapi.cpp" />

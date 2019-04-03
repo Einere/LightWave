@@ -4,6 +4,7 @@
 #include "SocketWorker.h"
 #include "Service.h"
 
+#include "TaskMonkey.h"
 #include "ParcelMonkey.h"
 #include "SurveyMonkey.h"
 #include "TestMonkey.h"
@@ -14,6 +15,7 @@ namespace Service {
 	RequestResolver::RequestResolver()
 	{
 		// 요청들을 담당할 우리의 몽키들을 이곳에서 초기화합니다.
+		monkeys.push_back(std::make_shared<TaskMonkey>());
 		monkeys.push_back(std::make_shared<ParcelMonkey>());
 		monkeys.push_back(std::make_shared<SurveyMonkey>());
 		monkeys.push_back(std::make_shared<TestMonkey>());

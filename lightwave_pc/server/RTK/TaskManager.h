@@ -11,7 +11,7 @@ namespace ProgramManager {
 
 		const std::vector<SurveyTask::Task>& getTasks() const;
 		SurveyTask::Task& getTaskByIndex(UINT index);
-		BOOL getTaskById(UINT id, SurveyTask::Task& task_Out);
+		BOOL getTaskById(UINT id, SurveyTask::Task& task_Out) const;
 		UINT getSelectedTaskId() const;
 		UINT getTasksCount() const;
 		BOOL getStartedTask(SurveyTask::Task& task_Out) const;
@@ -29,7 +29,7 @@ namespace ProgramManager {
 	private:
 		std::vector<SurveyTask::Task> m_tasks;
 		UINT m_selectedId;
-		SurveyTask::Task* m_startedTask = NULL;
+		UINT m_startedTaskId = -1;
 
 	protected:
 		static TaskManager* m_pThis;

@@ -6,15 +6,15 @@ using GlobalUtil::CFileUtil;
 namespace fs = std::experimental::filesystem;
 
 namespace File {
-	Save::Save()
+	Storable::Storable()
 	{
 	}
 
-	Save::~Save()
+	Storable::~Storable()
 	{
 	}
 
-	bool Save::store(CString path)
+	bool Storable::store(CString path)
 	{
 		if (!path || path == "") path = getDefaultPath();
 		srcPath = CString(path);
@@ -36,7 +36,7 @@ namespace File {
 		return true;
 	}
 
-	bool Save::load(CString path)
+	bool Storable::load(CString path)
 	{
 		CFile file;
 		const bool isOpenSucceed = file.Open(path, CFile::modeRead);
@@ -55,7 +55,7 @@ namespace File {
 		return true;
 	}
 
-	bool Save::remove(BOOL everything)
+	bool Storable::remove(BOOL everything)
 	{
 		bool success = DeleteFile(srcPath);
 
@@ -76,12 +76,12 @@ namespace File {
 		return success;
 	}
 
-	CString Save::getDefaultPath()
+	CString Storable::getDefaultPath()
 	{
 		return rootDir + "sample.tsk";
 	}
 
-	void Save::deleteFileOrDirectory(fs::v1::directory_entry entry)
+	void Storable::deleteFileOrDirectory(fs::v1::directory_entry entry)
 	{
 		LPCWSTR path = entry.path().c_str();
 		if (fs::is_directory(entry.status())) {

@@ -21,7 +21,7 @@ namespace ProgramManager {
 		return m_tasks[index];
 	}
 
-	BOOL TaskManager::getTaskById(UINT id, SurveyTask::Task & task_Out)
+	BOOL TaskManager::getTaskById(UINT id, SurveyTask::Task& task_Out) const
 	{
 		for (auto& task : m_tasks) {
 			if (id == task.getId()) {
@@ -45,9 +45,9 @@ namespace ProgramManager {
 
 	BOOL TaskManager::getStartedTask(SurveyTask::Task& task_Out) const
 	{
-		if (!m_startedTask) return FALSE;
+		if (-1==m_startedTaskId) return FALSE;
 
-		task_Out = *m_startedTask;
+		getTaskById(m_startedTaskId, task_Out);
 		return TRUE;
 	}
 
@@ -94,11 +94,16 @@ namespace ProgramManager {
 		BOOL exist = getTaskById(id, task);
 		assert(exist);
 
+		if (-1 != m_startedTaskId) {
+			SurveyTask::Task taskToBeStopped;
+			getTaskById(m_startedTaskId, taskToBeStopped);
+			taskToBeStopped.stop();
+		}
+
 		BOOL hasStarted = task.start();
 		if (!hasStarted) return NULL;
 
-		if (m_startedTask) m_startedTask->stop();
-		m_startedTask = &task;
+		m_startedTaskId = id;
 		return TRUE;
 	}
 
@@ -111,8 +116,8 @@ namespace ProgramManager {
 		BOOL hasStopped = task.stop();
 		if (!hasStopped) return NULL;
 
-		assert(m_startedTask == &task);
-		m_startedTask = NULL;
+		assert(m_startedTaskId == id);
+		m_startedTaskId = -1;
 		return TRUE;
 	}
 

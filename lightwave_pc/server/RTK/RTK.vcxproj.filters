@@ -283,6 +283,9 @@
     <ClInclude Include="path.h">
       <Filter>common</Filter>
     </ClInclude>
+    <ClInclude Include="TaskMonkey.h">
+      <Filter>service</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -431,6 +434,9 @@
     </ClCompile>
     <ClCompile Include="path.cpp">
       <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="TaskMonkey.cpp">
+      <Filter>service</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
