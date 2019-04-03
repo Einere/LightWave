@@ -115,7 +115,7 @@ namespace SurveyTask {
 	int Task::addParcels(std::vector<CParcel> pts)
 	{
 		for (int i = 0; i < pts.size(); ++i) {
-			ParcelToStore parcel = Parcel2ParcelToStore(pts[i]);
+			ParcelToStore parcel = parcel2ParcelToStore(pts[i]);
 			m_parcels.push_back(parcel);
 		}
 		return m_parcels.size();
@@ -133,19 +133,7 @@ namespace SurveyTask {
 
 		root["parcels"] = Json::Value(Json::arrayValue);
 		for (ParcelToStore& parcel : m_parcels) {
-			Json::Value parcelRoot;
-			parcelRoot["landNo"] = (LPCTSTR)parcel.landNo;
-			parcelRoot["parcelPoints"] = Json::Value(Json::arrayValue);
-
-			const int pointCount = parcel.points.size();
-			for (int i = 0; i < pointCount; ++i) {
-				Json::Value pointRoot;
-				pointRoot["X"] = parcel.points[i].first;
-				pointRoot["Y"] = parcel.points[i].second;
-				parcelRoot["parcelPoints"].append(pointRoot);
-			}
-
-			root["parcels"].append(parcelRoot);
+			root["parcels"].append(parcel2Json(parcel));
 		}
 
 		return root;
@@ -201,7 +189,7 @@ namespace SurveyTask {
 		return (UINT)time(NULL);
 	}
 
-	ParcelToStore Parcel2ParcelToStore(DataType::CParcel& parcel)
+	ParcelToStore parcel2ParcelToStore(DataType::CParcel& parcel)
 	{
 		ParcelToStore parcelToStore;
 
@@ -216,5 +204,21 @@ namespace SurveyTask {
 		}
 
 		return parcelToStore;
+	}
+	Json::Value parcel2Json(ParcelToStore & parcel)
+	{
+		Json::Value parcelRoot;
+		parcelRoot["landNo"] = (LPCTSTR)parcel.landNo;
+		parcelRoot["parcelPoints"] = Json::Value(Json::arrayValue);
+
+		const int pointCount = parcel.points.size();
+		for (int i = 0; i < pointCount; ++i) {
+			Json::Value pointRoot;
+			pointRoot["X"] = parcel.points[i].first;
+			pointRoot["Y"] = parcel.points[i].second;
+			parcelRoot["parcelPoints"].append(pointRoot);
+		}
+
+		return parcelRoot;
 	}
 }

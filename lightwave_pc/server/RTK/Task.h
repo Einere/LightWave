@@ -63,5 +63,6 @@ namespace SurveyTask {
 		std::vector<Point> points;
 	};
 
-	ParcelToStore Parcel2ParcelToStore(DataType::CParcel& parcel);
+	ParcelToStore parcel2ParcelToStore(DataType::CParcel& parcel);
+	Json::Value parcel2Json(ParcelToStore& parcel);
 }
