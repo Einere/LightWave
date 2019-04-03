@@ -20,15 +20,19 @@ Json::Value ParcelMonkey::doGet(Json::Value props)
 	Json::Value jsonTasksList(Json::arrayValue);
 	for (auto& task : tasks) {
 		Json::Value jsonTask;
-		jsonTask["id"] = task.getId();
+		jsonTask["taskId"] = task.getId();
 		jsonTask["taskName"] = (LPCTSTR)task.getTaskName();
 		jsonTask["taskDesc"] = (LPCTSTR)task.getTaskDesc();
 		jsonTasksList.append(jsonTask);
 	}
 
+	Json::Value jsonData;
+	jsonData["count"] = tasks.size();
+	jsonData["items"] = jsonTasksList;
+
 	Json::Value root;
-	root["count"] = tasks.size();
-	root["items"] = jsonTasksList;
+	root["data"] = jsonData;
+	
 
 	return root;
 }

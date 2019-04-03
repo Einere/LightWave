@@ -14,6 +14,10 @@ namespace Service
 		Delete = 4
 	};
 
+	enum Status {
+		BAD_REQUEST = 4,
+	};
+
 	const std::map<std::string, Method> methodMap = { {"GET", Get}, {"POST", Post}, {"PUT", Put}, {"DELETE", Delete} };
 
 	class Monkey
@@ -34,6 +38,7 @@ namespace Service
 		std::string m_subject;
 
 		Method getMethodOrInvalid(Json::Value root);
+		Json::Value error(std::string msg);
 	};
 
 	class RequestResolver
