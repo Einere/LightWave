@@ -63,6 +63,7 @@ BEGIN_MESSAGE_MAP(CTaskMngDlg, CDialogEx)
 	ON_NOTIFY(NM_CLICK, IDC_LIST_TASK, &CTaskMngDlg::OnNMClickListTask)
 	ON_COMMAND(ID_TASK_MNG_DELETE, &CTaskMngDlg::OnTaskMngDelete)
 	ON_COMMAND(ID_TASK_MNG_ACTIVE, &CTaskMngDlg::OnTaskMngActive)
+	ON_COMMAND(ID_TASK_MNG_TOGGLE_STATE, &CTaskMngDlg::OnTaskMngToggleState)
 	ON_NOTIFY(LVN_ITEMACTIVATE, IDC_LIST_TASK, &CTaskMngDlg::OnLvnItemActivateListTask)
 END_MESSAGE_MAP()
 
@@ -141,7 +142,7 @@ void CTaskMngDlg::OnBnClickedButtonAddTask()
 	TaskAddDlg dlg;
 	if (dlg.DoModal() == IDOK) {
 		auto& newTask = appendTask(dlg.getTask());
-		assert(newTask.save());
+		assert(newTask.store());
 
 		Log::log("작업이 등록되었습니다: [작업명: %s\t 대표지번: %s]", newTask.getTaskName(), newTask.getLotNumber());
 	}
@@ -263,6 +264,26 @@ void CTaskMngDlg::OnTaskMngActive()
 
 	auto manager = ProgramManager::CParcelManager::GetInstance();
 	manager->LoadCif(task.getFileName());
+}
+
+void CTaskMngDlg::OnTaskMngToggleState()
+{
+	UINT id = getSelectedId();
+	auto taskManager = ProgramManager::TaskManager::GetInstance();
+
+	BOOL hasStarted = taskManager->startTask(id);
+	if (!hasStarted) {
+		MessageBox("시작 가능한 작업이 아닙니다.", "경고", MB_ICONWARNING);
+		return;
+	}
+	
+	SurveyTask::Task task;
+	BOOL exist = taskManager->getTaskById(id, task);
+	assert(exist);
+
+	char notice[100];
+	sprintf(notice, "작업이 시작되었습니다.\n작업 ID: %d\n작업 이름: %s", task.getId(), task.getTaskName());
+	MessageBox(notice, "안내", MB_ICONINFORMATION);
 }
 
 

@@ -5,6 +5,7 @@
 #include "json.h"
 #include "json/json.h"
 #include "Task.h"
+#include "path.h"
 
 using namespace File;
 using namespace DataType;
@@ -69,6 +70,41 @@ namespace SurveyTask {
 	const std::vector<ParcelToStore>& Task::getParcels() const
 	{
 		return m_parcels;
+	}
+
+	BOOL Task::saveImage(const CString byteInStr, const CString fileName)
+	{
+		CString path;
+		CString dirPath = Path::getDirPath(srcPath);
+		path.Format("%s/%s", dirPath, fileName);
+
+		CFile file;
+		const bool isOpenSucceed = file.Open(path, CFile::modeWrite | CFile::modeCreate);
+		assert(isOpenSucceed);
+
+		file.Write((void*)byteInStr.GetString(), byteInStr.GetLength());
+		file.Close();
+
+		return TRUE;
+	}
+
+	BOOL Task::hasStarted() const
+	{
+		return m_hasStarted;
+	}
+
+	BOOL Task::start()
+	{
+		if (m_hasStarted) return FALSE;
+		
+		return (m_hasStarted = TRUE);
+	}
+
+	BOOL Task::stop()
+	{
+		if (!m_hasStarted) return FALSE;
+
+		return (m_hasStarted = FALSE);
 	}
 
 	void Task::clearParcelPoints()

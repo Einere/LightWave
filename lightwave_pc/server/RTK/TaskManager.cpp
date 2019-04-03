@@ -43,6 +43,14 @@ namespace ProgramManager {
 		return m_tasks.size();
 	}
 
+	BOOL TaskManager::getStartedTask(SurveyTask::Task& task_Out) const
+	{
+		if (!m_startedTask) return FALSE;
+
+		task_Out = *m_startedTask;
+		return TRUE;
+	}
+
 	void TaskManager::appendTask(const SurveyTask::Task & task)
 	{
 		m_tasks.push_back(SurveyTask::Task(task));
@@ -66,8 +74,6 @@ namespace ProgramManager {
 
 	BOOL TaskManager::setSelection(UINT id, BOOL select)
 	{
-		Log::log("select: %d, id: %d", select, id);
-		
 		if (!select) {
 			m_selectedId = -1;
 			return TRUE;
@@ -79,6 +85,34 @@ namespace ProgramManager {
 
 		m_selectedId = id;
 		
+		return TRUE;
+	}
+
+	BOOL TaskManager::startTask(UINT id)
+	{
+		SurveyTask::Task task;
+		BOOL exist = getTaskById(id, task);
+		assert(exist);
+
+		BOOL hasStarted = task.start();
+		if (!hasStarted) return NULL;
+
+		if (m_startedTask) m_startedTask->stop();
+		m_startedTask = &task;
+		return TRUE;
+	}
+
+	BOOL TaskManager::stopTask(UINT id)
+	{
+		SurveyTask::Task task;
+		BOOL exist = getTaskById(id, task);
+		assert(exist);
+
+		BOOL hasStopped = task.stop();
+		if (!hasStopped) return NULL;
+
+		assert(m_startedTask == &task);
+		m_startedTask = NULL;
 		return TRUE;
 	}
 

@@ -28,9 +28,13 @@ namespace SurveyTask {
 
 		const std::vector<ParcelToStore>& getParcels() const;
 		int addParcels(const std::vector<DataType::CParcel> pts);
-		/*int addParcels(std::vector<std::reference_wrapper<ParcelToStore>> pts);*/
-
 		void clearParcelPoints();
+
+		BOOL saveImage(const CString byteInStr, const CString fileName);
+
+		BOOL hasStarted() const;
+		BOOL start();
+		BOOL stop();
 
 		Json::Value toJson();
 	public: // Override
@@ -47,6 +51,7 @@ namespace SurveyTask {
 		CString m_lotNumber;
 		std::vector<ParcelToStore> m_parcels;
 
+		BOOL m_hasStarted = FALSE;
 	private:
 		UINT generateId() const;
 	};
