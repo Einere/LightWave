@@ -11,7 +11,7 @@ namespace SurveyTask {
 	struct ParcelToStore;
 
 	// 작업에 대한 클래스
-	class Task : public File::Save {
+	class Task : public File::Storable {
 	public:
 		Task();
 

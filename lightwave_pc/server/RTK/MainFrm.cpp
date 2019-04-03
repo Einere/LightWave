@@ -975,7 +975,7 @@ void CMainFrame::OnSetParcel()
 		auto pManager = CCadManager::GetInstance();
 		std::vector<DataType::CParcel> pts = pManager->getSelectedParcels();
 		selectedTask.addParcels(pts);
-		selectedTask.save();
+		selectedTask.store();
 	}
 }
 

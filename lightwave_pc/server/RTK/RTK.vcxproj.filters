@@ -253,9 +253,6 @@
     <ClInclude Include="File.h">
       <Filter>models</Filter>
     </ClInclude>
-    <ClInclude Include="path.h">
-      <Filter>GlobalUtil</Filter>
-    </ClInclude>
     <ClInclude Include="FileManager.h">
       <Filter>common</Filter>
     </ClInclude>
@@ -279,6 +276,12 @@
     </ClInclude>
     <ClInclude Include="TaskManager.h">
       <Filter>Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="SurveyMonkey.h">
+      <Filter>service</Filter>
+    </ClInclude>
+    <ClInclude Include="path.h">
+      <Filter>common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -422,6 +425,12 @@
     </ClCompile>
     <ClCompile Include="TaskManager.cpp">
       <Filter>Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="SurveyMonkey.cpp">
+      <Filter>service</Filter>
+    </ClCompile>
+    <ClCompile Include="path.cpp">
+      <Filter>common</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

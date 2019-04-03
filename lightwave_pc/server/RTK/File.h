@@ -13,11 +13,11 @@ namespace File {
 
 	void findFile(const path & dirPath, const std::regex & regex, std::vector<path>& filesFound);
 
-	class Save
+	class Storable
 	{
 	public:
-		Save();
-		~Save();
+		Storable();
+		~Storable();
 
 		bool store(CString path = NULL);
 		bool load(CString path);

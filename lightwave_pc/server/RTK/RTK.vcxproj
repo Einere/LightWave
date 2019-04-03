@@ -171,6 +171,7 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="File.h" />
     <ClInclude Include="Survey.h" />
+    <ClInclude Include="SurveyMonkey.h" />
     <ClInclude Include="SurveyView.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Task.h" />
@@ -193,6 +194,7 @@
     <ClCompile Include="Monkey.cpp" />
     <ClCompile Include="ParcelAddDlg.cpp" />
     <ClCompile Include="ParcelMonkey.cpp" />
+    <ClCompile Include="path.cpp" />
     <ClCompile Include="RequestResolver.cpp" />
     <ClCompile Include="SocketAcceptor.cpp" />
     <ClCompile Include="SocketWorker.cpp" />
@@ -224,6 +226,7 @@
     </ClCompile>
     <ClCompile Include="File.cpp" />
     <ClCompile Include="Survey.cpp" />
+    <ClCompile Include="SurveyMonkey.cpp" />
     <ClCompile Include="SurveyView.cpp" />
     <ClCompile Include="Task.cpp" />
     <ClCompile Include="TaskAddDlg.cpp" />
