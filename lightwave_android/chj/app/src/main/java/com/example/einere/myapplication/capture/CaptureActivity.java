@@ -60,6 +60,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -346,15 +347,16 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
     public void sendData() {
         // check manager status
         try {
-            if (socketManager.getStatus() != STATUS_CONNECTED) {
+            ArrayList<Uri> selectedUriList = recyclerAdapter.getSelectedUriList();
+            if (socketManager.getStatus() == STATUS_CONNECTED && selectedUriList.size() > 0) {
                 // get uri list
 //                ArrayList<Uri> uriList = recyclerAdapter.getSelectedUriList();
 
                 // make json object
                 JSONObject packet = new JSONObject();
                 JSONObject data = new JSONObject();
-                packet.put("method", "GET");
-                packet.put("subject", "test");
+                packet.put("method", "GET"); // POST로 수정해야 될듯?
+                packet.put("subject", "test"); // subject는 점 이름으로 해야 할 듯?
                 data.put("userName", socketManager.getUserName());
 
                 // put bitmap data
@@ -368,8 +370,8 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
                     data.put(String.format(Locale.KOREA, "image%d", i), serialized);
                     i++;
                 }*/
-                for (File file : upImageList) {
-                    Bitmap tmpBitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+                for (Uri uri : selectedUriList) {
+                    Bitmap tmpBitmap = BitmapFactory.decodeFile(uri.getPath());
                     tmpBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
                     byte[] bytes = stream.toByteArray();
                     String serialized = Base64.encodeToString(bytes, Base64.NO_WRAP);
@@ -383,12 +385,12 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
                     data.put(String.format(Locale.KOREA, "text%d", i), getFileContents(file));
                     i++;
                 }
-
                 packet.put("data", data);
 
                 // send to server
                 socketManager.send(packet.toString());
                 Toast.makeText(this, "send!", Toast.LENGTH_SHORT).show();
+                socketManager.receive();
             } else {
                 Toast.makeText(this, "not connected to server or no selected image", Toast.LENGTH_SHORT).show();
             }
@@ -484,7 +486,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
                 }
             }
             FileOutputStream fos = new FileOutputStream(clientMemoFile);
-            BufferedWriter buw = new BufferedWriter(new OutputStreamWriter(fos, "UTF8"));
+            BufferedWriter buw = new BufferedWriter(new OutputStreamWriter(fos, StandardCharsets.UTF_8));
             buw.write(memoStr);
             buw.close();
             fos.close();
@@ -665,8 +667,6 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
             }
         }
 
-        char[] buf = new char[1024];
-        int size = 0;
         if (upTextList != null) {
             for (File file : upTextList) {
                 Log.d(TAG, String.format("check text : %s", file.getAbsolutePath()));
