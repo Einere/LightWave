@@ -46,6 +46,9 @@
     <Filter Include="Map\VeCad">
       <UniqueIdentifier>{86dd3a69-8a94-41ed-81a0-d1566ff1cbde}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Manager">
+      <UniqueIdentifier>{053faa61-b1cc-4380-bcb3-30046f239b63}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -250,15 +253,6 @@
     <ClInclude Include="File.h">
       <Filter>models</Filter>
     </ClInclude>
-    <ClInclude Include="path.h">
-      <Filter>GlobalUtil</Filter>
-    </ClInclude>
-    <ClInclude Include="ParcelManager.h">
-      <Filter>Map</Filter>
-    </ClInclude>
-    <ClInclude Include="CadManager.h">
-      <Filter>Map</Filter>
-    </ClInclude>
     <ClInclude Include="FileManager.h">
       <Filter>common</Filter>
     </ClInclude>
@@ -270,6 +264,27 @@
     </ClInclude>
     <ClInclude Include="SurveyView.h">
       <Filter>Map</Filter>
+    </ClInclude>
+    <ClInclude Include="json.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="CadManager.h">
+      <Filter>Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="ParcelManager.h">
+      <Filter>Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="TaskManager.h">
+      <Filter>Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="SurveyMonkey.h">
+      <Filter>service</Filter>
+    </ClInclude>
+    <ClInclude Include="path.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="TaskMonkey.h">
+      <Filter>service</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -390,12 +405,6 @@
     <ClCompile Include="File.cpp">
       <Filter>models</Filter>
     </ClCompile>
-    <ClCompile Include="ParcelManager.cpp">
-      <Filter>Map</Filter>
-    </ClCompile>
-    <ClCompile Include="CadManager.cpp">
-      <Filter>Map</Filter>
-    </ClCompile>
     <ClCompile Include="FileManager.cpp">
       <Filter>common</Filter>
     </ClCompile>
@@ -407,6 +416,27 @@
     </ClCompile>
     <ClCompile Include="SurveyView.cpp">
       <Filter>Map</Filter>
+    </ClCompile>
+    <ClCompile Include="json.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="CadManager.cpp">
+      <Filter>Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="ParcelManager.cpp">
+      <Filter>Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="TaskManager.cpp">
+      <Filter>Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="SurveyMonkey.cpp">
+      <Filter>service</Filter>
+    </ClCompile>
+    <ClCompile Include="path.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="TaskMonkey.cpp">
+      <Filter>service</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

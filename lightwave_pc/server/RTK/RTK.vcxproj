@@ -136,6 +136,7 @@
     <ClInclude Include="CadManager.h" />
     <ClInclude Include="ConnectionStateDlg.h" />
     <ClInclude Include="FileManager.h" />
+    <ClInclude Include="json.h" />
     <ClInclude Include="ParcelAddDlg.h" />
     <ClInclude Include="ParcelMonkey.h" />
     <ClInclude Include="path.h" />
@@ -170,11 +171,14 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="File.h" />
     <ClInclude Include="Survey.h" />
+    <ClInclude Include="SurveyMonkey.h" />
     <ClInclude Include="SurveyView.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Task.h" />
     <ClInclude Include="TaskAddDlg.h" />
     <ClInclude Include="SurveyInfoPainter.h" />
+    <ClInclude Include="TaskManager.h" />
+    <ClInclude Include="TaskMonkey.h" />
     <ClInclude Include="TaskWnd.h" />
     <ClInclude Include="TestMonkey.h" />
     <ClInclude Include="VeCad\cadapi.h" />
@@ -187,9 +191,11 @@
     <ClCompile Include="CadManager.cpp" />
     <ClCompile Include="ConnectionStateDlg.cpp" />
     <ClCompile Include="FileManager.cpp" />
+    <ClCompile Include="json.cpp" />
     <ClCompile Include="Monkey.cpp" />
     <ClCompile Include="ParcelAddDlg.cpp" />
     <ClCompile Include="ParcelMonkey.cpp" />
+    <ClCompile Include="path.cpp" />
     <ClCompile Include="RequestResolver.cpp" />
     <ClCompile Include="SocketAcceptor.cpp" />
     <ClCompile Include="SocketWorker.cpp" />
@@ -221,10 +227,13 @@
     </ClCompile>
     <ClCompile Include="File.cpp" />
     <ClCompile Include="Survey.cpp" />
+    <ClCompile Include="SurveyMonkey.cpp" />
     <ClCompile Include="SurveyView.cpp" />
     <ClCompile Include="Task.cpp" />
     <ClCompile Include="TaskAddDlg.cpp" />
     <ClCompile Include="SurveyInfoPainter.cpp" />
+    <ClCompile Include="TaskManager.cpp" />
+    <ClCompile Include="TaskMonkey.cpp" />
     <ClCompile Include="TaskWnd.cpp" />
     <ClCompile Include="TestMonkey.cpp" />
     <ClCompile Include="VeCad\cadapi.cpp" />

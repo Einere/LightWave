@@ -4,14 +4,20 @@
 #include "SocketWorker.h"
 #include "Service.h"
 
+#include "TaskMonkey.h"
 #include "ParcelMonkey.h"
+#include "SurveyMonkey.h"
 #include "TestMonkey.h"
+
+#include "json.h"
 
 namespace Service {
 	RequestResolver::RequestResolver()
 	{
 		// 요청들을 담당할 우리의 몽키들을 이곳에서 초기화합니다.
+		monkeys.push_back(std::make_shared<TaskMonkey>());
 		monkeys.push_back(std::make_shared<ParcelMonkey>());
+		monkeys.push_back(std::make_shared<SurveyMonkey>());
 		monkeys.push_back(std::make_shared<TestMonkey>());
 	}
 
@@ -22,10 +28,8 @@ namespace Service {
 
 	std::string RequestResolver::resolve(SocketWorker* pSocket, std::string json)
 	{
-		Json::Reader reader;
-		Json::Value props;
-		bool parsingResult = reader.parse(json, props);
-		if (!parsingResult) {
+		Json::Value props = Json::parse(json);
+		if (props==Json::nullValue) {
 			// 요청이 정상적이지 않음을 반환
 			// if 처리문장이 구현되면 아래 assert는 지울 것
 			assert(false);
@@ -40,7 +44,7 @@ namespace Service {
 		props["port"] = port;
 		Json::Value result = monkey->handle(props);
 
-		return result["message"].asString();
+		return Json::json2Str(result);
 	}
 
 	std::shared_ptr<Monkey> RequestResolver::getMonkeyOrNull(Json::Value root)

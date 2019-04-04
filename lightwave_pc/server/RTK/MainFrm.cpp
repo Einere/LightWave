@@ -3,6 +3,8 @@
 //
 
 #include "stdafx.h"
+#include <experimental/filesystem>
+
 #include "RTK.h"
 
 #include "OutputWnd.h"
@@ -12,6 +14,7 @@
 #include "GlobalDefine.h"
 #include "ParcelManager.h"
 #include "WorkerManager.h"
+#include "TaskManager.h"
 #include "ConnectionStateDlg.h"
 #include "SocketWorker.h"
 #include "SocketRecipient.h"
@@ -311,7 +314,7 @@ void CMainFrame::OnWindowPosChanged(WINDOWPOS * lpWinPos)
 	}
 }
 
-void CMainFrame::addTask(Task task)
+void CMainFrame::addTask(SurveyTask::Task task)
 {
 }
 
@@ -527,7 +530,6 @@ void CMainFrame::OnSettingChange(UINT uFlags, LPCTSTR lpszSection)
 
 void CMainFrame::OnVecadOpen()
 {
-	// TODO: 여기에 명령 처리기 코드를 추가합니다.
 	CCadManager *pCadManager = CCadManager::GetInstance();
 	pCadManager->CadFileOpen("D:\\Work\\RTK\\RTK\\Debug\\결과도8호.dwg");
 }
@@ -962,24 +964,29 @@ void CMainFrame::OnClose(const CString & ipAddress, UINT port, int errorCode)
 
 void CMainFrame::OnSetParcel()
 {
-	const std::vector<Task>& tasks = m_wndTask.getTasks();
+	auto taskManager = TaskManager::GetInstance();
+	const std::vector<SurveyTask::Task>& tasks = taskManager->getTasks();
 	ParcelAddDlg parcelAddDlg(tasks);
 	if (IDOK == parcelAddDlg.DoModal()) {
-		Task selectedTask;
+		SurveyTask::Task selectedTask;
 		bool isSelected = parcelAddDlg.getSelectedTask(selectedTask);
 		if (!isSelected) return;
 
 		auto pManager = CCadManager::GetInstance();
-		std::vector<std::reference_wrapper<DataType::CParcel>> pts = pManager->getSelectedParcels();
+		std::vector<DataType::CParcel> pts = pManager->getSelectedParcels();
 		selectedTask.addParcels(pts);
-		selectedTask.save();
+		selectedTask.store();
 	}
 }
 
 
 void CMainFrame::OnDevTest()
 {
-	
-	/*auto cadManager = CCadManager::GetInstance();
-	cadManager->addServeyInfo();*/
+	std::regex reg(".*tsk$");
+	std::vector<path> files;
+	File::findFile("E:\\private\\graduation-project\\src_root\\lightwave_pc\\server\\RTK\\working-data", reg, files);
+
+	for (auto file : files) {
+		Log::log("%s",file.generic_string().c_str());
+	}
 }

@@ -40,7 +40,7 @@ namespace Service {
 	{
 		return m_subject;
 	}
-	
+
 	Method Monkey::getMethodOrInvalid(Json::Value root)
 	{
 		const std::string methodInString = root["method"].asString();
@@ -49,5 +49,13 @@ namespace Service {
 		}
 
 		return methodMap.at(methodInString);
+	}
+
+	Json::Value Monkey::error(std::string msg)
+	{
+		Json::Value err;
+		err["status"] = BAD_REQUEST;
+		err["message"] = msg;
+		return err;
 	}
 }

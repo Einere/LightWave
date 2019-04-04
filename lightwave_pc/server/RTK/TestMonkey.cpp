@@ -16,6 +16,8 @@ Json::Value TestMonkey::doGet(Json::Value props)
 {
 	auto pMainWnd = (CMainFrame*)AfxGetMainWnd();
 	pMainWnd->OnReceive(props["ip-address"].asCString(), props["port"].asUInt(), props, 0);
-	return Json::nullValue;
+	Json::Value root;
+	root["data"] = "Success!";
+	return root;
 }
 
