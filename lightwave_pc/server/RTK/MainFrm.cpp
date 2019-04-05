@@ -235,7 +235,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	m_surveyView.ShowWindow(SW_SHOW);
 
-	Survey survey(446800.614, 193000.033);
+	SurveyTask::Survey survey(446800.614, 193000.033);
 	m_surveyView.addSurvey(survey);
 
 	/*
