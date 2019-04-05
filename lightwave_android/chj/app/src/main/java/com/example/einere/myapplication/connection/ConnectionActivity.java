@@ -7,7 +7,6 @@ import android.os.RemoteException;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.PopupMenu;
@@ -119,6 +118,7 @@ public class ConnectionActivity extends AppCompatActivity {
             }
             socketManager.send(packet.toString());
             Toast.makeText(this, "Connected!", Toast.LENGTH_SHORT).show();
+            String received = socketManager.receive();
 
             // need to receive work data...
 //            String receivedData = socketManager.receive();
@@ -140,11 +140,9 @@ public class ConnectionActivity extends AppCompatActivity {
         popup.getMenuInflater().inflate(R.menu.pop_up_menu, popup.getMenu());
 
         //registering popup with OnMenuItemClickListener
-        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            public boolean onMenuItemClick(MenuItem item) {
-                Toast.makeText(getBaseContext(),"You Selected : " + item.getTitle(),Toast.LENGTH_SHORT).show();
-                return true;
-            }
+        popup.setOnMenuItemClickListener(item -> {
+            Toast.makeText(getBaseContext(),"You Selected : " + item.getTitle(),Toast.LENGTH_SHORT).show();
+            return true;
         });
 
         popup.show();//showing popup menu
