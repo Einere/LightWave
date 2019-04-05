@@ -28,12 +28,6 @@
     <Filter Include="json">
       <UniqueIdentifier>{83785b4d-4ef3-4be3-88c2-4d7e635793fa}</UniqueIdentifier>
     </Filter>
-    <Filter Include="service">
-      <UniqueIdentifier>{6a76c04b-c967-434d-b7fd-08f2ad67a30a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="window">
-      <UniqueIdentifier>{c1cc1b69-e801-4f0c-9cc8-86d05a267973}</UniqueIdentifier>
-    </Filter>
     <Filter Include="common">
       <UniqueIdentifier>{2843571a-b392-4dbc-a8e8-d2585f0e12ba}</UniqueIdentifier>
     </Filter>
@@ -48,6 +42,12 @@
     </Filter>
     <Filter Include="Manager">
       <UniqueIdentifier>{053faa61-b1cc-4380-bcb3-30046f239b63}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="services">
+      <UniqueIdentifier>{6a76c04b-c967-434d-b7fd-08f2ad67a30a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="windows">
+      <UniqueIdentifier>{c1cc1b69-e801-4f0c-9cc8-86d05a267973}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -194,46 +194,46 @@
       <Filter>json</Filter>
     </ClInclude>
     <ClInclude Include="Service.h">
-      <Filter>service</Filter>
+      <Filter>services</Filter>
     </ClInclude>
     <ClInclude Include="ParcelMonkey.h">
-      <Filter>service</Filter>
+      <Filter>services</Filter>
     </ClInclude>
     <ClInclude Include="TaskWnd.h">
-      <Filter>window</Filter>
+      <Filter>windows</Filter>
     </ClInclude>
     <ClInclude Include="TaskAddDlg.h">
-      <Filter>window</Filter>
+      <Filter>windows</Filter>
     </ClInclude>
     <ClInclude Include="RTKView.h">
-      <Filter>window</Filter>
+      <Filter>windows</Filter>
     </ClInclude>
     <ClInclude Include="RTKDoc.h">
-      <Filter>window</Filter>
+      <Filter>windows</Filter>
     </ClInclude>
     <ClInclude Include="RTK.h">
-      <Filter>window</Filter>
+      <Filter>windows</Filter>
     </ClInclude>
     <ClInclude Include="OutputWnd.h">
-      <Filter>window</Filter>
+      <Filter>windows</Filter>
     </ClInclude>
     <ClInclude Include="MainFrm.h">
-      <Filter>window</Filter>
+      <Filter>windows</Filter>
     </ClInclude>
     <ClInclude Include="ConnectionStateDlg.h">
-      <Filter>window</Filter>
+      <Filter>windows</Filter>
     </ClInclude>
     <ClInclude Include="SocketRecipient.h">
-      <Filter>service</Filter>
+      <Filter>services</Filter>
     </ClInclude>
     <ClInclude Include="SocketWorker.h">
-      <Filter>service</Filter>
+      <Filter>services</Filter>
     </ClInclude>
     <ClInclude Include="StatePane.h">
-      <Filter>window</Filter>
+      <Filter>windows</Filter>
     </ClInclude>
     <ClInclude Include="WorkerManager.h">
-      <Filter>service</Filter>
+      <Filter>services</Filter>
     </ClInclude>
     <ClInclude Include="Task.h">
       <Filter>models</Filter>
@@ -242,10 +242,10 @@
       <Filter>common</Filter>
     </ClInclude>
     <ClInclude Include="TestMonkey.h">
-      <Filter>service</Filter>
+      <Filter>services</Filter>
     </ClInclude>
     <ClInclude Include="SocketAcceptor.h">
-      <Filter>service</Filter>
+      <Filter>services</Filter>
     </ClInclude>
     <ClInclude Include="ParcelAddDlg.h">
       <Filter>헤더 파일</Filter>
@@ -278,13 +278,19 @@
       <Filter>Manager</Filter>
     </ClInclude>
     <ClInclude Include="SurveyMonkey.h">
-      <Filter>service</Filter>
+      <Filter>services</Filter>
     </ClInclude>
     <ClInclude Include="path.h">
       <Filter>common</Filter>
     </ClInclude>
     <ClInclude Include="TaskMonkey.h">
-      <Filter>service</Filter>
+      <Filter>services</Filter>
+    </ClInclude>
+    <ClInclude Include="InitMonkey.h">
+      <Filter>services</Filter>
+    </ClInclude>
+    <ClInclude Include="Worker.h">
+      <Filter>models</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -343,49 +349,49 @@
       <Filter>json</Filter>
     </ClCompile>
     <ClCompile Include="Monkey.cpp">
-      <Filter>service</Filter>
+      <Filter>services</Filter>
     </ClCompile>
     <ClCompile Include="ParcelMonkey.cpp">
-      <Filter>service</Filter>
+      <Filter>services</Filter>
     </ClCompile>
     <ClCompile Include="ConnectionStateDlg.cpp">
-      <Filter>window</Filter>
+      <Filter>windows</Filter>
     </ClCompile>
     <ClCompile Include="MainFrm.cpp">
-      <Filter>window</Filter>
+      <Filter>windows</Filter>
     </ClCompile>
     <ClCompile Include="OutputWnd.cpp">
-      <Filter>window</Filter>
+      <Filter>windows</Filter>
     </ClCompile>
     <ClCompile Include="RTK.cpp">
-      <Filter>window</Filter>
+      <Filter>windows</Filter>
     </ClCompile>
     <ClCompile Include="RTKDoc.cpp">
-      <Filter>window</Filter>
+      <Filter>windows</Filter>
     </ClCompile>
     <ClCompile Include="RTKView.cpp">
-      <Filter>window</Filter>
+      <Filter>windows</Filter>
     </ClCompile>
     <ClCompile Include="StatePane.cpp">
-      <Filter>window</Filter>
+      <Filter>windows</Filter>
     </ClCompile>
     <ClCompile Include="TaskAddDlg.cpp">
-      <Filter>window</Filter>
+      <Filter>windows</Filter>
     </ClCompile>
     <ClCompile Include="TaskWnd.cpp">
-      <Filter>window</Filter>
+      <Filter>windows</Filter>
     </ClCompile>
     <ClCompile Include="RequestResolver.cpp">
-      <Filter>service</Filter>
+      <Filter>services</Filter>
     </ClCompile>
     <ClCompile Include="SocketRecipient.cpp">
-      <Filter>service</Filter>
+      <Filter>services</Filter>
     </ClCompile>
     <ClCompile Include="SocketWorker.cpp">
-      <Filter>service</Filter>
+      <Filter>services</Filter>
     </ClCompile>
     <ClCompile Include="WorkerManager.cpp">
-      <Filter>service</Filter>
+      <Filter>services</Filter>
     </ClCompile>
     <ClCompile Include="Task.cpp">
       <Filter>models</Filter>
@@ -394,10 +400,10 @@
       <Filter>common</Filter>
     </ClCompile>
     <ClCompile Include="TestMonkey.cpp">
-      <Filter>service</Filter>
+      <Filter>services</Filter>
     </ClCompile>
     <ClCompile Include="SocketAcceptor.cpp">
-      <Filter>service</Filter>
+      <Filter>services</Filter>
     </ClCompile>
     <ClCompile Include="ParcelAddDlg.cpp">
       <Filter>소스 파일</Filter>
@@ -430,13 +436,19 @@
       <Filter>Manager</Filter>
     </ClCompile>
     <ClCompile Include="SurveyMonkey.cpp">
-      <Filter>service</Filter>
+      <Filter>services</Filter>
     </ClCompile>
     <ClCompile Include="path.cpp">
       <Filter>common</Filter>
     </ClCompile>
     <ClCompile Include="TaskMonkey.cpp">
-      <Filter>service</Filter>
+      <Filter>services</Filter>
+    </ClCompile>
+    <ClCompile Include="InitMonkey.cpp">
+      <Filter>services</Filter>
+    </ClCompile>
+    <ClCompile Include="Worker.cpp">
+      <Filter>models</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
