@@ -167,6 +167,7 @@
     <ClInclude Include="Shape\DS_Rect.h" />
     <ClInclude Include="Shape\DS_Shape.h" />
     <ClInclude Include="SocketWorker.h" />
+    <ClInclude Include="InitMonkey.h" />
     <ClInclude Include="StatePane.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="File.h" />
@@ -182,6 +183,7 @@
     <ClInclude Include="TaskWnd.h" />
     <ClInclude Include="TestMonkey.h" />
     <ClInclude Include="VeCad\cadapi.h" />
+    <ClInclude Include="Worker.h" />
     <ClInclude Include="WorkerManager.h" />
   </ItemGroup>
   <ItemGroup>
@@ -220,6 +222,7 @@
     <ClCompile Include="Shape\DS_Polyline.cpp" />
     <ClCompile Include="Shape\DS_Rect.cpp" />
     <ClCompile Include="Shape\DS_Shape.cpp" />
+    <ClCompile Include="InitMonkey.cpp" />
     <ClCompile Include="StatePane.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -237,6 +240,7 @@
     <ClCompile Include="TaskWnd.cpp" />
     <ClCompile Include="TestMonkey.cpp" />
     <ClCompile Include="VeCad\cadapi.cpp" />
+    <ClCompile Include="Worker.cpp" />
     <ClCompile Include="WorkerManager.cpp" />
   </ItemGroup>
   <ItemGroup>

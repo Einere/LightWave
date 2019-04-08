@@ -16,7 +16,7 @@ void SurveyInfoPainter::setHwnd(HWND hwnd)
 	m_hTargetWnd = hwnd;
 }
 
-void SurveyInfoPainter::DrawServeyInfo(double x, double y, Survey survey)
+void SurveyInfoPainter::DrawServeyInfo(double x, double y, SurveyTask::Survey survey)
 {
 	DrawServeyPoint(x, y);
 }

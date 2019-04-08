@@ -10,7 +10,7 @@ public:
 
 	void setHwnd(HWND hwnd);
 
-	void DrawServeyInfo(double x, double y, Survey survey);
+	void DrawServeyInfo(double x, double y, SurveyTask::Survey survey);
 	void DrawServeyPoint(double x, double y);
 private:
 	HWND m_hTargetWnd;

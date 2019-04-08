@@ -20,13 +20,20 @@ void SocketWorker::OnReceive(int nErrorCode)
 {
 	Log::log("요청 들어옴. 처리 중...");
 	const std::string data = readIn();
+	Log::log("요청 내용: %s", data);
 	
 	const std::string response = m_requestResolver.resolve(this, data);
 	Log::log("response: %s", response.c_str());
 
 	auto res = response.c_str();
 
-	this->Send((void*)(res), response.length(), sends);
+	int result = this->Send((void*)(res), response.length(), sends);
+	if (SOCKET_ERROR == result) {
+		Log::log("응답 실패");
+		return;
+	}
+
+	Log::log("Sent: %d bytes", result);
 }
 
 void SocketWorker::OnClose(int nErrorCode)
