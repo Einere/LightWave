@@ -22,7 +22,7 @@ void SocketWorker::OnReceive(int nErrorCode)
 	const std::string data = readIn();
 	Log::log("요청 내용: %s", data);
 	
-	const std::string response = m_requestResolver.resolve(this, data);
+	std::string response = m_requestResolver.resolve(this, data);
 	Log::log("response: %s", response.c_str());
 
 	auto res = response.c_str();
