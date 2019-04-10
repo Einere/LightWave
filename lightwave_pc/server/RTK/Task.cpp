@@ -72,7 +72,7 @@ namespace SurveyTask {
 		return m_parcels;
 	}
 
-	BOOL Task::saveImage(const CString byteInStr, const CString fileName)
+	BOOL Task::saveImage(const unsigned char* img, unsigned int size, const CString fileName)
 	{
 		CString path;
 		CString dirPath = Path::getDirPath(srcPath);
@@ -82,7 +82,7 @@ namespace SurveyTask {
 		const bool isOpenSucceed = file.Open(path, CFile::modeWrite | CFile::modeCreate);
 		assert(isOpenSucceed);
 
-		file.Write((void*)byteInStr.GetString(), byteInStr.GetLength());
+		file.Write((void*)img, size);
 		file.Close();
 
 		return TRUE;

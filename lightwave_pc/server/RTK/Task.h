@@ -30,7 +30,7 @@ namespace SurveyTask {
 		int addParcels(const std::vector<DataType::CParcel> pts);
 		void clearParcelPoints();
 
-		BOOL saveImage(const CString byteInStr, const CString fileName);
+		BOOL saveImage(const unsigned char* img, unsigned int size, const CString fileName);
 
 		BOOL hasStarted() const;
 		BOOL start();
