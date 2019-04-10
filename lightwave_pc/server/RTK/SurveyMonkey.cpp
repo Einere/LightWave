@@ -3,6 +3,7 @@
 
 #include "Task.h"
 #include "TaskManager.h"
+#include "base64.h"
 
 
 SurveyMonkey::SurveyMonkey() : Monkey("survey")
@@ -35,7 +36,10 @@ Json::Value SurveyMonkey::doPost(Json::Value props)
 		return error("\'taskId\' 에 해당하는 작업이 존재하지 않음.");
 	}
 
-	task.saveImage(imgInStr, "test.jpg");
+	Log::log("이미지 사이즈: %d", imgInStr.GetLength());
+	auto decoded = base64_decode(imgInStr.GetString());
+	const unsigned char* img = reinterpret_cast<const unsigned char*>(decoded.c_str());
+	task.saveImage(img, decoded.length(), "test.jpg");
 
-	return Json::Value();
+	return success("");
 }
