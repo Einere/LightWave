@@ -58,4 +58,11 @@ namespace Service {
 		err["message"] = msg;
 		return err;
 	}
+	Json::Value Monkey::success(Json::Value payload)
+	{
+		Json::Value suc;
+		suc["status"] = OK;
+		suc["message"] = payload;
+		return suc;
+	}
 }

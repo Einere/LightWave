@@ -15,6 +15,7 @@ namespace Service
 	};
 
 	enum Status {
+		OK = 2,
 		BAD_REQUEST = 4,
 	};
 
@@ -39,6 +40,7 @@ namespace Service
 
 		Method getMethodOrInvalid(Json::Value root);
 		Json::Value error(std::string msg);
+		Json::Value success(Json::Value payload);
 	};
 
 	class RequestResolver

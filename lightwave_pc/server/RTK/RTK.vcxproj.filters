@@ -292,6 +292,9 @@
     <ClInclude Include="Worker.h">
       <Filter>models</Filter>
     </ClInclude>
+    <ClInclude Include="base64.h">
+      <Filter>common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -449,6 +452,9 @@
     </ClCompile>
     <ClCompile Include="Worker.cpp">
       <Filter>models</Filter>
+    </ClCompile>
+    <ClCompile Include="base64.cpp">
+      <Filter>common</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
