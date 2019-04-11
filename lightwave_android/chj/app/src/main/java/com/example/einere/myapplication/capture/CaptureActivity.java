@@ -78,7 +78,6 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
     // RecyclerView
     RecyclerView rv_selectedImage = null;
     RecyclerViewAdapter recyclerAdapter = null;
-    Bitmap tmpBitmap = null;
 
     //memoView
     EditText et_client_memo = null;
