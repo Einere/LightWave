@@ -41,5 +41,5 @@ Json::Value SurveyMonkey::doPost(Json::Value props)
 	const unsigned char* img = reinterpret_cast<const unsigned char*>(decoded.c_str());
 	task.saveImage(img, decoded.length(), "test.jpg");
 
-	return success("");
+	return Json::Value();
 }

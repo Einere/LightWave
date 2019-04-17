@@ -21,5 +21,8 @@ Json::Value TaskMonkey::doGet(Json::Value props)
 	BOOL exist = pTaskManager->getStartedTask(task);
 	if (!exist) return error("현재 진행 중인 작업이 존재하지 않습니다.");
 
-	return task.toJson();
+	Json::Value root;
+	root["data"] = task.toJson();
+
+	return root;
 }
