@@ -61,7 +61,9 @@ public class ConnectionService extends Service {
 
         @Override
         public String receive() {
-            return myReceive();
+            String receivedData = myReceive();
+            resetReceivedData();
+            return receivedData;
         }
     };
 
@@ -158,7 +160,7 @@ public class ConnectionService extends Service {
                 // !Thread.currentThread().isInterrupted() &&
                 while((receivedData = reader.readLine()) != null){
                     existReceivedData = true;
-                    Log.d(TAG, String.format("received data : %s", receivedData));
+                    Log.d(TAG, String.format("read data : %s", receivedData));
                 }
                 Log.d(TAG, "myReceive()'s thread exit while loop");
             }
@@ -201,5 +203,10 @@ public class ConnectionService extends Service {
                 }
             }
         }).start();
+    }
+
+    void resetReceivedData(){
+        existReceivedData = false;
+        receivedData = null;
     }
 }

@@ -78,7 +78,6 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
     // RecyclerView
     RecyclerView rv_selectedImage = null;
     RecyclerViewAdapter recyclerAdapter = null;
-    Bitmap tmpBitmap = null;
 
     //memoView
     EditText et_client_memo = null;
@@ -118,10 +117,22 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         mapFragment.getMapAsync(this); //getMapAsync must be called on the main thread.
 
         // get views
+        TextView tv_work_name = findViewById(R.id.tv_work_name);
+        TextView tv_location_number = findViewById(R.id.tv_location_number);
         rv_selectedImage = findViewById(R.id.rv_selectedImage);
         tv_azimuth = findViewById(R.id.tv_azimuth);
         et_client_memo = findViewById(R.id.et_client_memo);
         et_server_memo = findViewById(R.id.et_server_memo);
+
+        // set views
+        Intent receivedIntent = getIntent();
+        String method = receivedIntent.getStringExtra("method");
+        if(method.equals("new")){
+            tv_work_name.setText(receivedIntent.getStringExtra("taskName"));
+            tv_location_number.setText(receivedIntent.getStringExtra("lotNumber"));
+            et_server_memo.setText(receivedIntent.getStringExtra("taskDesc"));
+        }
+
 
         // get sensor manager
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);

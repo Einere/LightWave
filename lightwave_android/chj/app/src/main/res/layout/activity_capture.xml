@@ -11,21 +11,22 @@
         tools:context=".capture.CaptureActivity">
 
         <TextView
+            android:id="@+id/tv_work_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="25dp"
-            android:layout_marginTop="25dp"
             android:layout_marginEnd="25dp"
             android:text="@string/work_name"
-            android:textSize="50sp" />
+            android:textSize="30sp" />
 
         <TextView
+            android:id="@+id/tv_location_number"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="25dp"
             android:layout_marginEnd="25dp"
             android:text="@string/work_place"
-            android:textSize="30sp" />
+            android:textSize="20sp" />
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -53,67 +54,64 @@
             android:id="@+id/rv_selectedImage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
             android:layout_marginStart="25dp"
-            android:layout_marginTop="25dp"
+            android:layout_marginTop="10dp"
             android:layout_marginEnd="25dp"
             android:scrollbars="horizontal">
 
         </android.support.v7.widget.RecyclerView>
 
-        <EditText
-            android:id="@+id/et_server_memo"
+        <TableLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:layout_marginStart="25dp"
-            android:layout_marginTop="20dp"
             android:layout_marginEnd="25dp"
-            android:hint="@string/server_memo_hint"
-            android:inputType="textMultiLine" />
+            >
 
-        <EditText
-            android:id="@+id/et_client_memo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="25dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginEnd="25dp"
-            android:hint="@string/client_memo_hint"
-            android:inputType="textMultiLine" />
+            <TableRow>
+                <EditText
+                    android:id="@+id/et_server_memo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="8"
+                    android:hint="@string/server_memo_hint"
+                    android:inputType="textMultiLine" />
 
-       <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="5dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginEnd="5dp">
+                <Button
+                    android:id="@+id/btn_memo_save"
+                    style="@android:style/Widget.Button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:text="메모저장" />
+            </TableRow>
 
-           <Button
-               android:id="@+id/btn_memo_save"
-               style="@android:style/Widget.Button"
-               android:layout_width="wrap_content"
-               android:layout_height="wrap_content"
-               android:layout_marginStart="10dp"
-               android:layout_marginEnd="10dp"
-               android:layout_weight="1"
-               android:text="메모저장" />
-           <Button
-               android:id="@+id/btn_memo_delete"
-               style="@android:style/Widget.Button"
-               android:layout_width="wrap_content"
-               android:layout_height="wrap_content"
-               android:layout_marginStart="10dp"
-               android:layout_marginEnd="10dp"
-               android:layout_weight="1"
-               android:text="메모삭제" />
+            <TableRow>
+                <EditText
+                    android:id="@+id/et_client_memo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="8"
+                    android:hint="@string/client_memo_hint"
+                    android:inputType="textMultiLine" />
 
-        </LinearLayout>
-
+                <Button
+                    android:id="@+id/btn_memo_delete"
+                    style="@android:style/Widget.Button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:text="메모삭제" />
+            </TableRow>
+        </TableLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="25dp"
-            android:layout_marginTop="25dp"
+            android:layout_marginTop="10dp"
             android:layout_marginEnd="25dp">
 
             <Button
@@ -155,7 +153,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="25dp"
-            android:layout_marginTop="25dp"
+            android:layout_marginTop="10dp"
             android:layout_marginEnd="25dp">
 
             <TextView

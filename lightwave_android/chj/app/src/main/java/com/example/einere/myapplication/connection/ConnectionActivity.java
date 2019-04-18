@@ -118,12 +118,10 @@ public class ConnectionActivity extends AppCompatActivity {
             }
             socketManager.send(packet.toString());
             Toast.makeText(this, "Connected!", Toast.LENGTH_SHORT).show();
-            String received = socketManager.receive();
 
             // need to receive work data...
-//            String receivedData = socketManager.receive();
-//            Toast.makeText(this, receivedData, Toast.LENGTH_LONG).show();
-//            Log.d(TAG, String.format("received data : %s", receivedData));
+            String receivedData = socketManager.receive();
+            Log.d(TAG, String.format("received data : %s", receivedData));
 
             // go to main activity
             Intent intent = new Intent(this, MainActivity.class);
