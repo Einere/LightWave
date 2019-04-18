@@ -33,6 +33,5 @@ Json::Value ParcelMonkey::doGet(Json::Value props)
 	Json::Value root;
 	root["data"] = jsonData;
 	
-
 	return root;
 }

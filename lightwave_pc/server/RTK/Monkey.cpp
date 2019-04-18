@@ -14,26 +14,32 @@ namespace Service {
 	Json::Value Monkey::handle(Json::Value props)
 	{
 		Method method = getMethodOrInvalid(props);
-
+		Json::Value result;
 		switch (method) {
 		case Method::Get:
-			return doGet(props);
+			result = doGet(props);
 			break;
 		case Method::Post:
-			return doPost(props);
+			result = doPost(props);
 			break;
 		case Method::Put:
-			return doPut(props);
+			result = doPut(props);
 			break;
 		case Method::Delete:
-			return doDelete(props);
+			result = doDelete(props);
 			break;
 		case Method::Invalid:
-			// 비 정상적인 입력임을 반환해야함
+			result = error("Invalid Method: Send with one in these methods ['GET', 'POST', 'PUT', 'DELETE']");
 			break;
 		default:
 			assert(false);
 		}
+
+		if (result["status"].isNull()) {
+			result = success(result);
+		}
+
+		return result;
 	}
 
 	const std::string Monkey::getSubject()
@@ -58,11 +64,10 @@ namespace Service {
 		err["message"] = msg;
 		return err;
 	}
+
 	Json::Value Monkey::success(Json::Value payload)
 	{
-		Json::Value suc;
-		suc["status"] = OK;
-		suc["message"] = payload;
-		return suc;
+		payload["status"] = OK;
+		return payload;
 	}
 }
