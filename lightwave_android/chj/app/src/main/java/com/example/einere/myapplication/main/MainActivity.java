@@ -47,16 +47,14 @@ public class MainActivity extends AppCompatActivity {
     public void goToNewCapture() {
         // request work data to server
         JSONObject packet = new JSONObject();
-        try{
+        try {
             packet.put("method", "GET");
             packet.put("subject", "task");
             socketManager.send(packet.toString());
-        }
-        catch (JSONException e){
+        } catch (JSONException e) {
             Toast.makeText(this, "error at make json...", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
-        }
-        catch (RemoteException e){
+        } catch (RemoteException e) {
             Toast.makeText(this, "maybe socket error...", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }
@@ -70,10 +68,29 @@ public class MainActivity extends AppCompatActivity {
         }
         Log.d(TAG, String.format("received data : %s", receivedData));
 
+        JSONObject parsedData = new JSONObject();
+        try {
+            parsedData = new JSONObject(receivedData);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
         // go to CaptureActivity
         Intent intent = new Intent(this, CaptureActivity.class);
         intent.putExtra("method", "new");
+        try {
+            JSONObject data = (JSONObject) parsedData.get("data");
+            // work id
+            intent.putExtra("id", data.getString("id"));
+            // work name
+            intent.putExtra("taskName", data.getString("taskName"));
+            // location number
+            intent.putExtra("lotNumber", data.getString("lotNumber"));
+            // work information (memo?)
+            intent.putExtra("taskDesc", data.getString("taskDesc"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         startActivity(intent);
     }
 
