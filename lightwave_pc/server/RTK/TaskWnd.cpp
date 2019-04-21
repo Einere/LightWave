@@ -39,9 +39,9 @@ BOOL CTaskMngDlg::OnInitDialog()
 	m_listTask.GetWindowRect(&listRect);
 	const int width = listRect.Width();
 
-	m_listTask.InsertColumn(1, _T("ID"), LVCFMT_LEFT, width*0.5, 2);
-	m_listTask.InsertColumn(2, _T("작업명"), LVCFMT_LEFT, width*0.5, 2);
-	m_listTask.InsertColumn(3, _T("지번"), LVCFMT_LEFT, width*0.5, 2);
+	m_listTask.InsertColumn(1, _T("ID"), LVCFMT_LEFT, width*0.3, 2);
+	m_listTask.InsertColumn(2, _T("작업명"), LVCFMT_LEFT, width*0.3, 2);
+	m_listTask.InsertColumn(3, _T("지번"), LVCFMT_LEFT, width*0.3, 2);
 
 	std::regex reg(".*tsk$");
 	std::vector<path> files;
@@ -252,18 +252,18 @@ void CTaskMngDlg::OnTaskMngActive()
 	UINT id = getSelectedId();
 	auto taskManager = ProgramManager::TaskManager::GetInstance();
 
-	SurveyTask::Task task;
-	BOOL exist = taskManager->getTaskById(id, task);
-	if (!exist) return;
+	SurveyTask::Task* pTask;
+	pTask = taskManager->getTaskById(id);
+	if (pTask == NULL) return;
 
-	CString fileName = task.getFileName();
+	CString fileName = pTask->getFileName();
 	if (fileName.IsEmpty()) {
 		MessageBox("해당 작업에 등록된 CIF파일이 없습니다.", "CIF파일 로드 에러", MB_ICONERROR);
 		return;
 	}
 
 	auto manager = ProgramManager::CParcelManager::GetInstance();
-	manager->LoadCif(task.getFileName());
+	manager->LoadCif(pTask->getFileName());
 }
 
 void CTaskMngDlg::OnTaskMngToggleState()
@@ -277,12 +277,12 @@ void CTaskMngDlg::OnTaskMngToggleState()
 		return;
 	}
 	
-	SurveyTask::Task task;
-	BOOL exist = taskManager->getTaskById(id, task);
-	assert(exist);
+	SurveyTask::Task* pTask;
+	pTask = taskManager->getTaskById(id);
+	assert(pTask != NULL);
 
 	char notice[100];
-	sprintf(notice, "작업이 시작되었습니다.\n작업 ID: %d\n작업 이름: %s", task.getId(), task.getTaskName());
+	sprintf(notice, "작업이 시작되었습니다.\n작업 ID: %d\n작업 이름: %s", pTask->getId(), pTask->getTaskName());
 	MessageBox(notice, "안내", MB_ICONINFORMATION);
 }
 

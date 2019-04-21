@@ -21,21 +21,20 @@ namespace ProgramManager {
 		return m_tasks[index];
 	}
 
-	BOOL TaskManager::getTaskById(UINT id, SurveyTask::Task& task_Out) const
+	SurveyTask::Task* TaskManager::getTaskById(UINT id) 
 	{
 		for (auto& task : m_tasks) {
 			if (id == task.getId()) {
-				task_Out = task;
-				return TRUE;
+				return &task;
 			}
 		}
 
-		return FALSE;
+		return NULL;
 	}
 
-	UINT TaskManager::getSelectedTaskId() const
+	UINT TaskManager::getSelectedTaskIdOrZero() const
 	{
-		return m_selectedId;
+		return m_selectedId > 0 ? m_selectedId : 0;
 	}
 
 	UINT TaskManager::getTasksCount() const
@@ -43,12 +42,11 @@ namespace ProgramManager {
 		return m_tasks.size();
 	}
 
-	BOOL TaskManager::getStartedTask(SurveyTask::Task& task_Out) const
+	SurveyTask::Task* TaskManager::getStartedTask()
 	{
-		if (-1==m_startedTaskId) return FALSE;
+		if (-1==m_startedTaskId) return NULL;
 
-		getTaskById(m_startedTaskId, task_Out);
-		return TRUE;
+		return getTaskById(m_startedTaskId);
 	}
 
 	void TaskManager::appendTask(const SurveyTask::Task & task)
@@ -79,9 +77,9 @@ namespace ProgramManager {
 			return TRUE;
 		}
 
-		SurveyTask::Task task;
-		BOOL exist = getTaskById(id, task);
-		if (!exist) return FALSE;
+		SurveyTask::Task* pTask;
+		pTask = getTaskById(id);
+		if (pTask == NULL) return FALSE;
 
 		m_selectedId = id;
 		
@@ -90,17 +88,17 @@ namespace ProgramManager {
 
 	BOOL TaskManager::startTask(UINT id)
 	{
-		SurveyTask::Task task;
-		BOOL exist = getTaskById(id, task);
-		assert(exist);
+		SurveyTask::Task* pTask;
+		pTask = getTaskById(id);
+		assert(pTask != NULL);
 
 		if (-1 != m_startedTaskId) {
-			SurveyTask::Task taskToBeStopped;
-			getTaskById(m_startedTaskId, taskToBeStopped);
-			taskToBeStopped.stop();
+			SurveyTask::Task* pTaskToBeStopped;
+			pTaskToBeStopped = getTaskById(m_startedTaskId);
+			pTaskToBeStopped->stop();
 		}
 
-		BOOL hasStarted = task.start();
+		BOOL hasStarted = pTask->start();
 		if (!hasStarted) return NULL;
 
 		m_startedTaskId = id;
@@ -109,16 +107,37 @@ namespace ProgramManager {
 
 	BOOL TaskManager::stopTask(UINT id)
 	{
-		SurveyTask::Task task;
-		BOOL exist = getTaskById(id, task);
-		assert(exist);
+		SurveyTask::Task* pTask;
+		pTask = getTaskById(id);
+		assert(pTask!=NULL);
 
-		BOOL hasStopped = task.stop();
+		BOOL hasStopped = pTask->stop();
 		if (!hasStopped) return NULL;
 
 		assert(m_startedTaskId == id);
 		m_startedTaskId = -1;
 		return TRUE;
+	}
+
+	void TaskManager::registerSurvey(SurveyTask::Survey survey, UINT taskId)
+	{
+		if (taskId == 0) {
+			taskId = m_startedTaskId;
+		}
+
+
+		SurveyTask::Task* task = getTaskById(taskId);
+		task->registerSurvey(survey);
+	}
+
+	const std::vector<SurveyTask::Survey>& TaskManager::getSurveys(UINT taskId)
+	{
+		if (taskId == 0) {
+			taskId = m_startedTaskId;
+		}
+
+		SurveyTask::Task* task = getTaskById(taskId);
+		return task->getSurveys();
 	}
 
 	TaskManager* TaskManager::m_pThis = NULL;

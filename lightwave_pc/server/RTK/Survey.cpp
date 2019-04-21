@@ -10,13 +10,20 @@ namespace SurveyTask {
 	{
 	}
 
-	Survey::Survey(const Survey & Source) : CDS_Point(Source)
-	{
-	}
 
 
 	Survey::~Survey()
 	{
+	}
+
+	void Survey::setMemo(CString memo)
+	{
+		m_memo = memo;
+	}
+
+	CString Survey::getMemo() const
+	{
+		return m_memo;
 	}
 
 }

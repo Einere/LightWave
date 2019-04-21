@@ -5,6 +5,7 @@
 #include "./Shape/DS_Point.h"
 #include "./Parcel.h"
 #include "File.h"
+#include "Survey.h"
 
 namespace SurveyTask {
 	typedef std::pair<double, double> Point;
@@ -36,6 +37,9 @@ namespace SurveyTask {
 		BOOL start();
 		BOOL stop();
 
+		void registerSurvey(Survey survey);
+		const std::vector<Survey>& getSurveys() const;
+
 		Json::Value toJson();
 	public: // Override
 		virtual CString toFileContent();
@@ -50,6 +54,8 @@ namespace SurveyTask {
 		CString m_fileName;
 		CString m_lotNumber;
 		std::vector<ParcelToStore> m_parcels;
+
+		std::vector<SurveyTask::Survey> m_surveys;
 
 		BOOL m_hasStarted = FALSE;
 	private:

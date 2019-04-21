@@ -17,7 +17,7 @@ class CViewHMoveDlg;
 class CViewVMoveDlg;
 class CViewSkyDlg;
 class CGPSSNRGraphDlg;
-class ConnectionStateDlg;
+class StatePane;
 
 // 기본 Frame이다. 메뉴 이벤트들을 여기서 처리 하게 될것이다.
 class CMainFrame : public CFrameWndEx, public SocketRecipient
@@ -27,10 +27,6 @@ public:
 protected: // serialization에서만 만들어집니다.
 	CMainFrame();
 	DECLARE_DYNCREATE(CMainFrame)
-
-// 특성입니다.
-private:
-	WorkerManager m_workerManager;
 
 // 작업입니다.
 public:
@@ -61,7 +57,7 @@ protected:  // 컨트롤 모음이 포함된 멤버입니다.
 	StatePane			m_wndStatePane;
 	TaskWnd				m_wndTask;
 	ConnectionStateDlg*	m_pStateDlg = NULL;
-	MapEx::SurveyView m_surveyView;
+	//MapEx::SurveyView m_surveyView;
 
 public:
 	void updateStateDlg();

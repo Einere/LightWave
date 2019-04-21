@@ -226,7 +226,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	// 빠른(<Alt> 키를 누른 채 끌기) 도구 모음 사용자 지정을 활성화합니다.
 	CMFCToolBar::EnableQuickCustomization();
 
-	m_surveyView.setManager(CCadManager::GetInstance());
+	/*m_surveyView.setManager(CCadManager::GetInstance());
 	BOOL surveyViewCreated = m_surveyView.Create(IDD_SURVEY_VIEW_LAYER, this);
 	if (!surveyViewCreated) {
 		MessageBox("SurveyView 창을 만들 수 없습니다.");
@@ -236,7 +236,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_surveyView.ShowWindow(SW_SHOW);
 
 	SurveyTask::Survey survey(446800.614, 193000.033);
-	m_surveyView.addSurvey(survey);
+	m_surveyView.addSurvey(survey);*/
 
 	/*
 	if (CMFCToolBar::GetUserImages() == NULL)
@@ -305,13 +305,13 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 void CMainFrame::OnWindowPosChanged(WINDOWPOS * lpWinPos)
 {
-	CFrameWndEx::OnWindowPosChanged(lpWinPos);
+	/*CFrameWndEx::OnWindowPosChanged(lpWinPos);
 	if (m_surveyView) {
 		HWND hCadWnd = CCadManager::GetInstance()->GetHwnd();
 		RECT cadRect;
 		::GetWindowRect(hCadWnd, &cadRect);
 		m_surveyView.updatePos();
-	}
+	}*/
 }
 
 void CMainFrame::addTask(SurveyTask::Task task)
@@ -699,7 +699,7 @@ void CMainFrame::OnZoomExtent()
 {
 	CCadManager *pCad = CCadManager::GetInstance();
 	pCad->ZoomExtent();
-	m_surveyView.updatePos();
+	//m_surveyView.updatePos();
 }
 
 
@@ -707,7 +707,7 @@ void CMainFrame::OnZoomIn()
 {
 	CCadManager *pCad = CCadManager::GetInstance();
 	pCad->ZoomIn();
-	m_surveyView.updatePos();
+	//m_surveyView.updatePos();
 }
 
 
@@ -715,7 +715,7 @@ void CMainFrame::OnZoomOut()
 {
 	CCadManager *pCad = CCadManager::GetInstance();
 	pCad->ZoomOut();
-	m_surveyView.updatePos();
+	//m_surveyView.updatePos();
 }
 
 
@@ -723,8 +723,7 @@ void CMainFrame::OnMoveNowposition()
 {
 	CCadManager *pCad = CCadManager::GetInstance();
 	pCad->MoveViewForPositionSymbol(100);
-	m_surveyView.updatePos();
-
+	//m_surveyView.updatePos();
 }
 
 
@@ -732,7 +731,7 @@ void CMainFrame::OnZoomWindow()
 {
 	CCadManager *pCad = CCadManager::GetInstance();
 	pCad->ZoomWindow();
-	m_surveyView.updatePos();
+	//m_surveyView.updatePos();
 }
 
 
@@ -740,7 +739,7 @@ void CMainFrame::OnMovePan()
 {
 	CCadManager *pCad = CCadManager::GetInstance();
 	pCad->PanRTime();
-	m_surveyView.updatePos();
+	//m_surveyView.updatePos();
 }
 
 void CMainFrame::OnLayerOpencontroller()
@@ -860,7 +859,7 @@ void CMainFrame::OnServerStart()
 	pMenu->EnableMenuItem(ID_SERVER_STOP, false);
 */
 	
-	m_workerManager.startServer(this);
+	WorkerManager::GetInstance()->startServer();
 	updateStateDlg();
 	Log::log("서버가 시작되었습니다.\n클라이언트로부터 연결 요청을 받을 수 있습니다.");
 	MessageBoxA("서버가 시작되었습니다.\n클라이언트로부터 연결 요청을 받을 수 있습니다.", "서버 시작");
@@ -869,7 +868,7 @@ void CMainFrame::OnServerStart()
 
 void CMainFrame::OnServerStop()
 {
-	m_workerManager.stopServer();
+	WorkerManager::GetInstance()->stopServer();
 	updateStateDlg();
 	Log::log("서버가 종료되었습니다.");
 
@@ -890,35 +889,18 @@ void CMainFrame::OnUpdateServerStop(CCmdUI *pCmdUI)
 
 void CMainFrame::showStateDlg()
 {
-	if (m_pStateDlg == NULL) {
-		m_pStateDlg = new ConnectionStateDlg(this);
-		BOOL result = m_pStateDlg->Create(IDD_DLG_CONNECTION_STATE, this);
-		assert(result);
-	}
-
-	m_pStateDlg->update(m_workerManager.isListening(), m_workerManager.getWorkers());
-	m_pStateDlg->ShowWindow(SW_SHOW);
+	m_wndStatePane.update();
 }
 
 
 void CMainFrame::updateStateDlg()
 {
-	m_wndStatePane.update(m_workerManager.isListening(), m_workerManager.getWorkers());
-
-	if (m_pStateDlg == NULL) {
-		m_pStateDlg = new ConnectionStateDlg(this);
-		BOOL result = m_pStateDlg->Create(IDD_DLG_CONNECTION_STATE, NULL);
-		assert(result);
-	}
-
-	if (m_pStateDlg->IsWindowVisible()) {
-		m_pStateDlg->update(m_workerManager.isListening(), m_workerManager.getWorkers());
-	}
+	m_wndStatePane.update();
 }
 
 bool CMainFrame::isServerListening() const
 {
-	return m_workerManager.isListening();
+	return WorkerManager::GetInstance()->isListening();
 }
 
 
@@ -982,11 +964,6 @@ void CMainFrame::OnSetParcel()
 
 void CMainFrame::OnDevTest()
 {
-	std::regex reg(".*tsk$");
-	std::vector<path> files;
-	File::findFile("E:\\private\\graduation-project\\src_root\\lightwave_pc\\server\\RTK\\working-data", reg, files);
-
-	for (auto file : files) {
-		Log::log("%s",file.generic_string().c_str());
-	}
+	m_wndStatePane.update();
+	
 }

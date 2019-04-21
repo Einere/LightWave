@@ -15,6 +15,17 @@ namespace SurveyTask {
 	Task::Task()
 	{
 		m_id = generateId();
+
+		SurveyTask::Survey survey1;
+		survey1.SetPoint(193126.598, 446644.929);
+		survey1.setMemo("Hello World");
+		registerSurvey(survey1);
+
+		SurveyTask::Survey survey2;
+		survey2.SetPoint(193179.205, 446657.261);
+		survey2.setMemo("NEWYORK TIMES");
+		registerSurvey(survey2);
+
 	}
 
 	CString Task::getTaskName() const
@@ -119,6 +130,16 @@ namespace SurveyTask {
 			m_parcels.push_back(parcel);
 		}
 		return m_parcels.size();
+	}
+
+	void Task::registerSurvey(Survey survey)
+	{
+		m_surveys.push_back(survey);
+	}
+
+	const std::vector<Survey>& Task::getSurveys() const
+	{
+		return m_surveys;
 	}
 
 	Json::Value Task::toJson()
