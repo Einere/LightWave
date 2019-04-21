@@ -2,6 +2,7 @@
 
 #include "SocketWorker.h"
 #include "SocketAcceptor.h"
+#include "StatePane.h"
 
 class SocketRecipient;
 class SocketAcceptor;
@@ -14,16 +15,17 @@ enum Host {
 class WorkerManager
 {
 public:
-	WorkerManager(SocketRecipient* recep = NULL);
 	~WorkerManager();
 
-	const SocketRecipient* getRecepient() const;
-	void setRecepient(SocketRecipient* recep);
+	/*const SocketRecipient* getRecepient() const;
+	void setRecepient(SocketRecipient* recep);*/
+	void setSocketStatePane(StatePane* dlg);
 
-	std::vector<std::shared_ptr<SocketWorker>> getWorkers() const;
+	std::shared_ptr<SocketWorker> getWorkerOrNull(const CString& ipAddress, UINT port) const;
+	const std::vector<std::shared_ptr<SocketWorker>>& getWorkers();
 
 	void startServer();
-	void startServer(SocketRecipient* recep);
+	//void startServer(SocketRecipient* recep);
 
 	void stopServer();
 
@@ -39,16 +41,28 @@ public:
 
 	bool inspect(std::shared_ptr<SocketWorker> target);
 
+	void update();
+	void notify();
+
 private:
-	SocketRecipient* m_pRecepient = NULL;
+	//SocketRecipient* m_pRecepient = NULL;
 
 	SocketAcceptor m_acceptor;
 	std::vector<std::shared_ptr<SocketWorker>> m_workers;
 
+	StatePane* m_pStatePane = NULL;
+
 	bool m_isListening = false;
 
 protected:
-	std::shared_ptr<SocketWorker> findWorkerOrNull(const CString& ipAddress, UINT port) const;
 	bool removeOrFalse(const CString& ipAddress, UINT port);
+
+protected:
+	WorkerManager();
+	static WorkerManager* m_pThis;
+
+public:
+	static WorkerManager* GetInstance();
+	static void ReleaseInstance();
 };
 

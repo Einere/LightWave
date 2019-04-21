@@ -17,12 +17,12 @@ Json::Value TaskMonkey::doGet(Json::Value props)
 {
 	auto pTaskManager = ProgramManager::TaskManager::GetInstance();
 
-	SurveyTask::Task task;
-	BOOL exist = pTaskManager->getStartedTask(task);
-	if (!exist) return error("현재 진행 중인 작업이 존재하지 않습니다.");
+	SurveyTask::Task* pTask;
+	pTask = pTaskManager->getStartedTask();
+	if (pTask == NULL) return Service::error("현재 진행 중인 작업이 존재하지 않습니다.");
 
 	Json::Value root;
-	root["data"] = task.toJson();
+	root["data"] = pTask->toJson();
 
 	return root;
 }

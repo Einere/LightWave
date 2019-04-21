@@ -4,28 +4,31 @@
 #include "SocketRecipient.h"
 
 
-WorkerManager::WorkerManager(SocketRecipient* recep)
-	:m_acceptor(this)
-{
-	m_pRecepient = recep;
-}
+//WorkerManager::WorkerManager(SocketRecipient* recep)
+//	:m_acceptor()
+//{
+//	m_pRecepient = recep;
+//}
 
+WorkerManager::WorkerManager() {
+
+}
 
 WorkerManager::~WorkerManager()
 {
 }
 
-const SocketRecipient* WorkerManager::getRecepient() const
-{
-	return m_pRecepient;
-}
+//const SocketRecipient* WorkerManager::getRecepient() const
+//{
+//	return m_pRecepient;
+//}
+//
+//void WorkerManager::setRecepient(SocketRecipient * recep)
+//{
+//	m_pRecepient = recep;
+//}
 
-void WorkerManager::setRecepient(SocketRecipient * recep)
-{
-	m_pRecepient = recep;
-}
-
-std::vector<std::shared_ptr<SocketWorker>> WorkerManager::getWorkers() const
+const std::vector<std::shared_ptr<SocketWorker>>& WorkerManager::getWorkers()
 {
 	return m_workers;
 }
@@ -37,11 +40,11 @@ void WorkerManager::startServer()
 	m_isListening = true;
 }
 
-void WorkerManager::startServer(SocketRecipient* recep)
-{
-	m_pRecepient = recep;
-	startServer();
-}
+//void WorkerManager::startServer(SocketRecipient* recep)
+//{
+//	m_pRecepient = recep;
+//	startServer();
+//}
 
 void WorkerManager::stopServer()
 {
@@ -57,13 +60,12 @@ void WorkerManager::closeAll()
 		UINT port;
 		worker->GetPeerName(ipAddress, port);
 		worker->Close();
-		m_pRecepient->OnClose(ipAddress, port, 0);
+		//m_pRecepient->OnClose(ipAddress, port, 0);
 	}
 }
 
 void WorkerManager::OnAccept(std::shared_ptr<SocketWorker> pNewWorker)
 {
-
 	/*auto newWorker = std::make_shared<SocketWorker>(this);
 	m_acceptor.Accept(*newWorker);*/
 
@@ -80,8 +82,9 @@ void WorkerManager::OnAccept(std::shared_ptr<SocketWorker> pNewWorker)
 	UINT port;
 	pNewWorker->GetPeerName(ipAddress, port);
 
-	assert(m_pRecepient);
-	m_pRecepient->OnAccept(ipAddress, port, 0);
+	notify();
+	/*assert(m_pRecepient);
+	m_pRecepient->OnAccept(ipAddress, port, 0);*/
 	//m_pRecepient->OnAccept(pNewWorker->getIpAddress(), pNewWorker->getPort(), 0);
 }
 
@@ -94,8 +97,8 @@ void WorkerManager::OnReceive(SocketWorker * pSocketWorker, std::string json, in
 	UINT port;
 	pSocketWorker->GetPeerName(ipAddress, port);
 
-	assert(m_pRecepient);
-	m_pRecepient->OnReceive(ipAddress, port, json, errorCode);
+	/*assert(m_pRecepient);
+	m_pRecepient->OnReceive(ipAddress, port, json, errorCode);*/
 }
 
 void WorkerManager::OnClose(const CString& ipAddress, UINT port, int errorCode)
@@ -108,7 +111,7 @@ void WorkerManager::OnClose(const CString& ipAddress, UINT port, int errorCode)
 		Log::err("IP:%s, PORT:%d: 비정상적 접근: ", ipAddress, port);
 	}
 
-	m_pRecepient->OnClose(ipAddress, port, errorCode);
+	//m_pRecepient->OnClose(ipAddress, port, errorCode);
 }
 
 bool WorkerManager::isListening() const
@@ -121,7 +124,24 @@ bool WorkerManager::inspect(std::shared_ptr<SocketWorker> target)
 	return true;
 }
 
-std::shared_ptr<SocketWorker> WorkerManager::findWorkerOrNull(const CString & ipAddress, UINT port) const
+void WorkerManager::update()
+{
+	notify();
+}
+
+void WorkerManager::notify()
+{
+	if (m_pStatePane != NULL) {
+		m_pStatePane->update();
+	}
+}
+
+void WorkerManager::setSocketStatePane(StatePane * pStatePane)
+{
+	m_pStatePane = pStatePane;
+}
+
+std::shared_ptr<SocketWorker> WorkerManager::getWorkerOrNull(const CString & ipAddress, UINT port) const
 {	
 	for (auto& worker : m_workers) {
 		CString ipTest;
@@ -149,4 +169,24 @@ bool WorkerManager::removeOrFalse(const CString & ipAddress, UINT port)
 	}
 
 	return false;
+}
+
+WorkerManager* WorkerManager::m_pThis = NULL;
+
+WorkerManager * WorkerManager::GetInstance()
+{
+	if (m_pThis == NULL)
+	{
+		m_pThis = new WorkerManager();
+	}
+	return m_pThis;
+}
+
+void WorkerManager::ReleaseInstance()
+{
+	if (m_pThis != NULL)
+	{
+		delete m_pThis;
+		m_pThis = NULL;
+	}
 }

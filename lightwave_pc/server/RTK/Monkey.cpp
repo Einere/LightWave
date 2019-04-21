@@ -57,7 +57,7 @@ namespace Service {
 		return methodMap.at(methodInString);
 	}
 
-	Json::Value Monkey::error(std::string msg)
+	Json::Value error(std::string msg)
 	{
 		Json::Value err;
 		err["status"] = BAD_REQUEST;
@@ -65,7 +65,7 @@ namespace Service {
 		return err;
 	}
 
-	Json::Value Monkey::success(Json::Value payload)
+	Json::Value success(Json::Value payload)
 	{
 		payload["status"] = OK;
 		return payload;

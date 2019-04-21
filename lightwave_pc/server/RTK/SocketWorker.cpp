@@ -16,6 +16,17 @@ void SocketWorker::setWorkerManager(WorkerManager * pWorkerManager)
 	m_pWorkerManager = pWorkerManager;
 }
 
+void SocketWorker::setWorkerName(CString workerName)
+{
+	m_workerName = workerName;
+	notifyUpdate();
+}
+
+CString SocketWorker::getWorkerName()
+{
+	return m_workerName;
+}
+
 void SocketWorker::OnReceive(int nErrorCode)
 {
 	Log::log("요청 들어옴. 처리 중...");
@@ -41,7 +52,12 @@ void SocketWorker::OnClose(int nErrorCode)
 	CString ipAddress;
 	UINT port;
 	GetPeerName(ipAddress, port);
-	m_pWorkerManager->OnClose(ipAddress, port, nErrorCode);
+	WorkerManager::GetInstance()->OnClose(ipAddress, port, nErrorCode);
+}
+
+void SocketWorker::notifyUpdate() const
+{
+	WorkerManager::GetInstance()->update();
 }
 
 std::string SocketWorker::readIn()

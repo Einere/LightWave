@@ -32,9 +32,7 @@ namespace Service {
 	{
 		Json::Value props = Json::parse(json);
 		if (props==Json::nullValue) {
-			// 요청이 정상적이지 않음을 반환
-			// if 처리문장이 구현되면 아래 assert는 지울 것
-			assert(false);
+			return Json::json2Str(error("요청 형식이 올바른 json 형태여야 합니다."));
 		}
 
 		std::shared_ptr<Monkey> monkey = getMonkeyOrNull(props);

@@ -21,6 +21,9 @@ namespace Service
 
 	const std::map<std::string, Method> methodMap = { {"GET", Get}, {"POST", Post}, {"PUT", Put}, {"DELETE", Delete} };
 
+	Json::Value error(std::string msg);
+	Json::Value success(Json::Value payload);
+
 	class Monkey
 	{
 	public:
@@ -39,8 +42,6 @@ namespace Service
 		std::string m_subject;
 
 		Method getMethodOrInvalid(Json::Value root);
-		Json::Value error(std::string msg);
-		Json::Value success(Json::Value payload);
 	};
 
 	class RequestResolver
@@ -55,5 +56,7 @@ namespace Service
 		std::shared_ptr<Monkey> getMonkeyOrNull(Json::Value root);
 		std::vector<std::shared_ptr<Monkey>> monkeys;
 	};
+
+
 }
 
