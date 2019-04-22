@@ -298,6 +298,9 @@
     <ClInclude Include="SurveyInfoDlg.h">
       <Filter>windows</Filter>
     </ClInclude>
+    <ClInclude Include="Base64Image.h">
+      <Filter>models</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -461,6 +464,9 @@
     </ClCompile>
     <ClCompile Include="SurveyInfoDlg.cpp">
       <Filter>windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Base64Image.cpp">
+      <Filter>models</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

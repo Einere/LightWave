@@ -256,14 +256,14 @@ void CTaskMngDlg::OnTaskMngActive()
 	pTask = taskManager->getTaskById(id);
 	if (pTask == NULL) return;
 
-	CString fileName = pTask->getFileName();
+	CString fileName = pTask->getCifPath();
 	if (fileName.IsEmpty()) {
 		MessageBox("해당 작업에 등록된 CIF파일이 없습니다.", "CIF파일 로드 에러", MB_ICONERROR);
 		return;
 	}
 
 	auto manager = ProgramManager::CParcelManager::GetInstance();
-	manager->LoadCif(pTask->getFileName());
+	manager->LoadCif(pTask->getCifPath());
 }
 
 void CTaskMngDlg::OnTaskMngToggleState()

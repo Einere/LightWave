@@ -44,7 +44,7 @@ namespace ProgramManager {
 
 	SurveyTask::Task* TaskManager::getStartedTask()
 	{
-		if (-1==m_startedTaskId) return NULL;
+		if (0==m_startedTaskId) return NULL;
 
 		return getTaskById(m_startedTaskId);
 	}
@@ -59,8 +59,8 @@ namespace ProgramManager {
 		std::vector<SurveyTask::Task>::iterator itor;
 		for (itor = m_tasks.begin(); itor != m_tasks.end(); ++itor) {
 			if (id == itor->getId()) {
-				BOOL removed = itor->remove(TRUE);
-				if (!removed) return FALSE;
+				CString result = itor->remove(TRUE);
+				if (result.IsEmpty()) return FALSE;
 
 				m_tasks.erase(itor);
 				return TRUE;
@@ -92,7 +92,7 @@ namespace ProgramManager {
 		pTask = getTaskById(id);
 		assert(pTask != NULL);
 
-		if (-1 != m_startedTaskId) {
+		if (0 != m_startedTaskId) {
 			SurveyTask::Task* pTaskToBeStopped;
 			pTaskToBeStopped = getTaskById(m_startedTaskId);
 			pTaskToBeStopped->stop();
@@ -115,7 +115,7 @@ namespace ProgramManager {
 		if (!hasStopped) return NULL;
 
 		assert(m_startedTaskId == id);
-		m_startedTaskId = -1;
+		m_startedTaskId = 0;
 		return TRUE;
 	}
 

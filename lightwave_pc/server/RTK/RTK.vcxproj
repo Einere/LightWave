@@ -173,6 +173,7 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="File.h" />
     <ClInclude Include="Survey.h" />
+    <ClInclude Include="Base64Image.h" />
     <ClInclude Include="SurveyInfoDlg.h" />
     <ClInclude Include="SurveyMonkey.h" />
     <ClInclude Include="SurveyView.h" />
@@ -233,6 +234,7 @@
     </ClCompile>
     <ClCompile Include="File.cpp" />
     <ClCompile Include="Survey.cpp" />
+    <ClCompile Include="Base64Image.cpp" />
     <ClCompile Include="SurveyInfoDlg.cpp" />
     <ClCompile Include="SurveyMonkey.cpp" />
     <ClCompile Include="SurveyView.cpp" />

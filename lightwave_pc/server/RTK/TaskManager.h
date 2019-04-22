@@ -32,7 +32,7 @@ namespace ProgramManager {
 	private:
 		std::vector<SurveyTask::Task> m_tasks;
 		UINT m_selectedId;
-		UINT m_startedTaskId = -1;
+		UINT m_startedTaskId = 0;
 
 	protected:
 		TaskManager();

@@ -394,11 +394,11 @@ namespace ProgramManager
 
 		CParcelManager* pParcelManager = CParcelManager::GetInstance();
 
-		// 레이어 생성 : 1/60/71 
+		// 레이어 생성 : 1/60/71/100
 		MakeLayer("1");
 		MakeLayer("60", CAD_COLOR_RED);
 		MakeLayer("71");
-		MakeLayer("100", CAD_COLOR_CYAN);
+		MakeLayer("100", CAD_COLOR_CYAN); // 작업자가 전송한 측량 정보를 표시하기 위한 레이어
 
 		VHANDLE hLayer1 = CadGetLayerByName(m_hDwg, "1");
 		VHANDLE hLayer60 = CadGetLayerByName(m_hDwg, "60");
@@ -450,6 +450,7 @@ namespace ProgramManager
 			MakeBasePoint(ptTemp);
 		}
 
+		// 작업자의 측량 위치 생성
 		CadSetCurLayer(m_hDwg, hLayer100);
 		auto pTaskManager = TaskManager::GetInstance();
 		UINT taskId = pTaskManager->getSelectedTaskIdOrZero();
