@@ -20,8 +20,8 @@ namespace SurveyTask {
 		void setTaskName(CString taskName);
 		CString getTaskDesc() const;
 		void setTaskDesc(CString taskDesc);
-		CString getFileName() const;
-		void setFileName(CString fileName);
+		CString getCifPath() const;
+		void setCifPath(CString fileName);
 		CString getLotNumber() const;
 		void setLotNumber(CString lotNumber);
 		UINT getId() const;
@@ -31,27 +31,25 @@ namespace SurveyTask {
 		int addParcels(const std::vector<DataType::CParcel> pts);
 		void clearParcelPoints();
 
-		BOOL saveImage(const unsigned char* img, unsigned int size, const CString fileName);
-
 		BOOL hasStarted() const;
 		BOOL start();
 		BOOL stop();
 
 		void registerSurvey(Survey survey);
 		const std::vector<Survey>& getSurveys() const;
+		Survey* GetSurveyByCoord(double x, double y);
 
 		Json::Value toJson();
 	public: // Override
-		virtual CString toFileContent();
+		virtual std::string toFileContent();
 
 	protected:
-		virtual CString getDefaultPath();
 		virtual BOOL resolveFileData(const char* data);
 
 		UINT m_id;
 		CString m_taskName;
 		CString m_taskDesc;
-		CString m_fileName;
+		CString m_cifPath;
 		CString m_lotNumber;
 		std::vector<ParcelToStore> m_parcels;
 

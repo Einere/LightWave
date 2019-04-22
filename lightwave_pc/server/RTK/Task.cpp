@@ -15,17 +15,7 @@ namespace SurveyTask {
 	Task::Task()
 	{
 		m_id = generateId();
-
-		SurveyTask::Survey survey1;
-		survey1.SetPoint(193126.598, 446644.929);
-		survey1.setMemo("Hello World");
-		registerSurvey(survey1);
-
-		SurveyTask::Survey survey2;
-		survey2.SetPoint(193179.205, 446657.261);
-		survey2.setMemo("NEWYORK TIMES");
-		registerSurvey(survey2);
-
+		m_ext = "tsk";
 	}
 
 	CString Task::getTaskName() const
@@ -36,6 +26,8 @@ namespace SurveyTask {
 	void Task::setTaskName(CString taskName)
 	{
 		m_taskName = taskName;
+		m_fileName = m_taskName;
+		m_parentPath = rootDir + "/" + m_taskName;
 	}
 
 	CString Task::getTaskDesc() const
@@ -48,14 +40,14 @@ namespace SurveyTask {
 		m_taskDesc = taskDesc;
 	}
 
-	CString Task::getFileName() const
+	CString Task::getCifPath() const
 	{
-		return m_fileName;
+		return m_cifPath;
 	}
 
-	void Task::setFileName(CString fileName)
+	void Task::setCifPath(CString fileName)
 	{
-		m_fileName = fileName;
+		m_cifPath = fileName;
 	}
 
 	CString Task::getLotNumber() const
@@ -81,22 +73,6 @@ namespace SurveyTask {
 	const std::vector<ParcelToStore>& Task::getParcels() const
 	{
 		return m_parcels;
-	}
-
-	BOOL Task::saveImage(const unsigned char* img, unsigned int size, const CString fileName)
-	{
-		CString path;
-		CString dirPath = Path::getDirPath(srcPath);
-		path.Format("%s/%s", dirPath, fileName);
-
-		CFile file;
-		const bool isOpenSucceed = file.Open(path, CFile::modeWrite | CFile::modeCreate);
-		assert(isOpenSucceed);
-
-		file.Write((void*)img, size);
-		file.Close();
-
-		return TRUE;
 	}
 
 	BOOL Task::hasStarted() const
@@ -142,35 +118,45 @@ namespace SurveyTask {
 		return m_surveys;
 	}
 
+	Survey * Task::GetSurveyByCoord(double x, double y)
+	{
+		const int surveysCount = m_surveys.size();
+		for (int i = 0; i < surveysCount; ++i) {
+			if (x == m_surveys.at(i).GetX() && y == m_surveys[i].GetY()) {
+				return &m_surveys[i];
+			}
+		}
+		
+		return NULL;
+	}
+
 	Json::Value Task::toJson()
 	{
-		/* 저장할 필드 목록: [id, taskName, taskDesc, lotNumber, fileName, parcelPoints]	*/
+		/* 저장할 필드 목록: [id, taskName, taskDesc, lotNumber, fileName, parcels, surveys]	*/
 		Json::Value root;
 		root["id"] = m_id;
 		root["taskName"] = (LPCTSTR)m_taskName;
 		root["taskDesc"] = (LPCTSTR)m_taskDesc;
 		root["lotNumber"] = (LPCTSTR)m_lotNumber;
-		root["fileName"] = (LPCTSTR)m_fileName;
+		root["fileName"] = (LPCTSTR)m_cifPath;
 
 		root["parcels"] = Json::Value(Json::arrayValue);
 		for (ParcelToStore& parcel : m_parcels) {
 			root["parcels"].append(parcel2Json(parcel));
 		}
 
+		root["surveys"] = Json::Value(Json::arrayValue);
+		for (Survey& survey : m_surveys) {
+			root["surveys"].append(survey.ToJson());
+		}
+
 		return root;
 	}
 
-	CString Task::toFileContent()
+	std::string Task::toFileContent()
 	{
 		auto jsonInString = Json::json2Str(toJson());
-		return jsonInString.c_str();
-	}
-
-	CString Task::getDefaultPath()
-	{
-		CString path;
-		path.Format("%s/%s/%s.tsk", rootDir, m_taskName, m_taskName);
-		return path;
+		return jsonInString;
 	}
 
 	BOOL Task::resolveFileData(const char* data)
@@ -182,7 +168,7 @@ namespace SurveyTask {
 		setTaskName(json["taskName"].asCString());
 		setTaskDesc(json["taskDesc"].asCString());
 		setLotNumber(json["lotNumber"].asCString());
-		setFileName(json["fileName"].asCString());
+		setCifPath(json["fileName"].asCString());
 
 		Json::Value parcels(Json::arrayValue);
 		parcels = json["parcels"];
@@ -200,6 +186,16 @@ namespace SurveyTask {
 			}
 
 			m_parcels.push_back(parcel);
+		}
+
+		Json::Value surveysRoot(Json::arrayValue);
+		surveysRoot = json["surveys"];
+		const Json::ArrayIndex surveysCount = surveysRoot.size();
+		m_surveys.clear();
+		for (int i = 0; i < surveysCount; ++i) {
+			Survey survey;
+			survey.FromJson(surveysRoot[i]);
+			m_surveys.push_back(survey);
 		}
 
 		return TRUE;

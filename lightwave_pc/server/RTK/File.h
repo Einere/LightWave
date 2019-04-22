@@ -16,24 +16,37 @@ namespace File {
 	class Storable
 	{
 	public:
-		Storable();
+		Storable(CString parentPath = File::rootDir);
 		~Storable();
 
-		bool store(CString path = NULL);
+		CString store(CString path = NULL);
 		bool load(CString path);
-		bool remove(BOOL everything=FALSE);
+		CString remove(BOOL everything=FALSE);
 
-		virtual CString toFileContent() = 0;
+		/*
+		디렉토리가 이미 존재할 경우: true
+		디렉토리 생성에 성공한 경우: true
+		디렉토리 생성에 실패한 경우: false
+		*/
+		static bool CreateDir(CString path);
+
+		CString Storable::GetFilePath() const;
+		CString GetFileName() const;
+		CString GetExt() const;
+		CString GetParentPath() const;
+
+		virtual std::string toFileContent() = 0;
 
 	protected:
-		CString srcPath;
+		CString m_filePath;
+		CString m_parentPath;
+		CString m_fileName;
+		CString m_ext;
 
-		virtual CString getDefaultPath();
 		virtual BOOL resolveFileData(const char* data) = 0;
 
 	private:
 		void deleteFileOrDirectory(std::experimental::filesystem::v1::directory_entry entry);
-		CString m_defaultPath;
 		GlobalUtil::CFileUtil m_fileUtil;
 	};
 }

@@ -1,9 +1,11 @@
 #pragma once
 
 #include "./Shape/DS_Point.h"
+#include "json.h"
 
 namespace SurveyTask {
-	class Survey : public DataType::ShapeType::CDS_Point
+	class Survey 
+		: public DataType::ShapeType::CDS_Point
 	{
 	public:
 		Survey();
@@ -11,12 +13,17 @@ namespace SurveyTask {
 		//Survey(const Survey& Source);
 		~Survey();
 
-		void setMemo(CString memo);
-		CString getMemo() const;
-		// TODO: 이미지 반환하는 Getter 선언
+		void SetMemo(CString memo);
+		CString GetMemo() const;
 
+		void LoadAndGetImages(std::vector<CImage>* out_Images) const;
+		std::vector<CString> GetImagesPaths() const;
+		void AppendImageFile(CString path);
+
+		Json::Value ToJson() const;
+		void FromJson(Json::Value root);
 	private:
 		CString m_memo;
-		// TODO: 이미지를 담는 필드 선언
+		std::vector<CString> m_imagesPaths;
 	};
 }
