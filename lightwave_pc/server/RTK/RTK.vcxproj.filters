@@ -301,6 +301,9 @@
     <ClInclude Include="Base64Image.h">
       <Filter>models</Filter>
     </ClInclude>
+    <ClInclude Include="time.h">
+      <Filter>common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -467,6 +470,9 @@
     </ClCompile>
     <ClCompile Include="Base64Image.cpp">
       <Filter>models</Filter>
+    </ClCompile>
+    <ClCompile Include="time.cpp">
+      <Filter>common</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -451,12 +451,14 @@ namespace ProgramManager
 		}
 
 		// 작업자의 측량 위치 생성
-		CadSetCurLayer(m_hDwg, hLayer100);
 		auto pTaskManager = TaskManager::GetInstance();
-		UINT taskId = pTaskManager->getSelectedTaskIdOrZero();
-		auto surveys = pTaskManager->getSurveys();
-		for (auto& s : surveys) {
-			MakeSurveyPoint(s, 504, "");
+		if (pTaskManager->getLoadedTask() != NULL) {
+			CadSetCurLayer(m_hDwg, hLayer100);
+			UINT taskId = pTaskManager->getSelectedTaskIdOrZero();
+			auto surveys = pTaskManager->getSurveys();
+			for (auto& s : surveys) {
+				MakeSurveyPoint(s, 504, "");
+			}
 		}
 
 		if (m_hPositionEnt != NULL)

@@ -19,23 +19,9 @@ SurveyMonkey::~SurveyMonkey()
 
 Json::Value SurveyMonkey::doPost(Json::Value props)
 {
+	SurveyTask::Survey newSurvey;
+
 	Json::Value jsonData = props["data"];
-	Json::Value jsonSurveyPoint = jsonData["surveyPoint"];
-	if (jsonSurveyPoint.isNull() 
-		|| jsonSurveyPoint["X"].isNull() 
-		|| jsonSurveyPoint["Y"].isNull()) {
-		return Service::error("\'surveyPoint\' 필드가 존재하지 않거나 형식이 잘못 됨.");
-	}
-
-	Json::Value imagesRoot = jsonData["images"];
-	if (imagesRoot.isNull()) {
-		return Service::error("\'images\' 필드가 존재하지 않음.");
-	}
-
-	Json::Value memoRoot = jsonData["memo"];
-	if (memoRoot.isNull()) {
-		return Service::error("\'memo\' 필드가 존재하지 않음.");
-	}
 
 	UINT taskId = (jsonData["taskId"].isNull() ? -1 : jsonData["taskId"].asInt());
 	if (-1 == taskId) {
@@ -49,13 +35,13 @@ Json::Value SurveyMonkey::doPost(Json::Value props)
 		return Service::error("\'taskId\' 에 해당하는 작업이 존재하지 않음.");
 	}
 
-	CString memo = memoRoot.asCString();
-
-	std::vector<CString> images;
-	for (auto& img : imagesRoot) {
-		images.push_back(img.asCString());
+	Json::Value jsonSurveyPoint = jsonData["surveyPoint"];
+	if (jsonSurveyPoint.isNull() 
+		|| jsonSurveyPoint["X"].isNull() 
+		|| jsonSurveyPoint["Y"].isNull()) {
+		return Service::error("\'surveyPoint\' 필드가 존재하지 않거나 형식이 잘못 됨.");
 	}
-	
+
 	const double x = jsonSurveyPoint["X"].asDouble();
 	const double y = jsonSurveyPoint["Y"].asDouble();
 
@@ -64,10 +50,24 @@ Json::Value SurveyMonkey::doPost(Json::Value props)
 		return Service::error("중복 등록 불가: 촬영정보가 이미 등록된 좌표입니다.");
 	}
 
-	SurveyTask::Survey newSurvey;
-
 	newSurvey.SetPoint(x, y);
-	newSurvey.SetMemo(memo);
+
+	Json::Value memoRoot = jsonData["memo"];
+	if (memoRoot.isNull()) {
+		return Service::error("\'memo\' 필드가 존재하지 않음.");
+	}
+
+	newSurvey.SetMemo(memoRoot.asCString());
+
+	Json::Value imagesRoot = jsonData["images"];
+	if (imagesRoot.isNull()) {
+		return Service::error("\'images\' 필드가 존재하지 않음.");
+	}
+
+	std::vector<CString> images;
+	for (auto& img : imagesRoot) {
+		images.push_back(img.asCString());
+	}
 
 	const int imagesCount = images.size();
 	for (int i = 0; i < imagesCount; ++i) {
@@ -79,7 +79,10 @@ Json::Value SurveyMonkey::doPost(Json::Value props)
 	pTask->registerSurvey(newSurvey);
 	pTask->store();
 
-	ProgramManager::CCadManager::GetInstance()->ReCreateParcelData();
+	auto onGoingTaskId = pTaskManager->getLoadedTask()->getId();
+	if (taskId == onGoingTaskId) {
+		ProgramManager::CCadManager::GetInstance()->ReCreateParcelData();
+	}
 
 	return Json::Value();
 }

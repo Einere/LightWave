@@ -262,8 +262,10 @@ void CTaskMngDlg::OnTaskMngActive()
 		return;
 	}
 
-	auto manager = ProgramManager::CParcelManager::GetInstance();
-	manager->LoadCif(pTask->getCifPath());
+	auto pManager = ProgramManager::TaskManager::GetInstance();
+	pManager->loadTask(id);
+	/*auto pManager = ProgramManager::CParcelManager::GetInstance();
+	pManager->LoadCif(fileName);*/
 }
 
 void CTaskMngDlg::OnTaskMngToggleState()

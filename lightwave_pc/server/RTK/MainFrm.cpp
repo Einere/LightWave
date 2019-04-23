@@ -305,8 +305,8 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 void CMainFrame::OnWindowPosChanged(WINDOWPOS * lpWinPos)
 {
-	/*CFrameWndEx::OnWindowPosChanged(lpWinPos);
-	if (m_surveyView) {
+	CFrameWndEx::OnWindowPosChanged(lpWinPos);
+	/*if (m_surveyView) {
 		HWND hCadWnd = CCadManager::GetInstance()->GetHwnd();
 		RECT cadRect;
 		::GetWindowRect(hCadWnd, &cadRect);
@@ -673,11 +673,11 @@ long CMainFrame::OnCommunication(WPARAM wParam, LPARAM lParam)
 
 void CMainFrame::OnParentNotify(UINT message, LPARAM lParam)
 {
-	//CFrameWndEx::OnParentNotify(message, lParam);
-	//if (m_pStateDlg) {
-	//	delete m_pStateDlg;
-	//	m_pStateDlg = NULL;
-	//}
+	CFrameWndEx::OnParentNotify(message, lParam);
+	/*if (m_pStateDlg) {
+		delete m_pStateDlg;
+		m_pStateDlg = NULL;
+	}*/
 }
 
 // #########################################################

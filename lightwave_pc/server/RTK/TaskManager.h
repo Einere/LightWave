@@ -15,6 +15,7 @@ namespace ProgramManager {
 		UINT getSelectedTaskIdOrZero() const;
 		UINT getTasksCount() const;
 		SurveyTask::Task* getStartedTask();
+		SurveyTask::Task* getLoadedTask();
 
 		void appendTask(const SurveyTask::Task& task);
 
@@ -26,6 +27,8 @@ namespace ProgramManager {
 
 		BOOL stopTask(UINT id);
 
+		BOOL loadTask(UINT id);
+
 		void registerSurvey(SurveyTask::Survey survey, UINT taskId=0);
 		const std::vector<SurveyTask::Survey>& getSurveys(UINT taskId=0);
 
@@ -33,6 +36,7 @@ namespace ProgramManager {
 		std::vector<SurveyTask::Task> m_tasks;
 		UINT m_selectedId;
 		UINT m_startedTaskId = 0;
+		UINT m_loadedTaskId = 0;
 
 	protected:
 		TaskManager();

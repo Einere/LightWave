@@ -1,16 +1,17 @@
 #include "stdafx.h"
 #include "Survey.h"
+#include "time.h"
 
 namespace SurveyTask {
-	Survey::Survey()
+	Survey::Survey() : Survey(0,0)
 	{
+		
 	}
 
 	Survey::Survey(double fX, double fY) : CDS_Point(fX, fY)
 	{
+		GetLocalTime(&m_updatedTime);
 	}
-
-
 
 	Survey::~Survey()
 	{
@@ -56,6 +57,7 @@ namespace SurveyTask {
 	Json::Value Survey::ToJson() const
 	{
 		Json::Value root;
+		root["updatedTime"] = TimeUtil::convertTime2Str(m_updatedTime).GetString();
 		root["coord"] = Json::Value();
 		root["coord"]["X"] = m_fX;
 		root["coord"]["Y"] = m_fY;
@@ -77,6 +79,7 @@ namespace SurveyTask {
 		m_fY = coord["Y"].asDouble();
 
 		m_memo = root["memo"].asCString();
+
 
 		m_imagesPaths.clear();
 		for (const auto& imgPath : root["images"]) {

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "TaskManager.h"
+#include "ParcelManager.h"
 
 
 namespace ProgramManager {
@@ -21,7 +22,7 @@ namespace ProgramManager {
 		return m_tasks[index];
 	}
 
-	SurveyTask::Task* TaskManager::getTaskById(UINT id) 
+	SurveyTask::Task* TaskManager::getTaskById(UINT id)
 	{
 		for (auto& task : m_tasks) {
 			if (id == task.getId()) {
@@ -44,9 +45,16 @@ namespace ProgramManager {
 
 	SurveyTask::Task* TaskManager::getStartedTask()
 	{
-		if (0==m_startedTaskId) return NULL;
+		if (0 == m_startedTaskId) return NULL;
 
 		return getTaskById(m_startedTaskId);
+	}
+
+	SurveyTask::Task * TaskManager::getLoadedTask()
+	{
+		if (0 == m_loadedTaskId) return NULL;
+
+		return getTaskById(m_loadedTaskId);
 	}
 
 	void TaskManager::appendTask(const SurveyTask::Task & task)
@@ -82,7 +90,7 @@ namespace ProgramManager {
 		if (pTask == NULL) return FALSE;
 
 		m_selectedId = id;
-		
+
 		return TRUE;
 	}
 
@@ -109,7 +117,7 @@ namespace ProgramManager {
 	{
 		SurveyTask::Task* pTask;
 		pTask = getTaskById(id);
-		assert(pTask!=NULL);
+		assert(pTask != NULL);
 
 		BOOL hasStopped = pTask->stop();
 		if (!hasStopped) return NULL;
@@ -119,12 +127,31 @@ namespace ProgramManager {
 		return TRUE;
 	}
 
+	BOOL TaskManager::loadTask(UINT id)
+	{
+		SurveyTask::Task* pTask;
+		pTask = getTaskById(id);
+		assert(pTask != NULL);
+
+		if (id == m_loadedTaskId) {
+			return FALSE;
+		}
+
+		m_loadedTaskId = id;
+
+		bool result = CParcelManager::GetInstance()->LoadCif(pTask->getCifPath());
+		if (!result) {
+			return FALSE;
+		}
+
+		return TRUE;
+	}
+
 	void TaskManager::registerSurvey(SurveyTask::Survey survey, UINT taskId)
 	{
 		if (taskId == 0) {
 			taskId = m_startedTaskId;
 		}
-
 
 		SurveyTask::Task* task = getTaskById(taskId);
 		task->registerSurvey(survey);
@@ -132,8 +159,11 @@ namespace ProgramManager {
 
 	const std::vector<SurveyTask::Survey>& TaskManager::getSurveys(UINT taskId)
 	{
-		if (taskId == 0) {
-			taskId = m_startedTaskId;
+		if (taskId == 0 && 0 != m_loadedTaskId) {
+			taskId = m_loadedTaskId;
+		}
+		else if (0 == m_loadedTaskId) {
+			return std::vector<SurveyTask::Survey>();
 		}
 
 		SurveyTask::Task* task = getTaskById(taskId);

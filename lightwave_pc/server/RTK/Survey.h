@@ -23,6 +23,7 @@ namespace SurveyTask {
 		Json::Value ToJson() const;
 		void FromJson(Json::Value root);
 	private:
+		SYSTEMTIME m_updatedTime;
 		CString m_memo;
 		std::vector<CString> m_imagesPaths;
 	};
