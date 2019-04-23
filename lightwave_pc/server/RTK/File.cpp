@@ -68,7 +68,9 @@ namespace File {
 		UINT filesCount = 0;
 
 		if (everything) {
-			for (auto& file : itor) { deleteFileOrDirectory(file); }
+			for (auto& file : itor) { 
+				deleteFileOrDirectory(file); 
+			}
 		}
 
 		for (auto& file : itor) { ++filesCount; }
@@ -117,6 +119,8 @@ namespace File {
 	{
 		LPCWSTR path = entry.path().c_str();
 		if (fs::is_directory(entry.status())) {
+			fs::directory_iterator itor(entry);
+			for (auto& entry : itor) { deleteFileOrDirectory(entry); }
 			RemoveDirectoryW(path);
 		}
 		else {
