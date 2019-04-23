@@ -54,10 +54,33 @@ namespace SurveyTask {
 		m_imagesPaths.push_back(path);
 	}
 
+	void Survey::setWorker(Workers::Worker worker)
+	{
+		m_worker = worker;
+	}
+
+	void Survey::setWorker(UINT id, CString name, CString ip, UINT port)
+	{
+		m_worker = Workers::Worker(id, name, ip, port);
+	}
+
+	SYSTEMTIME Survey::GetUpdatedTime() const
+	{
+		return m_updatedTime;
+	}
+
+	Workers::Worker Survey::GetWorker() const
+	{
+		return m_worker;
+	}
+
 	Json::Value Survey::ToJson() const
 	{
 		Json::Value root;
-		root["updatedTime"] = TimeUtil::convertTime2Str(m_updatedTime).GetString();
+		root["updatedTime"] = TimeUtil::convertTime2StrSimple(m_updatedTime).GetString();
+
+		root["worker"] = m_worker.ToJson();
+
 		root["coord"] = Json::Value();
 		root["coord"]["X"] = m_fX;
 		root["coord"]["Y"] = m_fY;
@@ -72,18 +95,35 @@ namespace SurveyTask {
 		return root;
 	}
 
-	void Survey::FromJson(Json::Value root)
+	bool Survey::FromJson(Json::Value root)
 	{
-		Json::Value coord = root["coord"];
-		m_fX = coord["X"].asDouble();
-		m_fY = coord["Y"].asDouble();
+		Json::Value coordRoot = root["coord"];
+		Json::Value memoRoot = root["memo"];
+		Json::Value workerRoot = root["worker"];
+		Json::Value imgPathsRoot = root["images"];
 
-		m_memo = root["memo"].asCString();
+		if (coordRoot.isNull()
+			|| memoRoot.isNull()
+			|| workerRoot.isNull()
+			|| imgPathsRoot.isNull()) {
+			return false;
+		}
 
+		bool result = m_worker.FromJson(workerRoot);
+		if (!result) {
+			return false;
+		}
 
+		m_fX = coordRoot["X"].asDouble();
+		m_fY = coordRoot["Y"].asDouble();
+		
+		m_memo = memoRoot.asCString();
+		
 		m_imagesPaths.clear();
-		for (const auto& imgPath : root["images"]) {
+		for (const auto& imgPath : imgPathsRoot) {
 			m_imagesPaths.push_back(imgPath.asCString());
 		}
+
+		return true;
 	}
 }

@@ -16,6 +16,11 @@ void SocketWorker::setWorkerManager(WorkerManager * pWorkerManager)
 	m_pWorkerManager = pWorkerManager;
 }
 
+Workers::Worker SocketWorker::GetWorker() const
+{
+	return m_worker;
+}
+
 void SocketWorker::setWorkerName(CString workerName)
 {
 	m_worker.name = workerName;
@@ -30,6 +35,9 @@ CString SocketWorker::getWorkerName()
 void SocketWorker::setAuthorized()
 {
 	m_worker.authorized = true;
+
+	/* workaround */
+	GetPeerName(m_worker.ip, m_worker.port);
 }
 
 bool SocketWorker::isAuthorized() const

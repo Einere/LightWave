@@ -39,9 +39,9 @@ BOOL CTaskMngDlg::OnInitDialog()
 	m_listTask.GetWindowRect(&listRect);
 	const int width = listRect.Width();
 
-	m_listTask.InsertColumn(1, _T("ID"), LVCFMT_LEFT, width*0.3, 2);
-	m_listTask.InsertColumn(2, _T("작업명"), LVCFMT_LEFT, width*0.3, 2);
-	m_listTask.InsertColumn(3, _T("지번"), LVCFMT_LEFT, width*0.3, 2);
+	m_listTask.InsertColumn(1, _T("ID"), LVCFMT_LEFT, (int)(width*0.3), 2);
+	m_listTask.InsertColumn(2, _T("작업명"), LVCFMT_LEFT, (int)(width*0.3), 2);
+	m_listTask.InsertColumn(3, _T("지번"), LVCFMT_LEFT, (int)(width*0.3), 2);
 
 	std::regex reg(".*tsk$");
 	std::vector<path> files;
@@ -284,7 +284,7 @@ void CTaskMngDlg::OnTaskMngToggleState()
 	assert(pTask != NULL);
 
 	char notice[100];
-	sprintf(notice, "작업이 시작되었습니다.\n작업 ID: %d\n작업 이름: %s", pTask->getId(), pTask->getTaskName());
+	sprintf(notice, "작업이 시작되었습니다.\n작업 ID: %d\n작업 이름: %s", pTask->getId(), pTask->getTaskName().GetString());
 	MessageBox(notice, "안내", MB_ICONINFORMATION);
 }
 

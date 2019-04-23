@@ -2,6 +2,7 @@
 
 #include "./Shape/DS_Point.h"
 #include "json.h"
+#include "Worker.h"
 
 namespace SurveyTask {
 	class Survey 
@@ -20,10 +21,18 @@ namespace SurveyTask {
 		std::vector<CString> GetImagesPaths() const;
 		void AppendImageFile(CString path);
 
+		void setWorker(Workers::Worker worker);
+		void setWorker(UINT id, CString name, CString ip, UINT port);
+
+		SYSTEMTIME GetUpdatedTime() const;
+
+		Workers::Worker GetWorker() const;
+
 		Json::Value ToJson() const;
-		void FromJson(Json::Value root);
+		bool FromJson(Json::Value root);
 	private:
 		SYSTEMTIME m_updatedTime;
+		Workers::Worker m_worker;
 		CString m_memo;
 		std::vector<CString> m_imagesPaths;
 	};

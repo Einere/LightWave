@@ -597,7 +597,7 @@ void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 			// xpos ( -9200.000 < x < -9400.000 )
 			// ypos ( 12600.000 < y < 12800.000 )
 			// 변동 범위 +-1.000 , +-1.000 , +-0.500
-			srand( time(NULL) );
+			srand( (unsigned int)time(NULL) );
 			int nRand = (rand() % 2000) - 1000;
 			double fXOff = (double)(( rand() % 2000 ) - 1000 ) / 1000.0;
 			double fYOff = (double)(( rand() % 2000 ) - 1000 ) / 1000.0;

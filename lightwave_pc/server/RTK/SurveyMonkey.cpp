@@ -76,6 +76,8 @@ Json::Value SurveyMonkey::doPost(Json::Value props, SocketWorker& socketWorker)
 		newSurvey.AppendImageFile(imgPath);
 	}
 
+	newSurvey.setWorker(socketWorker.GetWorker());
+
 	pTask->registerSurvey(newSurvey);
 	pTask->store();
 

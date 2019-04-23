@@ -101,7 +101,7 @@ namespace SurveyTask {
 
 	int Task::addParcels(std::vector<CParcel> pts)
 	{
-		for (int i = 0; i < pts.size(); ++i) {
+		for (size_t i = 0; i < pts.size(); ++i) {
 			ParcelToStore parcel = parcel2ParcelToStore(pts[i]);
 			m_parcels.push_back(parcel);
 		}
@@ -173,13 +173,13 @@ namespace SurveyTask {
 		Json::Value parcels(Json::arrayValue);
 		parcels = json["parcels"];
 		Json::ArrayIndex size = parcels.size();
-		for (int i = 0; i < size; ++i) {
+		for (Json::ArrayIndex i = 0; i < size; ++i) {
 			ParcelToStore parcel;
 			Json::Value jsonParcel = json["parcels"][i];
 			parcel.landNo = jsonParcel["landNo"].asCString();
 
 			Json::ArrayIndex size = jsonParcel["parcelPoints"].size();
-			for (int i = 0; i < size; ++i) {
+			for (Json::ArrayIndex i = 0; i < size; ++i) {
 				double x = jsonParcel["parcelPoints"][i]["X"].asDouble();
 				double y = jsonParcel["parcelPoints"][i]["Y"].asDouble();
 				parcel.points.push_back({ x,y });
@@ -192,9 +192,14 @@ namespace SurveyTask {
 		surveysRoot = json["surveys"];
 		const Json::ArrayIndex surveysCount = surveysRoot.size();
 		m_surveys.clear();
-		for (int i = 0; i < surveysCount; ++i) {
+
+		const CString INVALID_FILE_FORMAT_ERROR = "저장 된 작업파일을 읽는 도중에 특정 필드 값이 존재하지 않아 정상적으로 로드하지 못 했습니다.";
+		for (Json::ArrayIndex i = 0; i < surveysCount; ++i) {
 			Survey survey;
-			survey.FromJson(surveysRoot[i]);
+			bool result = survey.FromJson(surveysRoot[i]);
+			if (!result) {
+				Log::log(INVALID_FILE_FORMAT_ERROR);
+			}
 			m_surveys.push_back(survey);
 		}
 

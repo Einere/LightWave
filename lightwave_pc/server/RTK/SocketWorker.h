@@ -13,6 +13,9 @@ public:
 	~SocketWorker();
 
 	void setWorkerManager(WorkerManager* pWorkerManager);
+
+	Workers::Worker GetWorker() const;
+
 	void setWorkerName(CString workerName);
 	CString getWorkerName();
 
