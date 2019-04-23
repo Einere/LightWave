@@ -7,11 +7,11 @@ class SocketWorker;
 namespace Service
 {
 	enum Method {
-		Invalid = 0,
-		Get = 1,
-		Post = 2,
-		Put = 3,
-		Delete = 4
+		Get = 0,
+		Post = 1,
+		Put = 2,
+		Delete = 3,
+		Invalid = 4,
 	};
 
 	enum Status {
@@ -25,6 +25,8 @@ namespace Service
 	Json::Value success(Json::Value payload);
 	bool isAuthorized(const SocketWorker& worker);
 
+	typedef bool authRequirements[4];
+
 	class Monkey
 	{
 	public:
@@ -34,13 +36,14 @@ namespace Service
 		Json::Value handle(Json::Value props, SocketWorker& socketWorker);
 		const std::string getSubject();
 
-		virtual Json::Value doGet(Json::Value props, SocketWorker& socketWorker) = 0;
-		virtual Json::Value doPost(Json::Value props, SocketWorker& socketWorker) = 0;
-		virtual Json::Value doPut(Json::Value props, SocketWorker& socketWorker) = 0;
-		virtual Json::Value doDelete(Json::Value props, SocketWorker& socketWorker) = 0;
+		virtual Json::Value doGet(Json::Value props, SocketWorker& socketWorker) { return Json::nullValue; };
+		virtual Json::Value doPost(Json::Value props, SocketWorker& socketWorker) { return Json::nullValue; };
+		virtual Json::Value doPut(Json::Value props, SocketWorker& socketWorker) { return Json::nullValue; };
+		virtual Json::Value doDelete(Json::Value props, SocketWorker& socketWorker) { return Json::nullValue; };
 
 	protected:
 		std::string m_subject;
+		authRequirements m_authList = { true, true, true, true };
 
 		Method getMethodOrInvalid(Json::Value root);
 	};

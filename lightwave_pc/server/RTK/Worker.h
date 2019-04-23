@@ -6,6 +6,6 @@ namespace Workers {
 	typedef struct Worker {
 		IdType id;
 		CString name;
-		bool authorized;
+		bool authorized = false;
 	};
 }

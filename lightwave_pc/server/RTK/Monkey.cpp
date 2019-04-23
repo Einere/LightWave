@@ -15,6 +15,13 @@ namespace Service {
 	Json::Value Monkey::handle(Json::Value props, SocketWorker& socketWorker)
 	{
 		Method method = getMethodOrInvalid(props);
+
+		if (m_authList[method]) {
+			if (!socketWorker.isAuthorized()) {
+				return error("허가되지 않은 요청입니다. 서버에 사용자가 등록되어있지 않을 수 있습니다.");
+			}
+		}
+
 		Json::Value result;
 		switch (method) {
 		case Method::Get:
