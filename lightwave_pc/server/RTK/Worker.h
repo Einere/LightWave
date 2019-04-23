@@ -1,27 +1,11 @@
 #pragma once
 
-namespace SurveyTask {
+namespace Workers {
 	typedef UINT IdType;
 
-	class Worker
-	{
-	public:
-		Worker();
-		~Worker();
-
-		IdType getId() const;
-		void setId(IdType id);
-
-		CString getWorkerName() const;
-		void setWorkerName(CString workerName);
-
-		IdType generateId() const;
-
-	private:
-		IdType m_id;
-		CString m_workerName;
-
+	typedef struct Worker {
+		IdType id;
+		CString name;
+		bool authorized;
 	};
-
-	
 }

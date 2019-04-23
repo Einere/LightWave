@@ -12,7 +12,7 @@ ParcelMonkey::~ParcelMonkey()
 {
 }
 
-Json::Value ParcelMonkey::doGet(Json::Value props)
+Json::Value ParcelMonkey::doGet(Json::Value props, SocketWorker& socketWorker)
 {
 	auto pTaskManager = ProgramManager::TaskManager::GetInstance();
 	auto tasks = pTaskManager->getTasks();

@@ -13,7 +13,7 @@ TaskMonkey::~TaskMonkey()
 {
 }
 
-Json::Value TaskMonkey::doGet(Json::Value props)
+Json::Value TaskMonkey::doGet(Json::Value props, SocketWorker& socketWorker)
 {
 	auto pTaskManager = ProgramManager::TaskManager::GetInstance();
 

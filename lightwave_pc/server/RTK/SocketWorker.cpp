@@ -18,13 +18,23 @@ void SocketWorker::setWorkerManager(WorkerManager * pWorkerManager)
 
 void SocketWorker::setWorkerName(CString workerName)
 {
-	m_workerName = workerName;
+	m_worker.name = workerName;
 	notifyUpdate();
 }
 
 CString SocketWorker::getWorkerName()
 {
-	return m_workerName;
+	return m_worker.name;
+}
+
+void SocketWorker::setAuthorized()
+{
+	m_worker.authorized = true;
+}
+
+bool SocketWorker::isAuthorized() const
+{
+	return m_worker.authorized;
 }
 
 void SocketWorker::OnReceive(int nErrorCode)
@@ -33,7 +43,7 @@ void SocketWorker::OnReceive(int nErrorCode)
 	const std::string data = readIn();
 	Log::log("요청 내용: %s", data);
 	
-	std::string response = m_requestResolver.resolve(this, data);
+	std::string response = m_requestResolver.resolve(*this, data);
 	Log::log("response: %s", response.c_str());
 
 	auto res = response.c_str();

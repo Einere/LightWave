@@ -23,6 +23,7 @@ namespace Service
 
 	Json::Value error(std::string msg);
 	Json::Value success(Json::Value payload);
+	bool isAuthorized(const SocketWorker& worker);
 
 	class Monkey
 	{
@@ -30,13 +31,13 @@ namespace Service
 		Monkey(const std::string subject);
 		~Monkey();
 
-		Json::Value handle(Json::Value props);
+		Json::Value handle(Json::Value props, SocketWorker& socketWorker);
 		const std::string getSubject();
 
-		virtual Json::Value doGet(Json::Value props) { return Json::nullValue;/*차후 invalid request라는 것을 알려주는 코드가 여기 들어가야함*/ }
-		virtual Json::Value doPost(Json::Value props) { return Json::nullValue; }
-		virtual Json::Value doPut(Json::Value props) { return Json::nullValue; }
-		virtual Json::Value doDelete(Json::Value props) { return Json::nullValue; }
+		virtual Json::Value doGet(Json::Value props, SocketWorker& socketWorker) = 0;
+		virtual Json::Value doPost(Json::Value props, SocketWorker& socketWorker) = 0;
+		virtual Json::Value doPut(Json::Value props, SocketWorker& socketWorker) = 0;
+		virtual Json::Value doDelete(Json::Value props, SocketWorker& socketWorker) = 0;
 
 	protected:
 		std::string m_subject;
@@ -50,7 +51,7 @@ namespace Service
 		RequestResolver();
 		~RequestResolver();
 
-		std::string resolve(SocketWorker* pSocket, std::string json);
+		std::string resolve(SocketWorker& pSocket, std::string json);
 
 	private:
 		std::shared_ptr<Monkey> getMonkeyOrNull(Json::Value root);

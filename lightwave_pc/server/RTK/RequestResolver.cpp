@@ -28,7 +28,7 @@ namespace Service {
 	{
 	}
 
-	std::string RequestResolver::resolve(SocketWorker* pSocket, std::string json)
+	std::string RequestResolver::resolve(SocketWorker& pSocket, std::string json)
 	{
 		Json::Value props = Json::parse(json);
 		if (props==Json::nullValue) {
@@ -37,12 +37,7 @@ namespace Service {
 
 		std::shared_ptr<Monkey> monkey = getMonkeyOrNull(props);
 
-		CString ipAddr; UINT port;
-		pSocket->GetPeerName(ipAddr, port);
-
-		props["ip-address"] = (LPCTSTR)ipAddr;
-		props["port"] = port;
-		Json::Value result = monkey->handle(props);
+		Json::Value result = monkey->handle(props, pSocket);
 
 		return Json::json2Str(result) + '\n';
 	}

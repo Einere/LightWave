@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Service.h"
+#include "SocketWorker.h"
 
 namespace Service {
 	Monkey::Monkey(const std::string subject)
@@ -11,22 +12,22 @@ namespace Service {
 	{
 	}
 
-	Json::Value Monkey::handle(Json::Value props)
+	Json::Value Monkey::handle(Json::Value props, SocketWorker& socketWorker)
 	{
 		Method method = getMethodOrInvalid(props);
 		Json::Value result;
 		switch (method) {
 		case Method::Get:
-			result = doGet(props);
+			result = doGet(props, socketWorker);
 			break;
 		case Method::Post:
-			result = doPost(props);
+			result = doPost(props, socketWorker);
 			break;
 		case Method::Put:
-			result = doPut(props);
+			result = doPut(props, socketWorker);
 			break;
 		case Method::Delete:
-			result = doDelete(props);
+			result = doDelete(props, socketWorker);
 			break;
 		case Method::Invalid:
 			result = error("Invalid Method: Send with one in these methods ['GET', 'POST', 'PUT', 'DELETE']");
@@ -69,5 +70,10 @@ namespace Service {
 	{
 		payload["status"] = OK;
 		return payload;
+	}
+
+	bool isAuthorized(const SocketWorker & worker)
+	{
+		return worker.isAuthorized();
 	}
 }

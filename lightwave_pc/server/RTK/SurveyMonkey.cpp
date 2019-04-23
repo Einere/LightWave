@@ -17,7 +17,7 @@ SurveyMonkey::~SurveyMonkey()
 {
 }
 
-Json::Value SurveyMonkey::doPost(Json::Value props)
+Json::Value SurveyMonkey::doPost(Json::Value props, SocketWorker& socketWorker)
 {
 	SurveyTask::Survey newSurvey;
 
