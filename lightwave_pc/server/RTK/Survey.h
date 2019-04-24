@@ -1,20 +1,39 @@
 #pragma once
 
 #include "./Shape/DS_Point.h"
+#include "json.h"
+#include "Worker.h"
 
 namespace SurveyTask {
-	class Survey : public DataType::ShapeType::CDS_Point
+	class Survey 
+		: public DataType::ShapeType::CDS_Point
 	{
 	public:
 		Survey();
 		Survey(double fX, double fY);
-		Survey(const Survey& Source);
+		//Survey(const Survey& Source);
 		~Survey();
 
-		// TODO: 이미지 반환하는 Getter 선언
+		void SetMemo(CString memo);
+		CString GetMemo() const;
 
+		void LoadAndGetImages(std::vector<CImage>* out_Images) const;
+		std::vector<CString> GetImagesPaths() const;
+		void AppendImageFile(CString path);
+
+		void setWorker(Workers::Worker worker);
+		void setWorker(UINT id, CString name, CString ip, UINT port);
+
+		SYSTEMTIME GetUpdatedTime() const;
+
+		Workers::Worker GetWorker() const;
+
+		Json::Value ToJson() const;
+		bool FromJson(Json::Value root);
 	private:
-
-		// TODO: 이미지를 담는 필드 선언
+		SYSTEMTIME m_updatedTime;
+		Workers::Worker m_worker;
+		CString m_memo;
+		std::vector<CString> m_imagesPaths;
 	};
 }

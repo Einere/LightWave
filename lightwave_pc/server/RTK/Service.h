@@ -7,11 +7,11 @@ class SocketWorker;
 namespace Service
 {
 	enum Method {
-		Invalid = 0,
-		Get = 1,
-		Post = 2,
-		Put = 3,
-		Delete = 4
+		Get = 0,
+		Post = 1,
+		Put = 2,
+		Delete = 3,
+		Invalid = 4,
 	};
 
 	enum Status {
@@ -21,26 +21,31 @@ namespace Service
 
 	const std::map<std::string, Method> methodMap = { {"GET", Get}, {"POST", Post}, {"PUT", Put}, {"DELETE", Delete} };
 
+	Json::Value error(std::string msg);
+	Json::Value success(Json::Value payload);
+	bool isAuthorized(const SocketWorker& worker);
+
+	typedef bool authRequirements[4];
+
 	class Monkey
 	{
 	public:
 		Monkey(const std::string subject);
 		~Monkey();
 
-		Json::Value handle(Json::Value props);
+		Json::Value handle(Json::Value props, SocketWorker& socketWorker);
 		const std::string getSubject();
 
-		virtual Json::Value doGet(Json::Value props) { return Json::nullValue;/*차후 invalid request라는 것을 알려주는 코드가 여기 들어가야함*/ }
-		virtual Json::Value doPost(Json::Value props) { return Json::nullValue; }
-		virtual Json::Value doPut(Json::Value props) { return Json::nullValue; }
-		virtual Json::Value doDelete(Json::Value props) { return Json::nullValue; }
+		virtual Json::Value doGet(Json::Value props, SocketWorker& socketWorker) { return Json::nullValue; };
+		virtual Json::Value doPost(Json::Value props, SocketWorker& socketWorker) { return Json::nullValue; };
+		virtual Json::Value doPut(Json::Value props, SocketWorker& socketWorker) { return Json::nullValue; };
+		virtual Json::Value doDelete(Json::Value props, SocketWorker& socketWorker) { return Json::nullValue; };
 
 	protected:
 		std::string m_subject;
+		authRequirements m_authList = { true, true, true, true };
 
 		Method getMethodOrInvalid(Json::Value root);
-		Json::Value error(std::string msg);
-		Json::Value success(Json::Value payload);
 	};
 
 	class RequestResolver
@@ -49,11 +54,13 @@ namespace Service
 		RequestResolver();
 		~RequestResolver();
 
-		std::string resolve(SocketWorker* pSocket, std::string json);
+		std::string resolve(SocketWorker& pSocket, std::string json);
 
 	private:
 		std::shared_ptr<Monkey> getMonkeyOrNull(Json::Value root);
 		std::vector<std::shared_ptr<Monkey>> monkeys;
 	};
+
+
 }
 

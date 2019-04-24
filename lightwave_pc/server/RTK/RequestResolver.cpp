@@ -28,23 +28,16 @@ namespace Service {
 	{
 	}
 
-	std::string RequestResolver::resolve(SocketWorker* pSocket, std::string json)
+	std::string RequestResolver::resolve(SocketWorker& pSocket, std::string json)
 	{
 		Json::Value props = Json::parse(json);
 		if (props==Json::nullValue) {
-			// 요청이 정상적이지 않음을 반환
-			// if 처리문장이 구현되면 아래 assert는 지울 것
-			assert(false);
+			return Json::json2Str(error("요청 형식이 올바른 json 형태여야 합니다."));
 		}
 
 		std::shared_ptr<Monkey> monkey = getMonkeyOrNull(props);
 
-		CString ipAddr; UINT port;
-		pSocket->GetPeerName(ipAddr, port);
-
-		props["ip-address"] = (LPCTSTR)ipAddr;
-		props["port"] = port;
-		Json::Value result = monkey->handle(props);
+		Json::Value result = monkey->handle(props, pSocket);
 
 		return Json::json2Str(result) + '\n';
 	}

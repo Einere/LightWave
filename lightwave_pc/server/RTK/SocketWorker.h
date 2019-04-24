@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Service.h"
+#include "Worker.h"
 
 class WorkerManager;
 
@@ -13,13 +14,25 @@ public:
 
 	void setWorkerManager(WorkerManager* pWorkerManager);
 
+	Workers::Worker GetWorker() const;
+
+	void setWorkerName(CString workerName);
+	CString getWorkerName();
+
+	void setAuthorized();
+	bool isAuthorized() const;
+
 	virtual void OnReceive(int nErrorCode);
 	virtual void OnClose(int nErrorCode);
+
+	void notifyUpdate() const;
 
 private:
 	Service::RequestResolver m_requestResolver;
 
 	std::string readIn();
+
+	Workers::Worker m_worker;
 	int getJsonSize(std::string stringContainingKeyOfSize);
 
 	WorkerManager* m_pWorkerManager = NULL;

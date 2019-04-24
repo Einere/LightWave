@@ -6,18 +6,19 @@ using GlobalUtil::CFileUtil;
 namespace fs = std::experimental::filesystem;
 
 namespace File {
-	Storable::Storable()
+	Storable::Storable(CString parentDir)
 	{
+		m_parentPath = parentDir;
 	}
 
 	Storable::~Storable()
 	{
 	}
 
-	bool Storable::store(CString path)
+	CString Storable::store(CString path)
 	{
-		if (!path || path == "") path = getDefaultPath();
-		srcPath = CString(path);
+		if (!path || path == "") path = GetFilePath();
+		m_filePath = CString(path);
 
 		auto dirPath = Path::getDirPath(path);
 		if (GetFileAttributes(dirPath) == INVALID_FILE_ATTRIBUTES) {
@@ -26,14 +27,16 @@ namespace File {
 
 		CFile file;
 		const bool isOpenSucceed = file.Open(path, CFile::modeWrite | CFile::modeCreate);
-		assert(isOpenSucceed);
+		if (!isOpenSucceed) {
+			return "";
+		}
 
-		CString buf = toFileContent();
+		auto buf = toFileContent();
 
-		file.Write((void*)buf.GetString(), buf.GetLength());
+		file.Write((void*)buf.c_str(), buf.length());
 		file.Close();
 
-		return true;
+		return m_filePath;
 	}
 
 	bool Storable::load(CString path)
@@ -50,21 +53,24 @@ namespace File {
 
 		file.Close();
 
-		srcPath = path;
+		m_filePath = path;
 
 		return true;
 	}
 
-	bool Storable::remove(BOOL everything)
+	CString Storable::remove(BOOL everything)
 	{
-		bool success = DeleteFile(srcPath);
+		bool success = DeleteFile(m_filePath);
+		if (!success) return "";
 
-		auto dirPath = Path::getDirPath(srcPath);
+		auto dirPath = Path::getDirPath(m_filePath);
 		fs::directory_iterator itor((LPCTSTR)dirPath);
 		UINT filesCount = 0;
 
 		if (everything) {
-			for (auto& file : itor) { deleteFileOrDirectory(file); }
+			for (auto& file : itor) { 
+				deleteFileOrDirectory(file); 
+			}
 		}
 
 		for (auto& file : itor) { ++filesCount; }
@@ -73,18 +79,48 @@ namespace File {
 			RemoveDirectory(dirPath);
 		}
 
-		return success;
+		return m_filePath;
 	}
 
-	CString Storable::getDefaultPath()
+	bool Storable::CreateDir(CString path)
 	{
-		return rootDir + "sample.tsk";
+		auto dirPath = Path::getDirPath(path);
+		if (GetFileAttributes(dirPath) == INVALID_FILE_ATTRIBUTES) {
+			return CreateDirectory(dirPath, NULL);
+		}
+		else {
+			return true;
+		}
+	}
+
+	CString Storable::GetFilePath() const
+	{
+		CString filePath;
+		filePath.Format("%s/%s.%s", m_parentPath, m_fileName, m_ext);
+		return filePath;
+	}
+
+	CString Storable::GetFileName() const
+	{
+		return m_fileName;
+	}
+
+	CString Storable::GetExt() const
+	{
+		return m_ext;
+	}
+
+	CString Storable::GetParentPath() const
+	{
+		return m_parentPath;
 	}
 
 	void Storable::deleteFileOrDirectory(fs::v1::directory_entry entry)
 	{
 		LPCWSTR path = entry.path().c_str();
 		if (fs::is_directory(entry.status())) {
+			fs::directory_iterator itor(entry);
+			for (auto& entry : itor) { deleteFileOrDirectory(entry); }
 			RemoveDirectoryW(path);
 		}
 		else {

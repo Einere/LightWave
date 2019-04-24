@@ -16,13 +16,42 @@ void SocketWorker::setWorkerManager(WorkerManager * pWorkerManager)
 	m_pWorkerManager = pWorkerManager;
 }
 
+Workers::Worker SocketWorker::GetWorker() const
+{
+	return m_worker;
+}
+
+void SocketWorker::setWorkerName(CString workerName)
+{
+	m_worker.name = workerName;
+	notifyUpdate();
+}
+
+CString SocketWorker::getWorkerName()
+{
+	return m_worker.name;
+}
+
+void SocketWorker::setAuthorized()
+{
+	m_worker.authorized = true;
+
+	/* workaround */
+	GetPeerName(m_worker.ip, m_worker.port);
+}
+
+bool SocketWorker::isAuthorized() const
+{
+	return m_worker.authorized;
+}
+
 void SocketWorker::OnReceive(int nErrorCode)
 {
 	Log::log("요청 들어옴. 처리 중...");
 	const std::string data = readIn();
 	Log::log("요청 내용: %s", data);
 	
-	std::string response = m_requestResolver.resolve(this, data);
+	std::string response = m_requestResolver.resolve(*this, data);
 	Log::log("response: %s", response.c_str());
 
 	auto res = response.c_str();
@@ -41,7 +70,12 @@ void SocketWorker::OnClose(int nErrorCode)
 	CString ipAddress;
 	UINT port;
 	GetPeerName(ipAddress, port);
-	m_pWorkerManager->OnClose(ipAddress, port, nErrorCode);
+	WorkerManager::GetInstance()->OnClose(ipAddress, port, nErrorCode);
+}
+
+void SocketWorker::notifyUpdate() const
+{
+	WorkerManager::GetInstance()->update();
 }
 
 std::string SocketWorker::readIn()

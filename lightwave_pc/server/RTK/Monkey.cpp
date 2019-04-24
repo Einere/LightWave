@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Service.h"
+#include "SocketWorker.h"
 
 namespace Service {
 	Monkey::Monkey(const std::string subject)
@@ -11,22 +12,29 @@ namespace Service {
 	{
 	}
 
-	Json::Value Monkey::handle(Json::Value props)
+	Json::Value Monkey::handle(Json::Value props, SocketWorker& socketWorker)
 	{
 		Method method = getMethodOrInvalid(props);
+
+		if (m_authList[method]) {
+			if (!socketWorker.isAuthorized()) {
+				return error("허가되지 않은 요청입니다. 서버에 사용자가 등록되어있지 않을 수 있습니다.");
+			}
+		}
+
 		Json::Value result;
 		switch (method) {
 		case Method::Get:
-			result = doGet(props);
+			result = doGet(props, socketWorker);
 			break;
 		case Method::Post:
-			result = doPost(props);
+			result = doPost(props, socketWorker);
 			break;
 		case Method::Put:
-			result = doPut(props);
+			result = doPut(props, socketWorker);
 			break;
 		case Method::Delete:
-			result = doDelete(props);
+			result = doDelete(props, socketWorker);
 			break;
 		case Method::Invalid:
 			result = error("Invalid Method: Send with one in these methods ['GET', 'POST', 'PUT', 'DELETE']");
@@ -57,7 +65,7 @@ namespace Service {
 		return methodMap.at(methodInString);
 	}
 
-	Json::Value Monkey::error(std::string msg)
+	Json::Value error(std::string msg)
 	{
 		Json::Value err;
 		err["status"] = BAD_REQUEST;
@@ -65,9 +73,14 @@ namespace Service {
 		return err;
 	}
 
-	Json::Value Monkey::success(Json::Value payload)
+	Json::Value success(Json::Value payload)
 	{
 		payload["status"] = OK;
 		return payload;
+	}
+
+	bool isAuthorized(const SocketWorker & worker)
+	{
+		return worker.isAuthorized();
 	}
 }

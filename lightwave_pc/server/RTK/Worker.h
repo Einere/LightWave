@@ -1,27 +1,19 @@
 #pragma once
 
-namespace SurveyTask {
+#include "json.h"
+
+namespace Workers {
 	typedef UINT IdType;
 
-	class Worker
-	{
-	public:
-		Worker();
-		~Worker();
+	struct Worker {
+		Worker(IdType _id = 0, CString _name = "", CString _ip="", UINT _port=0, bool _authorized = false);
+		Json::Value ToJson() const;
+		bool FromJson(Json::Value root);
 
-		IdType getId() const;
-		void setId(IdType id);
-
-		CString getWorkerName() const;
-		void setWorkerName(CString workerName);
-
-		IdType generateId() const;
-
-	private:
-		IdType m_id;
-		CString m_workerName;
-
+		IdType id;
+		CString name;
+		CString ip;
+		UINT port;
+		bool authorized = false;
 	};
-
-	
 }

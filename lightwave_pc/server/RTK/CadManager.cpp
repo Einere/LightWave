@@ -35,6 +35,7 @@ namespace ProgramManager
 		double DwgTop,      // top side of a drawing in output window 
 		double Scale        // visible scale of drawing in a window 
 	);
+
 	void __stdcall CadEventMouseDown(VDWG hCad, int Button, int Flags, int Xwin, int Ywin, double Xdwg, double Ydwg, double Zdwg);
 	// 마우스클릭될때 실행될 콜백함수 선언
 	void __stdcall CadEventMouseMove(VDWG hCad, int Button, int Flags, int Xwin, int Ywin, double Xdwg, double Ydwg, double Zdwg);
@@ -142,7 +143,6 @@ namespace ProgramManager
 
 		CadRegistration(1950125322);
 		CadAccelSetDefault();
-
 
 		CadOnEventExecute(CadEventExecute);
 		CadOnEventView(CadEventView);
@@ -394,14 +394,16 @@ namespace ProgramManager
 
 		CParcelManager* pParcelManager = CParcelManager::GetInstance();
 
-		// 레이어 생성 : 1/60/71 
+		// 레이어 생성 : 1/60/71/100
 		MakeLayer("1");
 		MakeLayer("60", CAD_COLOR_RED);
 		MakeLayer("71");
+		MakeLayer("100", CAD_COLOR_CYAN); // 작업자가 전송한 측량 정보를 표시하기 위한 레이어
 
 		VHANDLE hLayer1 = CadGetLayerByName(m_hDwg, "1");
 		VHANDLE hLayer60 = CadGetLayerByName(m_hDwg, "60");
 		VHANDLE hLayer71 = CadGetLayerByName(m_hDwg, "71");
+		VHANDLE hLayer100 = CadGetLayerByName(m_hDwg, "100");
 		CadLayerPutColor(hLayer60, CAD_COLOR_RED);
 		CadLayerPutColor(hLayer71, CAD_COLOR_RED);
 
@@ -446,6 +448,17 @@ namespace ProgramManager
 			pParcelManager->m_lsBasePointMap.GetNextAssoc(posNow, sKey, ptTemp);
 
 			MakeBasePoint(ptTemp);
+		}
+
+		// 작업자의 측량 위치 생성
+		auto pTaskManager = TaskManager::GetInstance();
+		if (pTaskManager->getLoadedTask() != NULL) {
+			CadSetCurLayer(m_hDwg, hLayer100);
+			UINT taskId = pTaskManager->getSelectedTaskIdOrZero();
+			auto surveys = pTaskManager->getSurveys();
+			for (auto& s : surveys) {
+				MakeSurveyPoint(s, 504, "");
+			}
 		}
 
 		if (m_hPositionEnt != NULL)
@@ -574,6 +587,23 @@ namespace ProgramManager
 			return true;
 		}
 		return false;
+	}
+
+	bool CCadManager::MakeSurveyPoint(DataType::ShapeType::CDS_Point ptViewPos, DWORD nKey, CString sExKey) {
+		VHANDLE hEnt = CadAddCircle(m_hDwg, ptViewPos.GetX(), ptViewPos.GetY(), 0, 3);
+		CadEntityPutFilled(hEnt, TRUE);
+		m_surveyHandles.push_back(hEnt);
+		return true;
+		/*if (hEnt != NULL)
+		{
+			CadEntityPutUserData(hEnt, nKey);
+			if (sExKey != "")
+			{
+				CadEntityPutExData(hEnt, sExKey.GetBuffer(), sExKey.GetLength());
+			}
+			return true;
+		}
+		return false;*/
 	}
 
 	bool CCadManager::MakeCircle(double fRadius, DataType::ShapeType::CDS_Point ptViewPos, DWORD nKey, CString sExKey)
@@ -1061,10 +1091,48 @@ namespace ProgramManager
 	// 마우스가 클릭되었을때
 	void CCadManager::OnMouseClick(double fX, double fY)
 	{
+		VHANDLE handle = CadGetEntityByCursor(m_hDwg);
+		for (auto& h : m_surveyHandles) {
+			if (h == handle) {
+				double x, y, z;
+				CadPointGetCoord(h, &x, &y, &z);
+
+				auto pTaskManager = TaskManager::GetInstance();
+				auto surveys = pTaskManager->getSurveys();
+				for (auto& s : surveys) {
+					double srcX = s.GetX();
+					double srcY = s.GetY();
+					if (srcX == x && srcY == y) {
+						SurveyInfoDlg dlg(s);
+						if (IDOK == dlg.DoModal()) {
+
+						}
+						break;
+					}
+				}
+
+				CadSelClear(m_hDwg);
+				return;
+			}
+		}
+
 		Log::log("X: %.3f, Y: %.3f", fY, fX);
 		if (m_fnMouseClickEvent != NULL)
 		{
 			(*m_fnMouseClickEvent)(fX, fY);
+		}
+	}
+
+	void __stdcall EntityClick(VDWG hDwg, VHANDLE hEnt, BOOL bSelect, BOOL bFinal)
+	{
+		Log::log("<%ul>", hEnt);
+		auto pManager = CCadManager::GetInstance();
+		auto& surveyHandles = pManager->getSurveyHandles();
+		for (auto& s : surveyHandles) {
+			Log::log("%ul", s);
+			if (s == hEnt) {
+				MessageBox(NULL, "됏따!", NULL, MB_OK);
+			}
 		}
 	}
 
@@ -1109,6 +1177,11 @@ namespace ProgramManager
 		return m_hDwg;
 	}
 
+	const std::vector<VHANDLE>& CCadManager::getSurveyHandles() const
+	{
+		return m_surveyHandles;
+	}
+
 	// 이벤트 처리
 	// #######################################
 
@@ -1136,19 +1209,19 @@ namespace ProgramManager
 		case __CAD_CM_REGISTER_TASK_PARCELS__:
 		{
 			auto pTaskManager = TaskManager::GetInstance();
-			UINT id = pTaskManager->getSelectedTaskId();
+			UINT id = pTaskManager->getSelectedTaskIdOrZero();
 			if (-1 == id) break;
 
-			SurveyTask::Task task;
-			BOOL exist = pTaskManager->getTaskById(id, task);
-			assert(exist);
+			SurveyTask::Task* pTask;
+			pTask = pTaskManager->getTaskById(id);
+			assert(pTask != NULL);
 
 			auto pCadManager = CCadManager::GetInstance();
 			auto selectedParcels = pCadManager->getSelectedParcels();
-			task.clearParcelPoints();
-			int size = task.addParcels(selectedParcels);
-			
-			task.store();
+			pTask->clearParcelPoints();
+			int size = pTask->addParcels(selectedParcels);
+
+			pTask->store();
 		}
 		break;
 		/*

@@ -7,6 +7,7 @@
 #include "Parcel.h"
 #include "BasePoint.h"
 
+#include "SurveyInfoDlg.h"
 //using namespace CadApi;
 using namespace DataType::ShapeType;
 
@@ -14,12 +15,14 @@ using namespace DataType::ShapeType;
 namespace ProgramManager
 {	
 	void __stdcall CadEventExecute(VDWG hDwg, int Command);
+	void __stdcall EntityClick(VDWG hDwg, VHANDLE hEnt, BOOL bSelect, BOOL bFinal);
 
 	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 	// CadView와 그리고 VeCad에 관한 전반적인 일을 하게 될 클래스이다.
 	class CCadManager
 	{
 		friend void __stdcall CadEventExecute(VDWG hDwg, int Command);
+		friend void __stdcall EntityClick(VDWG hDwg, VHANDLE hEnt, BOOL bSelect, BOOL bFinal);
 		// ########################################
 		// 싱글톤패턴을 위한 접근함수
 	protected:
@@ -98,6 +101,8 @@ namespace ProgramManager
 													// 기준점 생성( Cad화면에 생성할 뿐임 )
 		bool MakeLine( DataType::ShapeType::CDS_Line lnLine, CString sLayer = "" );
 													// 선 생성
+
+		bool CCadManager::MakeSurveyPoint(DataType::ShapeType::CDS_Point ptViewPos, DWORD nKey, CString sExKey);
 		// 레이어/도형 생성
 		// ########################################
 
@@ -191,5 +196,9 @@ namespace ProgramManager
 	public:
 		HWND GetHwnd() const;
 		VDWG GetVDwg() const;
+		const std::vector<VHANDLE>& getSurveyHandles() const;
+
+	private:
+		std::vector<VHANDLE> m_surveyHandles;
 	};
 };

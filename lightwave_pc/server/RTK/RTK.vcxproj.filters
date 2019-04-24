@@ -295,6 +295,15 @@
     <ClInclude Include="base64.h">
       <Filter>common</Filter>
     </ClInclude>
+    <ClInclude Include="SurveyInfoDlg.h">
+      <Filter>windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Base64Image.h">
+      <Filter>models</Filter>
+    </ClInclude>
+    <ClInclude Include="time.h">
+      <Filter>common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -454,6 +463,15 @@
       <Filter>models</Filter>
     </ClCompile>
     <ClCompile Include="base64.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="SurveyInfoDlg.cpp">
+      <Filter>windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Base64Image.cpp">
+      <Filter>models</Filter>
+    </ClCompile>
+    <ClCompile Include="time.cpp">
       <Filter>common</Filter>
     </ClCompile>
   </ItemGroup>

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "TaskManager.h"
+#include "ParcelManager.h"
 
 
 namespace ProgramManager {
@@ -21,21 +22,20 @@ namespace ProgramManager {
 		return m_tasks[index];
 	}
 
-	BOOL TaskManager::getTaskById(UINT id, SurveyTask::Task& task_Out) const
+	SurveyTask::Task* TaskManager::getTaskById(UINT id)
 	{
 		for (auto& task : m_tasks) {
 			if (id == task.getId()) {
-				task_Out = task;
-				return TRUE;
+				return &task;
 			}
 		}
 
-		return FALSE;
+		return NULL;
 	}
 
-	UINT TaskManager::getSelectedTaskId() const
+	UINT TaskManager::getSelectedTaskIdOrZero() const
 	{
-		return m_selectedId;
+		return m_selectedId > 0 ? m_selectedId : 0;
 	}
 
 	UINT TaskManager::getTasksCount() const
@@ -43,12 +43,18 @@ namespace ProgramManager {
 		return m_tasks.size();
 	}
 
-	BOOL TaskManager::getStartedTask(SurveyTask::Task& task_Out) const
+	SurveyTask::Task* TaskManager::getStartedTask()
 	{
-		if (-1==m_startedTaskId) return FALSE;
+		if (0 == m_startedTaskId) return NULL;
 
-		getTaskById(m_startedTaskId, task_Out);
-		return TRUE;
+		return getTaskById(m_startedTaskId);
+	}
+
+	SurveyTask::Task * TaskManager::getLoadedTask()
+	{
+		if (0 == m_loadedTaskId) return NULL;
+
+		return getTaskById(m_loadedTaskId);
 	}
 
 	void TaskManager::appendTask(const SurveyTask::Task & task)
@@ -61,8 +67,8 @@ namespace ProgramManager {
 		std::vector<SurveyTask::Task>::iterator itor;
 		for (itor = m_tasks.begin(); itor != m_tasks.end(); ++itor) {
 			if (id == itor->getId()) {
-				BOOL removed = itor->remove(TRUE);
-				if (!removed) return FALSE;
+				CString result = itor->remove(TRUE);
+				if (result.IsEmpty()) return FALSE;
 
 				m_tasks.erase(itor);
 				return TRUE;
@@ -79,28 +85,28 @@ namespace ProgramManager {
 			return TRUE;
 		}
 
-		SurveyTask::Task task;
-		BOOL exist = getTaskById(id, task);
-		if (!exist) return FALSE;
+		SurveyTask::Task* pTask;
+		pTask = getTaskById(id);
+		if (pTask == NULL) return FALSE;
 
 		m_selectedId = id;
-		
+
 		return TRUE;
 	}
 
 	BOOL TaskManager::startTask(UINT id)
 	{
-		SurveyTask::Task task;
-		BOOL exist = getTaskById(id, task);
-		assert(exist);
+		SurveyTask::Task* pTask;
+		pTask = getTaskById(id);
+		assert(pTask != NULL);
 
-		if (-1 != m_startedTaskId) {
-			SurveyTask::Task taskToBeStopped;
-			getTaskById(m_startedTaskId, taskToBeStopped);
-			taskToBeStopped.stop();
+		if (0 != m_startedTaskId) {
+			SurveyTask::Task* pTaskToBeStopped;
+			pTaskToBeStopped = getTaskById(m_startedTaskId);
+			pTaskToBeStopped->stop();
 		}
 
-		BOOL hasStarted = task.start();
+		BOOL hasStarted = pTask->start();
 		if (!hasStarted) return NULL;
 
 		m_startedTaskId = id;
@@ -109,16 +115,59 @@ namespace ProgramManager {
 
 	BOOL TaskManager::stopTask(UINT id)
 	{
-		SurveyTask::Task task;
-		BOOL exist = getTaskById(id, task);
-		assert(exist);
+		SurveyTask::Task* pTask;
+		pTask = getTaskById(id);
+		assert(pTask != NULL);
 
-		BOOL hasStopped = task.stop();
+		BOOL hasStopped = pTask->stop();
 		if (!hasStopped) return NULL;
 
 		assert(m_startedTaskId == id);
-		m_startedTaskId = -1;
+		m_startedTaskId = 0;
 		return TRUE;
+	}
+
+	BOOL TaskManager::loadTask(UINT id)
+	{
+		SurveyTask::Task* pTask;
+		pTask = getTaskById(id);
+		assert(pTask != NULL);
+
+		if (id == m_loadedTaskId) {
+			return FALSE;
+		}
+
+		m_loadedTaskId = id;
+
+		bool result = CParcelManager::GetInstance()->LoadCif(pTask->getCifPath());
+		if (!result) {
+			return FALSE;
+		}
+
+		return TRUE;
+	}
+
+	void TaskManager::registerSurvey(SurveyTask::Survey survey, UINT taskId)
+	{
+		if (taskId == 0) {
+			taskId = m_startedTaskId;
+		}
+
+		SurveyTask::Task* task = getTaskById(taskId);
+		task->registerSurvey(survey);
+	}
+
+	const std::vector<SurveyTask::Survey>& TaskManager::getSurveys(UINT taskId)
+	{
+		if (taskId == 0 && 0 != m_loadedTaskId) {
+			taskId = m_loadedTaskId;
+		}
+		else if (0 == m_loadedTaskId) {
+			return std::vector<SurveyTask::Survey>();
+		}
+
+		SurveyTask::Task* task = getTaskById(taskId);
+		return task->getSurveys();
 	}
 
 	TaskManager* TaskManager::m_pThis = NULL;

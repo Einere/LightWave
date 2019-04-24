@@ -1,20 +1,21 @@
 #pragma once
 
 #include "Task.h"
+#include "Survey.h"
 
 namespace ProgramManager {
 	class TaskManager
 	{
 	public:
-		TaskManager();
 		~TaskManager();
 
 		const std::vector<SurveyTask::Task>& getTasks() const;
 		SurveyTask::Task& getTaskByIndex(UINT index);
-		BOOL getTaskById(UINT id, SurveyTask::Task& task_Out) const;
-		UINT getSelectedTaskId() const;
+		SurveyTask::Task* getTaskById(UINT id);
+		UINT getSelectedTaskIdOrZero() const;
 		UINT getTasksCount() const;
-		BOOL getStartedTask(SurveyTask::Task& task_Out) const;
+		SurveyTask::Task* getStartedTask();
+		SurveyTask::Task* getLoadedTask();
 
 		void appendTask(const SurveyTask::Task& task);
 
@@ -26,16 +27,23 @@ namespace ProgramManager {
 
 		BOOL stopTask(UINT id);
 
+		BOOL loadTask(UINT id);
+
+		void registerSurvey(SurveyTask::Survey survey, UINT taskId=0);
+		const std::vector<SurveyTask::Survey>& getSurveys(UINT taskId=0);
+
 	private:
 		std::vector<SurveyTask::Task> m_tasks;
 		UINT m_selectedId;
-		UINT m_startedTaskId = -1;
+		UINT m_startedTaskId = 0;
+		UINT m_loadedTaskId = 0;
 
 	protected:
+		TaskManager();
 		static TaskManager* m_pThis;
 
 	public:
 		static TaskManager* GetInstance();
-		void ReleaseInstance();
+		void ReleaseInstance();		
 	};
 }

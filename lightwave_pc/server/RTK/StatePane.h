@@ -8,14 +8,16 @@ public:
 	StatePane();
 	~StatePane();
 
-	void update(bool isListening, const std::vector<std::shared_ptr<SocketWorker>> workers);
+
+	void update();
 
 protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
+	afx_msg LRESULT onUpdate(WPARAM wParam, LPARAM lParam);
 
 	DECLARE_MESSAGE_MAP()
 
 private:
-	ConnectionStateDlg m_stateDlg;
+	ConnectionStateDlg* m_stateDlg;
 };
