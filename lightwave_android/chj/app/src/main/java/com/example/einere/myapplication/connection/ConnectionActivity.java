@@ -22,6 +22,8 @@ import org.json.JSONObject;
 public class ConnectionActivity extends AppCompatActivity {
     final int STATUS_DISCONNECTED = 0;
     final int STATUS_CONNECTED = 1;
+    final int STATUS_NORMAL = 2;
+    final int STATUS_ABNORMAL = 4;
     private final String TAG = "ConnectionActivity";
 
     // for socket transmission
@@ -109,10 +111,12 @@ public class ConnectionActivity extends AppCompatActivity {
         if (socketManager.getStatus() == STATUS_CONNECTED) {
             socketManager.setUserName(userName);
             JSONObject packet = new JSONObject();
+            JSONObject data = new JSONObject();
             try {
-                packet.put("method", "GET");
-                packet.put("subject", "test");
-                packet.put("data", userName);
+                packet.put("method", "POST");
+                packet.put("subject", "meta");
+                data.put("userName", userName);
+                packet.put("data", data);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -123,9 +127,30 @@ public class ConnectionActivity extends AppCompatActivity {
             String receivedData = socketManager.receive();
             Log.d(TAG, String.format("received data : %s", receivedData));
 
-            // go to main activity
-            Intent intent = new Intent(this, MainActivity.class);
-            startActivity(intent);
+            // 스테이터스 값이 2이면 넘어가고 4이면 에러처리
+            int returnStatus = STATUS_ABNORMAL;
+
+            if(receivedData != null) {
+                try {
+                    JSONObject parsedData = new JSONObject(receivedData);
+                    returnStatus =  parsedData.getInt("status");
+                    Log.d(TAG, String.format("status : %d", returnStatus));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                } catch (NullPointerException e){
+                    e.printStackTrace();
+                }
+            }
+
+            if(returnStatus == STATUS_NORMAL) {
+                // go to main activity
+                Intent intent = new Intent(this, MainActivity.class);
+                startActivity(intent);
+            }
+            else if (returnStatus == STATUS_ABNORMAL) {
+                Toast.makeText(this, "잘못된 요청입니다. 재시도해주세요.", Toast.LENGTH_SHORT).show();
+            }
+
         } else {
             Toast.makeText(this, "retry to connect...", Toast.LENGTH_SHORT).show();
         }

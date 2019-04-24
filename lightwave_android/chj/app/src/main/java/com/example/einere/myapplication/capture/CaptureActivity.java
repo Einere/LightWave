@@ -26,6 +26,8 @@ import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -117,22 +119,23 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         mapFragment.getMapAsync(this); //getMapAsync must be called on the main thread.
 
         // get views
+        ScrollView sv_root_layout = findViewById(R.id.sv_root_layout);
         TextView tv_work_name = findViewById(R.id.tv_work_name);
         TextView tv_location_number = findViewById(R.id.tv_location_number);
         rv_selectedImage = findViewById(R.id.rv_selectedImage);
         tv_azimuth = findViewById(R.id.tv_azimuth);
         et_client_memo = findViewById(R.id.et_client_memo);
         et_server_memo = findViewById(R.id.et_server_memo);
+        RelativeLayout rl_google_map = findViewById(R.id.rl_google_map);
 
         // set views
         Intent receivedIntent = getIntent();
         String method = receivedIntent.getStringExtra("method");
-        if(method.equals("new")){
+        if(method != null && method.equals("new")){
             tv_work_name.setText(receivedIntent.getStringExtra("taskName"));
             tv_location_number.setText(receivedIntent.getStringExtra("lotNumber"));
             et_server_memo.setText(receivedIntent.getStringExtra("taskDesc"));
         }
-
 
         // get sensor manager
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
@@ -237,6 +240,8 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
 
         // 카메라를 여의도 위치로 옮긴다.
         mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        ScrollView sv_root_layout = findViewById(R.id.sv_root_layout);
+
     }
 
     public void refreshClick(View v) {
