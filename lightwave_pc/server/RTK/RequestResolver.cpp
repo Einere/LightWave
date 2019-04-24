@@ -39,7 +39,7 @@ namespace Service {
 
 		Json::Value result = monkey->handle(props, pSocket);
 
-		return Json::json2Str(result) + '\n';
+		return Json::json2Str(result);
 	}
 
 	std::shared_ptr<Monkey> RequestResolver::getMonkeyOrNull(Json::Value root)

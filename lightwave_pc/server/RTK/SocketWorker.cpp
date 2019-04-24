@@ -52,6 +52,7 @@ void SocketWorker::OnReceive(int nErrorCode)
 	Log::log("요청 내용: %s", data);
 	
 	std::string response = m_requestResolver.resolve(*this, data);
+	response += '\n';
 	Log::log("response: %s", response.c_str());
 
 	auto res = response.c_str();
