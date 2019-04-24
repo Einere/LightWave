@@ -961,9 +961,6 @@ void CMainFrame::OnSetParcel()
 	}
 }
 
-
 void CMainFrame::OnDevTest()
 {
-	m_wndStatePane.update();
-	
 }

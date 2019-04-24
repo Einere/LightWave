@@ -3,18 +3,24 @@
 #include "time.h"
 
 namespace SurveyTask {
-	Survey::Survey() : Survey(0,0)
-	{
-		
-	}
-
-	Survey::Survey(double fX, double fY) : CDS_Point(fX, fY)
+	Survey::Survey(UINT id, double fX, double fY) : CDS_Point(fX, fY)
 	{
 		GetLocalTime(&m_updatedTime);
+		if(0==id) m_id = GenerateId();
+	}
+
+	Survey::Survey(const Json::Value& root)
+	{
+		FromJson(root);
 	}
 
 	Survey::~Survey()
 	{
+	}
+
+	UINT Survey::GetId() const
+	{
+		return m_id;
 	}
 
 	void Survey::SetMemo(CString memo)
@@ -77,6 +83,7 @@ namespace SurveyTask {
 	Json::Value Survey::ToJson() const
 	{
 		Json::Value root;
+		root["id"] = m_id;
 		root["updatedTime"] = TimeUtil::convertTime2StrSimple(m_updatedTime).GetString();
 
 		root["worker"] = m_worker.ToJson();
@@ -97,17 +104,24 @@ namespace SurveyTask {
 
 	bool Survey::FromJson(Json::Value root)
 	{
+		Json::Value idRoot = root["id"];
+		Json::Value timeRoot = root["updatedTime"];
 		Json::Value coordRoot = root["coord"];
 		Json::Value memoRoot = root["memo"];
 		Json::Value workerRoot = root["worker"];
 		Json::Value imgPathsRoot = root["images"];
 
-		if (coordRoot.isNull()
+		if (idRoot.isNull()
+			|| timeRoot.isNull()
+			|| coordRoot.isNull()
 			|| memoRoot.isNull()
 			|| workerRoot.isNull()
 			|| imgPathsRoot.isNull()) {
 			return false;
 		}
+
+		m_id = idRoot.asUInt();
+		m_updatedTime = TimeUtil::convertStrSimple2Time(timeRoot.asCString());
 
 		bool result = m_worker.FromJson(workerRoot);
 		if (!result) {
@@ -125,5 +139,23 @@ namespace SurveyTask {
 		}
 
 		return true;
+	}
+
+	UINT Survey::GenerateId() const
+	{
+		const int LENGTH = 9;
+		SYSTEMTIME curTime;
+		GetLocalTime(&curTime);
+
+		CString timeInStr = TimeUtil::convertTime2StrNumber(curTime);
+		CString idInStr = "1";
+
+		std::srand(time(NULL));
+		for (int i = 0; i < LENGTH-1; ++i) {
+			int randomIndex = rand() % LENGTH;
+			idInStr+=timeInStr[randomIndex];
+		}
+
+		return atoi(idInStr);
 	}
 }
