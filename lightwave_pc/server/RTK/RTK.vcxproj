@@ -187,7 +187,6 @@
     <ClInclude Include="TaskWnd.h" />
     <ClInclude Include="TestMonkey.h" />
     <ClInclude Include="time.h" />
-    <ClInclude Include="uuid.h" />
     <ClInclude Include="VeCad\cadapi.h" />
     <ClInclude Include="Worker.h" />
     <ClInclude Include="WorkerManager.h" />
@@ -249,7 +248,6 @@
     <ClCompile Include="TaskWnd.cpp" />
     <ClCompile Include="TestMonkey.cpp" />
     <ClCompile Include="time.cpp" />
-    <ClCompile Include="uuid.cpp" />
     <ClCompile Include="VeCad\cadapi.cpp" />
     <ClCompile Include="Worker.cpp" />
     <ClCompile Include="WorkerManager.cpp" />
