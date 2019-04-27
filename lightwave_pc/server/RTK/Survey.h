@@ -3,7 +3,6 @@
 #include "./Shape/DS_Point.h"
 #include "json.h"
 #include "Worker.h"
-#include "uuid.h"
 
 namespace SurveyTask {
 	class Survey 

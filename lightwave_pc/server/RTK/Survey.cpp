@@ -44,7 +44,7 @@ namespace SurveyTask {
 			HRESULT hResult = out_Images->at(i).Load(m_imagesPaths[i]);
 			if (FAILED(hResult)) {
 				CString errorMessage;
-				errorMessage.Format("%s Àº Á¤»óÀûÀÎ ÀÌ¹ÌÁö ÆÄÀÏÀÌ ¾Æ´Õ´Ï´Ù.", m_imagesPaths[i]);
+				errorMessage.Format("%s ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¹ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Æ´Õ´Ï´ï¿½.", m_imagesPaths[i]);
 				Log::err(errorMessage);
 			}
 		}
