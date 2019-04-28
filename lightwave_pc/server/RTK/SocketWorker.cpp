@@ -47,9 +47,8 @@ bool SocketWorker::isAuthorized() const
 
 void SocketWorker::OnReceive(int nErrorCode)
 {
-	Log::log("요청 들어옴. 처리 중...");
 	const std::string data = readIn();
-	Log::log("요청 내용: %s", data);
+	Log::log("request: %s", data.c_str());
 	
 	std::string response = m_requestResolver.resolve(*this, data);
 	response += '\n';
@@ -82,7 +81,6 @@ void SocketWorker::notifyUpdate() const
 std::string SocketWorker::readIn()
 {
 	std::string buf;
-	Log::log("max_size: %d", buf.max_size());
 
 	const int BLOCK_SIZE = 1024;
 	int receivedLength = 0;
