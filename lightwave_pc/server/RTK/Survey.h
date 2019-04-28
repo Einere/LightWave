@@ -9,7 +9,7 @@ namespace SurveyTask {
 		: public DataType::ShapeType::CDS_Point
 	{
 	public:
-		Survey(UINT id = 0, double fX=0.0, double fY=0.0);
+		Survey(double fX=0.0, double fY=0.0, UINT id = 0);
 		Survey(const Json::Value& root);
 		//Survey(const Survey& Source);
 		~Survey();
@@ -30,14 +30,22 @@ namespace SurveyTask {
 
 		Workers::Worker GetWorker() const;
 
+		void SetSurveyed(BOOL surveyed = TRUE);
+		BOOL HasBeenSurveyed() const;
+
 		Json::Value ToJson() const;
 		bool FromJson(Json::Value root);
+
+		void Update(const Survey& src);
+
 	private:
 		UINT m_id;
 		SYSTEMTIME m_updatedTime;
 		Workers::Worker m_worker;
 		CString m_memo;
 		std::vector<CString> m_imagesPaths;
+
+		BOOL m_hasBeenSurveyed = FALSE;
 
 		UINT GenerateId() const;
 	};

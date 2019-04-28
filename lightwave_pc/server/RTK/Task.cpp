@@ -113,6 +113,18 @@ namespace SurveyTask {
 		m_surveys.push_back(survey);
 	}
 
+	Survey * Task::GetSurveyById(UINT id)
+	{
+		int surveysCount = m_surveys.size();
+		for (int i = 0; i < surveysCount; ++i) {
+			if (id == m_surveys[i].GetId()) {
+				return &(m_surveys[i]);
+			}
+		}
+
+		return NULL;
+	}
+
 	const std::vector<Survey>& Task::getSurveys() const
 	{
 		return m_surveys;

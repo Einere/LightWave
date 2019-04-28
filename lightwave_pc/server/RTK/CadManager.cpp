@@ -14,6 +14,7 @@
 #define __CAD_CM_GETGETXY__						CAD_CMD_CUSTOM + 2
 
 #define __CAD_CM_REGISTER_TASK_PARCELS__			CAD_CMD_CUSTOM + 10
+#define __CAD_CM_REGISTER_SURVEY_POINT__			CAD_CMD_CUSTOM + 11
 
 // = Polyline Edit ContextMenu=
 #define __CAD_CM_EDIT_PLINE_COMPLATE__			CAD_CMD_CUSTOM + 3
@@ -172,6 +173,7 @@ namespace ProgramManager
 		CadMenuAdd(CAD_MENU_EDIT, _T("-"), 0);  // separator
 		CadMenuAdd(CAD_MENU_EDIT, _T("필지정보보기"), __CAD_CM_SHOW_PARCEL_INFOMATION__);
 		CadMenuAdd(CAD_MENU_EDIT, _T("작업에 선택된 필지 등록"), __CAD_CM_REGISTER_TASK_PARCELS__);
+		CadMenuAdd(CAD_MENU_EDIT, _T("선택된 점을 측량점으로 설정"), __CAD_CM_REGISTER_SURVEY_POINT__);
 
 		//CadAddCommand(
 		CadMenuClear(CAD_MENU_POLYLINE);	//CAD_CMD_PLINE_CLOSE
@@ -451,12 +453,21 @@ namespace ProgramManager
 		}
 
 		// 작업자의 측량 위치 생성
+		// TODO: 해당점에 측량 데이터가 들어있는지 없는지에 따라 원 색깔을 다르게한다.
+		// 예시) CadLayerPutColor(hLayer100, CAD_COLOR_RED);
 		auto pTaskManager = TaskManager::GetInstance();
 		if (pTaskManager->getLoadedTask() != NULL) {
 			CadSetCurLayer(m_hDwg, hLayer100);
 			UINT taskId = pTaskManager->getSelectedTaskIdOrZero();
 			auto surveys = pTaskManager->getSurveys();
 			for (auto& s : surveys) {
+				if (!s.HasBeenSurveyed()) {
+					CadLayerPutColor(hLayer100, CAD_COLOR_RED);
+				}
+				else {
+					CadLayerPutColor(hLayer100, CAD_COLOR_CYAN);
+				}
+
 				MakeSurveyPoint(s, 504, "");
 			}
 		}
@@ -1222,6 +1233,27 @@ namespace ProgramManager
 			int size = pTask->addParcels(selectedParcels);
 
 			pTask->store();
+		}
+		case __CAD_CM_REGISTER_SURVEY_POINT__:
+		{
+			auto pManager = CCadManager::GetInstance();
+
+			VHANDLE hPtr = CadSelGetFirstPtr(pManager->GetVDwg());
+			VHANDLE hEnt = CadGetEntityByPtr(hPtr);
+
+			double x, y, z;
+			CadPointGetCoord(hEnt, &x, &y, &z);
+
+			auto pTask = TaskManager::GetInstance()->getLoadedTask();
+			SurveyTask::Survey survey(x, y);
+			pTask->registerSurvey(survey);
+			pTask->store();
+
+			Log::log("측량점 생성 완료: %d",survey.GetId());
+
+			CadEntityErase(hEnt, true);
+
+			pManager->ReCreateParcelData();
 		}
 		break;
 		/*
