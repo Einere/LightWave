@@ -80,12 +80,12 @@ namespace SurveyTask {
 		return m_worker;
 	}
 
-	void Survey::SetSurveyed(BOOL surveyed)
+	void Survey::SetSurveyed(bool surveyed)
 	{
 		m_hasBeenSurveyed = surveyed;
 	}
 
-	BOOL Survey::HasBeenSurveyed() const
+	bool Survey::HasBeenSurveyed() const
 	{
 		return m_hasBeenSurveyed;
 	}
