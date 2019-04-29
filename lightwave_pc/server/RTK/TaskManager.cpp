@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "TaskManager.h"
 #include "ParcelManager.h"
-#include "SurveyManager.h"
+#include "SurveyViewManager.h"
 
 
 namespace ProgramManager {
@@ -145,7 +145,7 @@ namespace ProgramManager {
 			return false;
 		}
 
-		SurveyManager::GetInstance()->LoadSurveysFromTask(*pTask);
+		SurveyViewManager::GetInstance()->LoadSurveysFromTask(*pTask);
 
 		return true;
 	}

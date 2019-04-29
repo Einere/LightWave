@@ -1,14 +1,14 @@
 #include "stdafx.h"
-#include "SurveyManager.h"
+#include "SurveyViewManager.h"
 #include "CadManager.h"
 
 namespace ProgramManager {
-	const std::vector<VHANDLE>& SurveyManager::GetSurveyHandles() const
+	const std::vector<VHANDLE>& SurveyViewManager::GetSurveyHandles() const
 	{
 		return m_surveyHandles;
 	}
 
-	bool SurveyManager::MakeSurveyPoint(SurveyTask::Survey survey, DWORD nKey, CString sExKey)
+	bool SurveyViewManager::MakeSurveyPoint(SurveyTask::Survey survey, DWORD nKey, CString sExKey)
 	{	
 		auto hDwg = CCadManager::GetInstance()->GetVDwg();
 		VHANDLE hLayer = CadGetLayerByName(hDwg, survey.HasBeenSurveyed()?"100":"101");
@@ -21,12 +21,12 @@ namespace ProgramManager {
 		return true;
 	}
 
-	void SurveyManager::AppendSurveyHandle(VHANDLE h)
+	void SurveyViewManager::AppendSurveyHandle(VHANDLE h)
 	{
 		m_surveyHandles.push_back(h);
 	}
 
-	void SurveyManager::LoadSurveysFromTask(const SurveyTask::Task & task)
+	void SurveyViewManager::LoadSurveysFromTask(const SurveyTask::Task & task)
 	{
 		ClearAllData();
 
@@ -55,7 +55,7 @@ namespace ProgramManager {
 		CadRegen(hDwg);
 	}
 
-	void SurveyManager::ClearAllData()
+	void SurveyViewManager::ClearAllData()
 	{
 		/*if(m_surveyHandles.size()>0)
 			CadEntityErase(m_surveyHandles[0], true);*/
@@ -67,7 +67,7 @@ namespace ProgramManager {
 		m_surveyHandles.clear();
 	}
 
-	bool SurveyManager::DrawSurveyPoints()
+	bool SurveyViewManager::DrawSurveyPoints()
 	{
 		// 작업자의 측량 위치 생성
 		/*auto pTaskManager = TaskManager::GetInstance();
@@ -89,18 +89,18 @@ namespace ProgramManager {
 		return false;
 	}
 
-	SurveyManager* SurveyManager::m_pThis = NULL;
+	SurveyViewManager* SurveyViewManager::m_pThis = NULL;
 
-	SurveyManager * SurveyManager::GetInstance()
+	SurveyViewManager * SurveyViewManager::GetInstance()
 	{
 		if (m_pThis == NULL)
 		{
-			m_pThis = new SurveyManager;
+			m_pThis = new SurveyViewManager;
 		}
 		return m_pThis;
 	}
 
-	void SurveyManager::ReleaseInstance()
+	void SurveyViewManager::ReleaseInstance()
 	{
 		if (m_pThis != NULL)
 		{
@@ -109,12 +109,12 @@ namespace ProgramManager {
 		}
 	}
 
-	SurveyManager::SurveyManager()
+	SurveyViewManager::SurveyViewManager()
 	{
 	}
 
 
-	SurveyManager::~SurveyManager()
+	SurveyViewManager::~SurveyViewManager()
 	{
 	}
 }

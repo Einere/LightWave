@@ -4,7 +4,7 @@
 #include "RTK.h"
 #include "GlobalUtil\\FileUtil.h"
 #include "TaskManager.h"
-#include "SurveyManager.h"
+#include "SurveyViewManager.h"
 #include <math.h>
 
 #define __MSG_TIMER_CHANGE_POSITION_COLOR__	101
@@ -1065,7 +1065,7 @@ namespace ProgramManager
 	void CCadManager::OnMouseClick(double fX, double fY)
 	{
 		VHANDLE handle = CadGetEntityByCursor(m_hDwg);
-		auto& surveyHandles = SurveyManager::GetInstance()->GetSurveyHandles();
+		auto& surveyHandles = SurveyViewManager::GetInstance()->GetSurveyHandles();
 		for (auto& h : surveyHandles) {
 			if (h == handle) {
 				double x, y, z;
@@ -1210,7 +1210,7 @@ namespace ProgramManager
 			Log::log("측량점 생성 완료: %d",survey.GetId());
 
 			CadEntityErase(hEnt, true);
-			SurveyManager::GetInstance()->LoadSurveysFromTask(*pTask);
+			SurveyViewManager::GetInstance()->LoadSurveysFromTask(*pTask);
 		}
 		break;
 		/*

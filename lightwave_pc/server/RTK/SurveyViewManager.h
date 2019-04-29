@@ -4,7 +4,7 @@
 #include "Task.h"
 
 namespace ProgramManager {
-	class SurveyManager
+	class SurveyViewManager
 	{
 	public:
 		const std::vector<VHANDLE>& GetSurveyHandles() const;
@@ -21,15 +21,15 @@ namespace ProgramManager {
 
 
 	protected:
-		static SurveyManager* m_pThis;
+		static SurveyViewManager* m_pThis;
 
 	public:
-		static SurveyManager* GetInstance();
+		static SurveyViewManager* GetInstance();
 		static void ReleaseInstance();
 
 	protected:
-		SurveyManager(void);
+		SurveyViewManager(void);
 	public:
-		~SurveyManager(void);
+		~SurveyViewManager(void);
 	};
 }
