@@ -63,6 +63,7 @@ Json::Value TaskMonkey::DeriveJsonFromParcels(const std::vector<SurveyTask::Parc
 Json::Value TaskMonkey::DeriveJsonFromSurvey(const SurveyTask::Survey & survey)
 {
 	Json::Value root;
+	root["id"] = survey.GetId();
 	root["X"] = const_cast<SurveyTask::Survey*>(&survey)->GetX();
 	root["Y"] = const_cast<SurveyTask::Survey*>(&survey)->GetX();
 	root["surveyed"] = survey.HasBeenSurveyed();
