@@ -5,7 +5,7 @@
 #include "TaskManager.h"
 #include "Base64Image.h"
 
-#include "CadManager.h"
+#include "SurveyManager.h"
 
 
 SurveyMonkey::SurveyMonkey() : Monkey("survey")
@@ -73,7 +73,7 @@ Json::Value SurveyMonkey::doPost(Json::Value props, SocketWorker& socketWorker)
 
 	auto onGoingTaskId = pTaskManager->getLoadedTask()->getId();
 	if (taskId == onGoingTaskId) {
-		ProgramManager::CCadManager::GetInstance()->ReCreateParcelData();
+		ProgramManager::SurveyManager::GetInstance()->LoadSurveysFromTask(*pTask);
 	}
 
 	return Json::Value();

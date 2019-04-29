@@ -176,6 +176,7 @@
     <ClInclude Include="Survey.h" />
     <ClInclude Include="Base64Image.h" />
     <ClInclude Include="SurveyInfoDlg.h" />
+    <ClInclude Include="SurveyManager.h" />
     <ClInclude Include="SurveyMonkey.h" />
     <ClInclude Include="SurveyView.h" />
     <ClInclude Include="targetver.h" />
@@ -238,6 +239,7 @@
     <ClCompile Include="Survey.cpp" />
     <ClCompile Include="Base64Image.cpp" />
     <ClCompile Include="SurveyInfoDlg.cpp" />
+    <ClCompile Include="SurveyManager.cpp" />
     <ClCompile Include="SurveyMonkey.cpp" />
     <ClCompile Include="SurveyView.cpp" />
     <ClCompile Include="Task.cpp" />

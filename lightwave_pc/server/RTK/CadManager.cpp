@@ -4,6 +4,7 @@
 #include "RTK.h"
 #include "GlobalUtil\\FileUtil.h"
 #include "TaskManager.h"
+#include "SurveyManager.h"
 #include <math.h>
 
 #define __MSG_TIMER_CHANGE_POSITION_COLOR__	101
@@ -400,12 +401,10 @@ namespace ProgramManager
 		MakeLayer("1");
 		MakeLayer("60", CAD_COLOR_RED);
 		MakeLayer("71");
-		MakeLayer("100", CAD_COLOR_CYAN); // 작업자가 전송한 측량 정보를 표시하기 위한 레이어
 
 		VHANDLE hLayer1 = CadGetLayerByName(m_hDwg, "1");
 		VHANDLE hLayer60 = CadGetLayerByName(m_hDwg, "60");
 		VHANDLE hLayer71 = CadGetLayerByName(m_hDwg, "71");
-		VHANDLE hLayer100 = CadGetLayerByName(m_hDwg, "100");
 		CadLayerPutColor(hLayer60, CAD_COLOR_RED);
 		CadLayerPutColor(hLayer71, CAD_COLOR_RED);
 
@@ -450,26 +449,6 @@ namespace ProgramManager
 			pParcelManager->m_lsBasePointMap.GetNextAssoc(posNow, sKey, ptTemp);
 
 			MakeBasePoint(ptTemp);
-		}
-
-		// 작업자의 측량 위치 생성
-		// TODO: 해당점에 측량 데이터가 들어있는지 없는지에 따라 원 색깔을 다르게한다.
-		// 예시) CadLayerPutColor(hLayer100, CAD_COLOR_RED);
-		auto pTaskManager = TaskManager::GetInstance();
-		if (pTaskManager->getLoadedTask() != NULL) {
-			CadSetCurLayer(m_hDwg, hLayer100);
-			UINT taskId = pTaskManager->getSelectedTaskIdOrZero();
-			auto surveys = pTaskManager->getSurveys();
-			for (auto& s : surveys) {
-				if (!s.HasBeenSurveyed()) {
-					CadLayerPutColor(hLayer100, CAD_COLOR_RED);
-				}
-				else {
-					CadLayerPutColor(hLayer100, CAD_COLOR_CYAN);
-				}
-
-				MakeSurveyPoint(s, 504, "");
-			}
 		}
 
 		if (m_hPositionEnt != NULL)
@@ -598,23 +577,6 @@ namespace ProgramManager
 			return true;
 		}
 		return false;
-	}
-
-	bool CCadManager::MakeSurveyPoint(DataType::ShapeType::CDS_Point ptViewPos, DWORD nKey, CString sExKey) {
-		VHANDLE hEnt = CadAddCircle(m_hDwg, ptViewPos.GetX(), ptViewPos.GetY(), 0, 3);
-		CadEntityPutFilled(hEnt, TRUE);
-		m_surveyHandles.push_back(hEnt);
-		return true;
-		/*if (hEnt != NULL)
-		{
-			CadEntityPutUserData(hEnt, nKey);
-			if (sExKey != "")
-			{
-				CadEntityPutExData(hEnt, sExKey.GetBuffer(), sExKey.GetLength());
-			}
-			return true;
-		}
-		return false;*/
 	}
 
 	bool CCadManager::MakeCircle(double fRadius, DataType::ShapeType::CDS_Point ptViewPos, DWORD nKey, CString sExKey)
@@ -1103,7 +1065,8 @@ namespace ProgramManager
 	void CCadManager::OnMouseClick(double fX, double fY)
 	{
 		VHANDLE handle = CadGetEntityByCursor(m_hDwg);
-		for (auto& h : m_surveyHandles) {
+		auto& surveyHandles = SurveyManager::GetInstance()->GetSurveyHandles();
+		for (auto& h : surveyHandles) {
 			if (h == handle) {
 				double x, y, z;
 				CadPointGetCoord(h, &x, &y, &z);
@@ -1136,7 +1099,7 @@ namespace ProgramManager
 
 	void __stdcall EntityClick(VDWG hDwg, VHANDLE hEnt, BOOL bSelect, BOOL bFinal)
 	{
-		Log::log("<%ul>", hEnt);
+		/*Log::log("<%ul>", hEnt);
 		auto pManager = CCadManager::GetInstance();
 		auto& surveyHandles = pManager->getSurveyHandles();
 		for (auto& s : surveyHandles) {
@@ -1144,7 +1107,7 @@ namespace ProgramManager
 			if (s == hEnt) {
 				MessageBox(NULL, "됏따!", NULL, MB_OK);
 			}
-		}
+		}*/
 	}
 
 	////////////////////////////////////////
@@ -1186,11 +1149,6 @@ namespace ProgramManager
 	VDWG CCadManager::GetVDwg() const
 	{
 		return m_hDwg;
-	}
-
-	const std::vector<VHANDLE>& CCadManager::getSurveyHandles() const
-	{
-		return m_surveyHandles;
 	}
 
 	// 이벤트 처리
@@ -1252,8 +1210,7 @@ namespace ProgramManager
 			Log::log("측량점 생성 완료: %d",survey.GetId());
 
 			CadEntityErase(hEnt, true);
-
-			pManager->ReCreateParcelData();
+			SurveyManager::GetInstance()->LoadSurveysFromTask(*pTask);
 		}
 		break;
 		/*

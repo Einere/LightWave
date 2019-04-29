@@ -102,7 +102,6 @@ namespace ProgramManager
 		bool MakeLine( DataType::ShapeType::CDS_Line lnLine, CString sLayer = "" );
 													// 선 생성
 
-		bool CCadManager::MakeSurveyPoint(DataType::ShapeType::CDS_Point ptViewPos, DWORD nKey, CString sExKey);
 		// 레이어/도형 생성
 		// ########################################
 
@@ -196,9 +195,5 @@ namespace ProgramManager
 	public:
 		HWND GetHwnd() const;
 		VDWG GetVDwg() const;
-		const std::vector<VHANDLE>& getSurveyHandles() const;
-
-	private:
-		std::vector<VHANDLE> m_surveyHandles;
 	};
 };

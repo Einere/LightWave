@@ -304,8 +304,8 @@
     <ClInclude Include="time.h">
       <Filter>common</Filter>
     </ClInclude>
-    <ClInclude Include="uuid.h">
-      <Filter>common</Filter>
+    <ClInclude Include="SurveyManager.h">
+      <Filter>Manager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -477,8 +477,8 @@
     <ClCompile Include="time.cpp">
       <Filter>common</Filter>
     </ClCompile>
-    <ClCompile Include="uuid.cpp">
-      <Filter>common</Filter>
+    <ClCompile Include="SurveyManager.cpp">
+      <Filter>Manager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

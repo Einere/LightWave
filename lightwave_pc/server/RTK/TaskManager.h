@@ -17,17 +17,13 @@ namespace ProgramManager {
 		SurveyTask::Task* getStartedTask();
 		SurveyTask::Task* getLoadedTask();
 
+		bool startTask(UINT id);
+		bool stopTask(UINT id);
+		bool loadTask(UINT id);
 		void appendTask(const SurveyTask::Task& task);
+		bool removeTask(UINT id);
 
-		BOOL removeTask(UINT id);
-
-		BOOL setSelection(UINT id, BOOL select=TRUE);
-
-		BOOL startTask(UINT id);
-
-		BOOL stopTask(UINT id);
-
-		BOOL loadTask(UINT id);
+		bool setSelection(UINT id, bool select=true);
 
 		void registerSurvey(SurveyTask::Survey survey, UINT taskId=0);
 		const std::vector<SurveyTask::Survey>& getSurveys(UINT taskId=0);
