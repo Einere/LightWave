@@ -30,8 +30,8 @@ namespace SurveyTask {
 
 		Workers::Worker GetWorker() const;
 
-		void SetSurveyed(BOOL surveyed = TRUE);
-		BOOL HasBeenSurveyed() const;
+		void SetSurveyed(bool surveyed = TRUE);
+		bool HasBeenSurveyed() const;
 
 		Json::Value ToJson() const;
 		bool FromJson(Json::Value root);
