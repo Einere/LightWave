@@ -184,6 +184,7 @@
     <ClInclude Include="TaskMonkey.h" />
     <ClInclude Include="TaskWnd.h" />
     <ClInclude Include="TestMonkey.h" />
+    <ClInclude Include="TextEncoding.h" />
     <ClInclude Include="time.h" />
     <ClInclude Include="VeCad\cadapi.h" />
     <ClInclude Include="Worker.h" />
@@ -243,6 +244,7 @@
     <ClCompile Include="TaskMonkey.cpp" />
     <ClCompile Include="TaskWnd.cpp" />
     <ClCompile Include="TestMonkey.cpp" />
+    <ClCompile Include="TextEncoding.cpp" />
     <ClCompile Include="time.cpp" />
     <ClCompile Include="VeCad\cadapi.cpp" />
     <ClCompile Include="Worker.cpp" />

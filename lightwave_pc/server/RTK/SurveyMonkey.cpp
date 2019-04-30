@@ -71,8 +71,8 @@ Json::Value SurveyMonkey::DoPost(Json::Value props, SocketWorker& socketWorker)
 
 	pTask->Store();
 
-	auto onGoingTaskId = pTaskManager->GetLoadedTask()->GetId();
-	if (taskId == onGoingTaskId) {
+	auto pOnGoingTask = pTaskManager->GetLoadedTask();
+	if (pOnGoingTask && taskId == pOnGoingTask->GetId()) {
 		ProgramManager::SurveyViewManager::GetInstance()->LoadSurveysFromTask(*pTask);
 	}
 

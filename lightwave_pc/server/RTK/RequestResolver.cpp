@@ -12,6 +12,8 @@
 
 #include "json.h"
 
+#include "TextEncoding.h"
+
 #include <atlstr.h>
 
 namespace Service {
@@ -40,6 +42,10 @@ namespace Service {
 		std::shared_ptr<Monkey> monkey = GetMonkeyOrNull(props);
 
 		Json::Value result = monkey->Handle(props, pSocket);
+
+		// TODO: UTF-8 변환 후 반환
+		
+		
 
 		return Json::json2Str(result).c_str();
 	}
