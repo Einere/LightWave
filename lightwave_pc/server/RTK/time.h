@@ -1,9 +1,9 @@
 #pragma once
 
 namespace TimeUtil {
-	CString convertTime2StrSimple(SYSTEMTIME t);
-	CString convertTime2StrNumber(SYSTEMTIME t);
-	SYSTEMTIME convertStrSimple2Time(CString s);
+	CString ConvertTime2StrSimple(SYSTEMTIME t);
+	CString ConvertTime2StrNumber(SYSTEMTIME t);
+	SYSTEMTIME ConvertStrSimple2Time(CString s);
 
-	CString convertTime2StrFormatted(SYSTEMTIME t);
+	CString ConvertTime2StrFormatted(SYSTEMTIME t);
 }

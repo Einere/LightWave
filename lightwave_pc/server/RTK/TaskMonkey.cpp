@@ -13,13 +13,13 @@ TaskMonkey::~TaskMonkey()
 {
 }
 
-Json::Value TaskMonkey::doGet(Json::Value props, SocketWorker& socketWorker)
+Json::Value TaskMonkey::DoGet(Json::Value props, SocketWorker& socketWorker)
 {
 	auto pTaskManager = ProgramManager::TaskManager::GetInstance();
 
 	SurveyTask::Task* pTask;
-	pTask = pTaskManager->getStartedTask();
-	if (pTask == NULL) return Service::error("현재 진행 중인 작업이 존재하지 않습니다.");
+	pTask = pTaskManager->GetStartedTask();
+	if (pTask == NULL) return Service::Error("현재 진행 중인 작업이 존재하지 않습니다.");
 
 	Json::Value root;
 	root["data"] = DeriveJsonFromTask(*pTask);
@@ -30,12 +30,12 @@ Json::Value TaskMonkey::doGet(Json::Value props, SocketWorker& socketWorker)
 Json::Value TaskMonkey::DeriveJsonFromTask(const SurveyTask::Task & task)
 {
 	Json::Value root;
-	root["id"] = task.getId();
-	root["taskName"] = task.getTaskName().GetString();
-	root["taskDesc"] = task.getTaskDesc().GetString();
-	root["landNo"] = task.getLotNumber().GetString();
-	root["parcels"] = DeriveJsonFromParcels(task.getParcels());	
-	root["surveyPoints"] = DeriveJsonFromSurveys(task.getSurveys());
+	root["id"] = task.GetId();
+	root["taskName"] = task.GetTaskName().GetString();
+	root["taskDesc"] = task.GetTaskDesc().GetString();
+	root["landNo"] = task.GetLotNumber().GetString();
+	root["parcels"] = DeriveJsonFromParcels(task.GetParcels());	
+	root["surveyPoints"] = DeriveJsonFromSurveys(task.GetSurveys());
 	
 	return root;
 }

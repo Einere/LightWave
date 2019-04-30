@@ -3,7 +3,6 @@
 #include "TaskWnd.h"
 #include "Task.h"
 #include "TaskAddDlg.h"
-#include "FileManager.h"
 #include "TaskManager.h"
 #include "ParcelManager.h"
 #include "afxdialogex.h"
@@ -45,10 +44,10 @@ BOOL CTaskMngDlg::OnInitDialog()
 
 	std::regex reg(".*tsk$");
 	std::vector<path> files;
-	File::findFile("./working-data", reg, files);
+	File::FindFile("./working-data", reg, files);
 	for (auto file : files) {
 		SurveyTask::Task task;
-		task.load(file.generic_string().c_str());
+		task.Load(file.generic_string().c_str());
 		appendTask(task);
 	}
 
@@ -72,11 +71,11 @@ END_MESSAGE_MAP()
 SurveyTask::Task& CTaskMngDlg::appendTask(const SurveyTask::Task& task)
 {
 	auto taskManager = ProgramManager::TaskManager::GetInstance();
-	taskManager->appendTask(task);
+	taskManager->AppendTask(task);
 
 	CString idInString;
-	idInString.Format("%d", task.getId());
-	const std::vector<LPCTSTR> values = { idInString, task.getTaskName(), task.getLotNumber()};
+	idInString.Format("%d", task.GetId());
+	const std::vector<LPCTSTR> values = { idInString, task.GetTaskName(), task.GetLotNumber()};
 	const int valueCount = values.size();
 
 	const int itemIndex = m_listTask.GetItemCount();
@@ -86,10 +85,10 @@ SurveyTask::Task& CTaskMngDlg::appendTask(const SurveyTask::Task& task)
 		m_listTask.SetItemText(itemIndex, i, values[i]);
 	}
 
-	return taskManager->getTaskByIndex(taskManager->getTasksCount()-1);
+	return taskManager->GetTaskByIndex(taskManager->GetTasksCount()-1);
 }
 
-UINT CTaskMngDlg::getSelectedId() const
+UINT CTaskMngDlg::GetSelectedId() const
 {
 	int mark = m_listTask.GetSelectionMark();
 	if (-1 == mark) return -1;
@@ -100,11 +99,11 @@ UINT CTaskMngDlg::getSelectedId() const
 
 int CTaskMngDlg::deleteSelectedTask()
 {
-	UINT id = getSelectedId();
+	UINT id = GetSelectedId();
 	if (-1 == id) return 0;
 
 	auto taskManager = ProgramManager::TaskManager::GetInstance();
-	taskManager->removeTask(id);
+	taskManager->RemoveTask(id);
 
 	int mark = m_listTask.GetSelectionMark();
 	BOOL success = m_listTask.DeleteItem(mark);
@@ -142,9 +141,9 @@ void CTaskMngDlg::OnBnClickedButtonAddTask()
 	TaskAddDlg dlg;
 	if (dlg.DoModal() == IDOK) {
 		auto& newTask = appendTask(dlg.getTask());
-		assert(newTask.store());
+		assert(newTask.Store());
 
-		Log::log("작업이 등록되었습니다: [작업명: %s\t 대표지번: %s]", newTask.getTaskName(), newTask.getLotNumber());
+		Logger::Log("작업이 등록되었습니다: [작업명: %s\t 대표지번: %s]", newTask.GetTaskName(), newTask.GetLotNumber());
 	}
 }
 
@@ -207,7 +206,7 @@ void TaskWnd::OnSize(UINT nType, int cx, int cy)
 
 void CTaskMngDlg::OnContextMenu(CWnd * pWnd, CPoint point)
 {
-	if (-1 == getSelectedId()) {
+	if (-1 == GetSelectedId()) {
 		CDialogEx::OnContextMenu(pWnd, point);
 		return;
 	}
@@ -233,10 +232,10 @@ void CTaskMngDlg::OnNMClickListTask(NMHDR *pNMHDR, LRESULT *pResult)
 		CString idInString = m_listTask.GetItemText(index, 0);
 		UINT id = _ttoi(idInString);
 		
-		taskManager->setSelection(id, TRUE);
+		taskManager->SetSelection(id, TRUE);
 	}
 	else {
-		taskManager->setSelection(0, FALSE);
+		taskManager->SetSelection(0, FALSE);
 	}
 
 	*pResult = 0;
@@ -249,42 +248,42 @@ void CTaskMngDlg::OnTaskMngDelete()
 
 void CTaskMngDlg::OnTaskMngActive()
 {
-	UINT id = getSelectedId();
+	UINT id = GetSelectedId();
 	auto taskManager = ProgramManager::TaskManager::GetInstance();
 
 	SurveyTask::Task* pTask;
-	pTask = taskManager->getTaskById(id);
+	pTask = taskManager->GetTaskById(id);
 	if (pTask == NULL) return;
 
-	CString fileName = pTask->getCifPath();
+	CString fileName = pTask->GetCifPath();
 	if (fileName.IsEmpty()) {
 		MessageBox("해당 작업에 등록된 CIF파일이 없습니다.", "CIF파일 로드 에러", MB_ICONERROR);
 		return;
 	}
 
 	auto pManager = ProgramManager::TaskManager::GetInstance();
-	pManager->loadTask(id);
+	pManager->LoadTask(id);
 	/*auto pManager = ProgramManager::CParcelManager::GetInstance();
 	pManager->LoadCif(fileName);*/
 }
 
 void CTaskMngDlg::OnTaskMngToggleState()
 {
-	UINT id = getSelectedId();
+	UINT id = GetSelectedId();
 	auto taskManager = ProgramManager::TaskManager::GetInstance();
 
-	BOOL hasStarted = taskManager->startTask(id);
+	BOOL hasStarted = taskManager->StartTask(id);
 	if (!hasStarted) {
 		MessageBox("시작 가능한 작업이 아닙니다.", "경고", MB_ICONWARNING);
 		return;
 	}
 	
 	SurveyTask::Task* pTask;
-	pTask = taskManager->getTaskById(id);
+	pTask = taskManager->GetTaskById(id);
 	assert(pTask != NULL);
 
 	char notice[100];
-	sprintf(notice, "작업이 시작되었습니다.\n작업 ID: %d\n작업 이름: %s", pTask->getId(), pTask->getTaskName().GetString());
+	sprintf(notice, "작업이 시작되었습니다.\n작업 ID: %d\n작업 이름: %s", pTask->GetId(), pTask->GetTaskName().GetString());
 	MessageBox(notice, "안내", MB_ICONINFORMATION);
 }
 

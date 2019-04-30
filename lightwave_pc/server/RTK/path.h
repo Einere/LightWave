@@ -3,9 +3,9 @@
 
 namespace Path {
 
-	int findLastSlash(CString path);
+	int FindLastSlash(CString path);
 
-	CString getFileName(CString path);
+	CString GetFileName(CString path);
 
-	CString getDirPath(CString path);
+	CString GetDirPath(CString path);
 }

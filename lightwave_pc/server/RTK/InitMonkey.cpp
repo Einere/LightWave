@@ -12,12 +12,19 @@ InitMonkey::~InitMonkey()
 {
 }
 
-Json::Value InitMonkey::doPost(Json::Value props, SocketWorker& socketWorker)
+Json::Value InitMonkey::DoPost(Json::Value props, SocketWorker& socketWorker)
 {
 	Json::Value jsonData = props["data"];
+	if (jsonData.isNull()) {
+		return Service::Error("`data` property is required.");
+	}
 	
-	socketWorker.setWorkerName(jsonData["userName"].asCString());
-	socketWorker.setAuthorized();
+	Json::Value jsonUserName = jsonData["userName"];
+	if (jsonUserName.isNull()) {
+		return Service::Error("`userName` property is required.");
+	}
+	socketWorker.SetWorkerName(jsonUserName.asCString());
+	socketWorker.SetAuthorized();
 
 	/*auto pManager = WorkerManager::GetInstance();
 	auto worker = pManager->getWorkerOrNull(props["ip-address"].asCString(), props["port"].asUInt());

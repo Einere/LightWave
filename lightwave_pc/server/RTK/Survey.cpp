@@ -45,7 +45,7 @@ namespace SurveyTask {
 			if (FAILED(hResult)) {
 				CString errorMessage;
 				errorMessage.Format("%s �� �������� �̹��� ������ �ƴմϴ�.", m_imagesPaths[i]);
-				Log::err(errorMessage);
+				Logger::Err(errorMessage);
 			}
 		}
 	}
@@ -95,7 +95,7 @@ namespace SurveyTask {
 		Json::Value root;
 		root["id"] = m_id;
 		root["hasBeenSurveyed"] = m_hasBeenSurveyed;
-		root["updatedTime"] = TimeUtil::convertTime2StrSimple(m_updatedTime).GetString();
+		root["updatedTime"] = TimeUtil::ConvertTime2StrSimple(m_updatedTime).GetString();
 
 		root["worker"] = m_worker.ToJson();
 
@@ -135,7 +135,7 @@ namespace SurveyTask {
 
 		m_id = idRoot.asUInt();
 		m_hasBeenSurveyed = hasBeenSurveyedRoot.asBool();
-		m_updatedTime = TimeUtil::convertStrSimple2Time(timeRoot.asCString());
+		m_updatedTime = TimeUtil::ConvertStrSimple2Time(timeRoot.asCString());
 
 		bool result = m_worker.FromJson(workerRoot);
 		if (!result) {
@@ -171,7 +171,7 @@ namespace SurveyTask {
 		SYSTEMTIME curTime;
 		GetLocalTime(&curTime);
 
-		CString timeInStr = TimeUtil::convertTime2StrNumber(curTime);
+		CString timeInStr = TimeUtil::ConvertTime2StrNumber(curTime);
 		CString idInStr = "1";
 
 		std::srand(time(NULL));

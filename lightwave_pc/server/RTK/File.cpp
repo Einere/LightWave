@@ -15,12 +15,12 @@ namespace File {
 	{
 	}
 
-	CString Storable::store(CString path)
+	CString Storable::Store(CString path)
 	{
 		if (!path || path == "") path = GetFilePath();
 		m_filePath = CString(path);
 
-		auto dirPath = Path::getDirPath(path);
+		auto dirPath = Path::GetDirPath(path);
 		if (GetFileAttributes(dirPath) == INVALID_FILE_ATTRIBUTES) {
 			CreateDirectory(dirPath, NULL);
 		}
@@ -31,7 +31,7 @@ namespace File {
 			return "";
 		}
 
-		auto buf = toFileContent();
+		auto buf = ToFileContent();
 
 		file.Write((void*)buf.c_str(), buf.length());
 		file.Close();
@@ -39,7 +39,7 @@ namespace File {
 		return m_filePath;
 	}
 
-	bool Storable::load(CString path)
+	bool Storable::Load(CString path)
 	{
 		CFile file;
 		const bool isOpenSucceed = file.Open(path, CFile::modeRead);
@@ -49,7 +49,7 @@ namespace File {
 		char *buf = new char[length];
 		file.Read((void*)buf, length);
 
-		assert(resolveFileData(buf));
+		assert(ResolveFileData(buf));
 
 		file.Close();
 
@@ -58,18 +58,18 @@ namespace File {
 		return true;
 	}
 
-	CString Storable::remove(BOOL everything)
+	CString Storable::Remove(BOOL everything)
 	{
 		bool success = DeleteFile(m_filePath);
 		if (!success) return "";
 
-		auto dirPath = Path::getDirPath(m_filePath);
+		auto dirPath = Path::GetDirPath(m_filePath);
 		fs::directory_iterator itor((LPCTSTR)dirPath);
 		UINT filesCount = 0;
 
 		if (everything) {
 			for (auto& file : itor) { 
-				deleteFileOrDirectory(file); 
+				DeleteFileOrDirectory(file); 
 			}
 		}
 
@@ -84,7 +84,7 @@ namespace File {
 
 	bool Storable::CreateDir(CString path)
 	{
-		auto dirPath = Path::getDirPath(path);
+		auto dirPath = Path::GetDirPath(path);
 		if (GetFileAttributes(dirPath) == INVALID_FILE_ATTRIBUTES) {
 			return CreateDirectory(dirPath, NULL);
 		}
@@ -115,12 +115,12 @@ namespace File {
 		return m_parentPath;
 	}
 
-	void Storable::deleteFileOrDirectory(fs::v1::directory_entry entry)
+	void Storable::DeleteFileOrDirectory(fs::v1::directory_entry entry)
 	{
 		LPCWSTR path = entry.path().c_str();
 		if (fs::is_directory(entry.status())) {
 			fs::directory_iterator itor(entry);
-			for (auto& entry : itor) { deleteFileOrDirectory(entry); }
+			for (auto& entry : itor) { DeleteFileOrDirectory(entry); }
 			RemoveDirectoryW(path);
 		}
 		else {
@@ -128,13 +128,13 @@ namespace File {
 		}
 	}
 
-	void findFile(const path & dirPath, const std::regex & regex, std::vector<path>& filesFound)
+	void FindFile(const path & dirPath, const std::regex & regex, std::vector<path>& filesFound)
 	{
 		if (!exists(dirPath)) return;
 		directory_iterator end_itr;
 		for (directory_iterator itr(dirPath); itr != end_itr; ++itr) {
 			if (is_directory(itr->status())) {
-				findFile(itr->path(), regex, filesFound);
+				FindFile(itr->path(), regex, filesFound);
 			}
 			else if (std::regex_match(itr->path().generic_string().c_str(), regex)) {
 				filesFound.push_back(itr->path());

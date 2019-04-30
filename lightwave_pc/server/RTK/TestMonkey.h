@@ -9,6 +9,6 @@ public:
 	TestMonkey();
 	~TestMonkey();
 
-	virtual Json::Value doGet(Json::Value props, SocketWorker& socketWorker);
+	virtual Json::Value DoGet(Json::Value props, SocketWorker& socketWorker);
 };
 

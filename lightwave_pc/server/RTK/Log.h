@@ -2,14 +2,14 @@
 
 class CLogWnd;
 
-class Log {
+class Logger {
 public:
 	static CLogWnd lout;
 
 	static CString getCurTime();
 
-	static void log(const char* format, ...);
+	static void Log(const char* format, ...);
 
-	static void err(const char* format, ...);
+	static void Err(const char* format, ...);
 
 };

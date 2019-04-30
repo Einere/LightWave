@@ -11,7 +11,7 @@ public:
 	TaskMonkey();
 	~TaskMonkey();
 
-	virtual Json::Value doGet(Json::Value props, SocketWorker& socketWorker);
+	virtual Json::Value DoGet(Json::Value props, SocketWorker& socketWorker);
 
 protected:
 	Json::Value DeriveJsonFromTask(const SurveyTask::Task & task);

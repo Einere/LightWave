@@ -20,7 +20,6 @@
 #include "SocketRecipient.h"
 #include "TaskAddDlg.h"
 #include "ParcelAddDlg.h"
-#include "SurveyView.h"
 #include "Survey.h"
 
 #ifdef _DEBUG
@@ -76,7 +75,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_SERVER_START, &CMainFrame::OnServerStart)
 	ON_COMMAND(ID_SERVER_STOP, &CMainFrame::OnServerStop)
 	ON_UPDATE_COMMAND_UI(ID_SERVER_STOP, &CMainFrame::OnUpdateServerStop)
-	ON_COMMAND(ID_SHOW_CONNECTION_STATE, &CMainFrame::showStateDlg)
+	ON_COMMAND(ID_SHOW_CONNECTION_STATE, &CMainFrame::ShowStateDlg)
 	ON_WM_PARENTNOTIFY()
 	ON_COMMAND(ID_SHOW_LOG, &CMainFrame::OnShowLog)
 	ON_COMMAND(ID_ADD_TASK, &CMainFrame::OnAddTask)
@@ -208,8 +207,8 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;
 	}
 
-	Log::lout.EnableDocking(CBRS_ALIGN_ANY);
-	DockPane(&Log::lout);
+	Logger::lout.EnableDocking(CBRS_ALIGN_ANY);
+	DockPane(&Logger::lout);
 
 	m_wndStatePane.EnableDocking(CBRS_ALIGN_ANY);
 	DockPane(&m_wndStatePane);
@@ -314,7 +313,7 @@ void CMainFrame::OnWindowPosChanged(WINDOWPOS * lpWinPos)
 	}*/
 }
 
-void CMainFrame::addTask(SurveyTask::Task task)
+void CMainFrame::AddTask(SurveyTask::Task task)
 {
 }
 
@@ -337,7 +336,7 @@ BOOL CMainFrame::CreateDockingWindows()
 	ASSERT(bNameValid);
 
 	const int logWindowHeight = 150;
-	if (!Log::lout.Create(strOutputWnd, this, CRect(0, 0, 150, logWindowHeight), TRUE, ID_VIEW_OUTPUTWND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_BOTTOM | CBRS_FLOAT_MULTI))
+	if (!Logger::lout.Create(strOutputWnd, this, CRect(0, 0, 150, logWindowHeight), TRUE, ID_VIEW_OUTPUTWND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_BOTTOM | CBRS_FLOAT_MULTI))
 	{
 		TRACE0("출력 창을 만들지 못했습니다.\n");
 		return FALSE;
@@ -363,7 +362,7 @@ BOOL CMainFrame::CreateDockingWindows()
 void CMainFrame::SetDockingWindowIcons(BOOL bHiColorIcons)
 {
 	HICON hOutputBarIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(bHiColorIcons ? IDI_OUTPUT_WND_HC : IDI_OUTPUT_WND), IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON), 0);
-	Log::lout.SetIcon(hOutputBarIcon, FALSE);
+	Logger::lout.SetIcon(hOutputBarIcon, FALSE);
 
 }
 
@@ -524,7 +523,7 @@ BOOL CMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParent
 void CMainFrame::OnSettingChange(UINT uFlags, LPCTSTR lpszSection)
 {
 	CFrameWndEx::OnSettingChange(uFlags, lpszSection);
-	Log::lout.UpdateFonts();
+	Logger::lout.UpdateFonts();
 }
 
 
@@ -692,7 +691,7 @@ int CMainFrame::GetNowOpenMainMenuIndex( int nIndex )
 
 void CMainFrame::AddLog( CString sLog )
 {
-	Log::lout.addLog(sLog);
+	Logger::lout.addLog(sLog);
 }
 
 void CMainFrame::OnZoomExtent()
@@ -859,18 +858,18 @@ void CMainFrame::OnServerStart()
 	pMenu->EnableMenuItem(ID_SERVER_STOP, false);
 */
 	
-	WorkerManager::GetInstance()->startServer();
+	WorkerManager::GetInstance()->StartServer();
 	updateStateDlg();
-	Log::log("서버가 시작되었습니다.\n클라이언트로부터 연결 요청을 받을 수 있습니다.");
+	Logger::Log("서버가 시작되었습니다.\n클라이언트로부터 연결 요청을 받을 수 있습니다.");
 	MessageBoxA("서버가 시작되었습니다.\n클라이언트로부터 연결 요청을 받을 수 있습니다.", "서버 시작");
 }
 
 
 void CMainFrame::OnServerStop()
 {
-	WorkerManager::GetInstance()->stopServer();
+	WorkerManager::GetInstance()->StopServer();
 	updateStateDlg();
-	Log::log("서버가 종료되었습니다.");
+	Logger::Log("서버가 종료되었습니다.");
 
 	/*auto pMenu = m_wndMenuBar.GetMenu();
 	assert(pMenu);*/
@@ -887,28 +886,28 @@ void CMainFrame::OnUpdateServerStop(CCmdUI *pCmdUI)
 	//pCmdUI->Enable(false);
 }
 
-void CMainFrame::showStateDlg()
+void CMainFrame::ShowStateDlg()
 {
-	m_wndStatePane.update();
+	m_wndStatePane.Update();
 }
 
 
 void CMainFrame::updateStateDlg()
 {
-	m_wndStatePane.update();
+	m_wndStatePane.Update();
 }
 
 bool CMainFrame::isServerListening() const
 {
-	return WorkerManager::GetInstance()->isListening();
+	return WorkerManager::GetInstance()->IsListening();
 }
 
 
 
 void CMainFrame::OnShowLog()
 {
-	Log::lout.ShowWindow(SW_SHOW);
-	Log::lout.EnableDocking(CBRS_ALIGN_ANY);
+	Logger::lout.ShowWindow(SW_SHOW);
+	Logger::lout.EnableDocking(CBRS_ALIGN_ANY);
 }
 
 
@@ -928,18 +927,18 @@ void CMainFrame::OnAddTask()
 
 void CMainFrame::OnAccept(const CString& ipAddress, UINT port, int errorCode)
 {
-	Log::log("%s:%d 연결", ipAddress, port);
+	Logger::Log("%s:%d 연결", ipAddress, port);
 	updateStateDlg();
 }
 
 void CMainFrame::OnReceive(const CString& ipAddress, UINT port, Json::Value props, int errorCode)
 {
-	Log::log("%s:%d %s", ipAddress, port, props["data"].asCString());
+	Logger::Log("%s:%d %s", ipAddress, port, props["data"].asCString());
 }
 
 void CMainFrame::OnClose(const CString & ipAddress, UINT port, int errorCode)
 {
-	Log::log("%s:%d 연결종료", ipAddress, port);
+	Logger::Log("%s:%d 연결종료", ipAddress, port);
 	updateStateDlg();
 }
 
@@ -947,17 +946,17 @@ void CMainFrame::OnClose(const CString & ipAddress, UINT port, int errorCode)
 void CMainFrame::OnSetParcel()
 {
 	auto taskManager = TaskManager::GetInstance();
-	const std::vector<SurveyTask::Task>& tasks = taskManager->getTasks();
+	const std::vector<SurveyTask::Task>& tasks = taskManager->GetTasks();
 	ParcelAddDlg parcelAddDlg(tasks);
 	if (IDOK == parcelAddDlg.DoModal()) {
 		SurveyTask::Task selectedTask;
-		bool isSelected = parcelAddDlg.getSelectedTask(selectedTask);
+		bool isSelected = parcelAddDlg.GetSelectedTask(selectedTask);
 		if (!isSelected) return;
 
 		auto pManager = CCadManager::GetInstance();
 		std::vector<DataType::CParcel> pts = pManager->getSelectedParcels();
-		selectedTask.addParcels(pts);
-		selectedTask.store();
+		selectedTask.AddParcels(pts);
+		selectedTask.Store();
 	}
 }
 

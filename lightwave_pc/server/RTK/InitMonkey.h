@@ -10,6 +10,6 @@ public:
 	InitMonkey();
 	~InitMonkey();
 
-	virtual Json::Value doPost(Json::Value props, SocketWorker& socketWorker);
+	virtual Json::Value DoPost(Json::Value props, SocketWorker& socketWorker);
 };
 

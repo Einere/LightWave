@@ -14,101 +14,101 @@ using namespace DataType::ShapeType;
 namespace SurveyTask {
 	Task::Task()
 	{
-		m_id = generateId();
+		m_id = GenerateId();
 		m_ext = "tsk";
 	}
 
-	CString Task::getTaskName() const
+	CString Task::GetTaskName() const
 	{
 		return m_taskName;
 	}
 
-	void Task::setTaskName(CString taskName)
+	void Task::SetTaskName(CString taskName)
 	{
 		m_taskName = taskName;
 		m_fileName = m_taskName;
 		m_parentPath = rootDir + "/" + m_taskName;
 	}
 
-	CString Task::getTaskDesc() const
+	CString Task::GetTaskDesc() const
 	{
 		return m_taskDesc;
 	}
 
-	void Task::setTaskDesc(CString taskDesc)
+	void Task::SetTaskDesc(CString taskDesc)
 	{
 		m_taskDesc = taskDesc;
 	}
 
-	CString Task::getCifPath() const
+	CString Task::GetCifPath() const
 	{
 		return m_cifPath;
 	}
 
-	void Task::setCifPath(CString fileName)
+	void Task::SetCifPath(CString fileName)
 	{
 		m_cifPath = fileName;
 	}
 
-	CString Task::getLotNumber() const
+	CString Task::GetLotNumber() const
 	{
 		return m_lotNumber;
 	}
 
-	void Task::setLotNumber(CString lotNumber)
+	void Task::SetLotNumber(CString lotNumber)
 	{
 		m_lotNumber = lotNumber;
 	}
 
-	UINT Task::getId() const
+	UINT Task::GetId() const
 	{
 		return m_id;
 	}
 
-	void Task::setId(UINT id)
+	void Task::SetId(UINT id)
 	{
 		m_id = id;
 	}
 
-	const std::vector<ParcelToStore>& Task::getParcels() const
+	const std::vector<ParcelToStore>& Task::GetParcels() const
 	{
 		return m_parcels;
 	}
 
-	BOOL Task::hasStarted() const
+	BOOL Task::HasStarted() const
 	{
 		return m_hasStarted;
 	}
 
-	BOOL Task::start()
+	BOOL Task::Start()
 	{
 		if (m_hasStarted) return FALSE;
 		
 		return (m_hasStarted = TRUE);
 	}
 
-	BOOL Task::stop()
+	BOOL Task::Stop()
 	{
 		if (!m_hasStarted) return FALSE;
 
 		return (m_hasStarted = FALSE);
 	}
 
-	void Task::clearParcelPoints()
+	void Task::ClearParcelPoints()
 	{
 		m_parcels.clear();
 	}
 
-	int Task::addParcels(std::vector<CParcel> pts)
+	int Task::AddParcels(std::vector<CParcel> pts)
 	{
 		for (size_t i = 0; i < pts.size(); ++i) {
-			ParcelToStore parcel = parcel2ParcelToStore(pts[i]);
+			ParcelToStore parcel = Parcel2ParcelToStore(pts[i]);
 			m_parcels.push_back(parcel);
 		}
 		return m_parcels.size();
 	}
 
-	void Task::registerSurvey(Survey survey)
+	void Task::RegisterSurvey(Survey survey)
 	{
 		m_surveys.push_back(survey);
 	}
@@ -125,7 +125,7 @@ namespace SurveyTask {
 		return NULL;
 	}
 
-	const std::vector<Survey>& Task::getSurveys() const
+	const std::vector<Survey>& Task::GetSurveys() const
 	{
 		return m_surveys;
 	}
@@ -154,7 +154,7 @@ namespace SurveyTask {
 
 		root["parcels"] = Json::Value(Json::arrayValue);
 		for (ParcelToStore& parcel : m_parcels) {
-			root["parcels"].append(parcel2Json(parcel));
+			root["parcels"].append(Parcel2Json(parcel));
 		}
 
 		root["surveys"] = Json::Value(Json::arrayValue);
@@ -165,22 +165,22 @@ namespace SurveyTask {
 		return root;
 	}
 
-	std::string Task::toFileContent()
+	std::string Task::ToFileContent()
 	{
 		auto jsonInString = Json::json2Str(toJson());
 		return jsonInString;
 	}
 
-	BOOL Task::resolveFileData(const char* data)
+	BOOL Task::ResolveFileData(const char* data)
 	{
 		Json::Value json = Json::parse(data);
 		assert(json != Json::nullValue);
 
-		setId(json["id"].asUInt());
-		setTaskName(json["taskName"].asCString());
-		setTaskDesc(json["taskDesc"].asCString());
-		setLotNumber(json["lotNumber"].asCString());
-		setCifPath(json["fileName"].asCString());
+		SetId(json["id"].asUInt());
+		SetTaskName(json["taskName"].asCString());
+		SetTaskDesc(json["taskDesc"].asCString());
+		SetLotNumber(json["lotNumber"].asCString());
+		SetCifPath(json["fileName"].asCString());
 
 		Json::Value parcels(Json::arrayValue);
 		parcels = json["parcels"];
@@ -210,7 +210,7 @@ namespace SurveyTask {
 			Survey survey;
 			bool result = survey.FromJson(surveysRoot[i]);
 			if (!result) {
-				Log::log(INVALID_FILE_FORMAT_ERROR);
+				Logger::Log(INVALID_FILE_FORMAT_ERROR);
 			}
 			m_surveys.push_back(survey);
 		}
@@ -218,12 +218,12 @@ namespace SurveyTask {
 		return TRUE;
 	}
 
-	UINT Task::generateId() const
+	UINT Task::GenerateId() const
 	{
 		return (UINT)time(NULL);
 	}
 
-	ParcelToStore parcel2ParcelToStore(DataType::CParcel& parcel)
+	ParcelToStore Parcel2ParcelToStore(DataType::CParcel& parcel)
 	{
 		ParcelToStore parcelToStore;
 
@@ -239,7 +239,7 @@ namespace SurveyTask {
 
 		return parcelToStore;
 	}
-	Json::Value parcel2Json(ParcelToStore & parcel)
+	Json::Value Parcel2Json(ParcelToStore & parcel)
 	{
 		Json::Value parcelRoot;
 		parcelRoot["landNo"] = (LPCTSTR)parcel.landNo;

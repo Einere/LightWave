@@ -43,7 +43,7 @@ namespace ProgramManager {
 			bool makeLayerResult = pCadManager->MakeLayer("101", CAD_COLOR_MAGENTA); // 작업자가 전송한 측량 정보를 표시하기 위한 레이어
 		}
 
-		auto& surveys = task.getSurveys();
+		auto& surveys = task.GetSurveys();
 		for (auto& survey : surveys) {
 			MakeSurveyPoint(survey, 504, "");
 		}

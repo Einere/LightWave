@@ -16,36 +16,36 @@ namespace SurveyTask {
 	public:
 		Task();
 
-		CString getTaskName() const;
-		void setTaskName(CString taskName);
-		CString getTaskDesc() const;
-		void setTaskDesc(CString taskDesc);
-		CString getCifPath() const;
-		void setCifPath(CString fileName);
-		CString getLotNumber() const;
-		void setLotNumber(CString lotNumber);
-		UINT getId() const;
-		void setId(UINT id);
+		CString GetTaskName() const;
+		void SetTaskName(CString taskName);
+		CString GetTaskDesc() const;
+		void SetTaskDesc(CString taskDesc);
+		CString GetCifPath() const;
+		void SetCifPath(CString fileName);
+		CString GetLotNumber() const;
+		void SetLotNumber(CString lotNumber);
+		UINT GetId() const;
+		void SetId(UINT id);
 
-		const std::vector<ParcelToStore>& getParcels() const;
-		int addParcels(const std::vector<DataType::CParcel> pts);
-		void clearParcelPoints();
+		const std::vector<ParcelToStore>& GetParcels() const;
+		int AddParcels(const std::vector<DataType::CParcel> pts);
+		void ClearParcelPoints();
 
-		BOOL hasStarted() const;
-		BOOL start();
-		BOOL stop();
+		BOOL HasStarted() const;
+		BOOL Start();
+		BOOL Stop();
 
-		void registerSurvey(Survey survey);
+		void RegisterSurvey(Survey survey);
 		Survey* GetSurveyById(UINT id);
-		const std::vector<Survey>& getSurveys() const;
+		const std::vector<Survey>& GetSurveys() const;
 		Survey* GetSurveyByCoord(double x, double y);
 
 		Json::Value toJson();
 	public: // Override
-		virtual std::string toFileContent();
+		virtual std::string ToFileContent();
 
 	protected:
-		virtual BOOL resolveFileData(const char* data);
+		virtual BOOL ResolveFileData(const char* data);
 
 		UINT m_id;
 		CString m_taskName;
@@ -58,7 +58,7 @@ namespace SurveyTask {
 
 		BOOL m_hasStarted = FALSE;
 	private:
-		UINT generateId() const;
+		UINT GenerateId() const;
 	};
 
 	typedef std::pair<double, double> Point;
@@ -68,6 +68,6 @@ namespace SurveyTask {
 		std::vector<Point> points;
 	};
 
-	ParcelToStore parcel2ParcelToStore(DataType::CParcel& parcel);
-	Json::Value parcel2Json(ParcelToStore& parcel);
+	ParcelToStore Parcel2ParcelToStore(DataType::CParcel& parcel);
+	Json::Value Parcel2Json(ParcelToStore& parcel);
 }

@@ -12,50 +12,50 @@ namespace Service {
 	{
 	}
 
-	Json::Value Monkey::handle(Json::Value props, SocketWorker& socketWorker)
+	Json::Value Monkey::Handle(Json::Value props, SocketWorker& socketWorker)
 	{
-		Method method = getMethodOrInvalid(props);
+		Method method = GetMethodOrInvalid(props);
 
 		if (m_authList[method]) {
-			if (!socketWorker.isAuthorized()) {
-				return error("허가되지 않은 요청입니다. 서버에 사용자가 등록되어있지 않을 수 있습니다.");
+			if (!socketWorker.IsAuthorized()) {
+				return Error("허가되지 않은 요청입니다. 서버에 사용자가 등록되어있지 않을 수 있습니다.");
 			}
 		}
 
 		Json::Value result;
 		switch (method) {
 		case Method::Get:
-			result = doGet(props, socketWorker);
+			result = DoGet(props, socketWorker);
 			break;
 		case Method::Post:
-			result = doPost(props, socketWorker);
+			result = DoPost(props, socketWorker);
 			break;
 		case Method::Put:
-			result = doPut(props, socketWorker);
+			result = DoPut(props, socketWorker);
 			break;
 		case Method::Delete:
-			result = doDelete(props, socketWorker);
+			result = DoDelete(props, socketWorker);
 			break;
 		case Method::Invalid:
-			result = error("Invalid Method: Send with one in these methods ['GET', 'POST', 'PUT', 'DELETE']");
+			result = Error("Invalid Method: Send with one in these methods ['GET', 'POST', 'PUT', 'DELETE']");
 			break;
 		default:
 			assert(false);
 		}
 
 		if (result["status"].isNull()) {
-			result = success(result);
+			result = Success(result);
 		}
 
 		return result;
 	}
 
-	const std::string Monkey::getSubject()
+	const std::string Monkey::GetSubject()
 	{
 		return m_subject;
 	}
 
-	Method Monkey::getMethodOrInvalid(Json::Value root)
+	Method Monkey::GetMethodOrInvalid(Json::Value root)
 	{
 		const std::string methodInString = root["method"].asString();
 		if (methodInString == "" || methodMap.find(methodInString) == methodMap.end()) {
@@ -65,7 +65,7 @@ namespace Service {
 		return methodMap.at(methodInString);
 	}
 
-	Json::Value error(std::string msg)
+	Json::Value Error(std::string msg)
 	{
 		Json::Value err;
 		err["status"] = BAD_REQUEST;
@@ -73,14 +73,14 @@ namespace Service {
 		return err;
 	}
 
-	Json::Value success(Json::Value payload)
+	Json::Value Success(Json::Value payload)
 	{
 		payload["status"] = OK;
 		return payload;
 	}
 
-	bool isAuthorized(const SocketWorker & worker)
+	bool IsAuthorized(const SocketWorker & worker)
 	{
-		return worker.isAuthorized();
+		return worker.IsAuthorized();
 	}
 }

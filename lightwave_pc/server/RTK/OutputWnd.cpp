@@ -162,10 +162,10 @@ void CLogWnd::addLog( CString sLog )
 	m_wndOutputLog.AddString( sLog );
 	int nCount = m_wndOutputLog.GetCount();
 	m_wndOutputLog.SetCaretIndex(nCount -1);
-	saveLog(sLog);
+	SaveLog(sLog);
 }
 
-void CLogWnd::saveLog(CString sLog)
+void CLogWnd::SaveLog(CString sLog)
 {
 	if( sLog == "" ) return;	
 	

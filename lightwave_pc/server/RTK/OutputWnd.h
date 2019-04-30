@@ -91,7 +91,7 @@ public:
 	}
 
 protected:
-	virtual void saveLog(CString sLog);
+	virtual void SaveLog(CString sLog);
 
 public:
 	afx_msg void OnDestroy();

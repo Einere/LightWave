@@ -9,12 +9,12 @@ public:
 	~StatePane();
 
 
-	void update();
+	void Update();
 
 protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
-	afx_msg LRESULT onUpdate(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT OnUpdate(WPARAM wParam, LPARAM lParam);
 
 	DECLARE_MESSAGE_MAP()
 

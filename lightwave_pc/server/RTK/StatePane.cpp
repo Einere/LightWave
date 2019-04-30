@@ -37,7 +37,7 @@ int StatePane::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	}
 	m_stateDlg->ShowWindow(SW_SHOW);
 
-	WorkerManager::GetInstance()->setSocketStatePane(this);
+	WorkerManager::GetInstance()->SetSocketStatePane(this);
 
 	return 0;
 }
@@ -50,7 +50,7 @@ void StatePane::OnSize(UINT nType, int cx, int cy)
 	//m_wndTaskList.SetWindowPos(NULL, -1, -1, cx, cy, SWP_NOMOVE | SWP_NOACTIVATE | SWP_NOZORDER);
 }
 
-void StatePane::update()
+void StatePane::Update()
 {
-	m_stateDlg->update();
+	m_stateDlg->Update();
 }

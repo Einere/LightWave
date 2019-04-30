@@ -28,12 +28,12 @@ WorkerManager::~WorkerManager()
 //	m_pRecepient = recep;
 //}
 
-const std::vector<std::shared_ptr<SocketWorker>>& WorkerManager::getWorkers()
+const std::vector<std::shared_ptr<SocketWorker>>& WorkerManager::GetWorkers()
 {
 	return m_workers;
 }
 
-void WorkerManager::startServer()
+void WorkerManager::StartServer()
 {
 	m_acceptor.Create(PORT);
 	m_acceptor.Listen();
@@ -46,13 +46,13 @@ void WorkerManager::startServer()
 //	startServer();
 //}
 
-void WorkerManager::stopServer()
+void WorkerManager::StopServer()
 {
-	closeAll();
+	CloseAll();
 	m_isListening = false;
 }
 
-void WorkerManager::closeAll()
+void WorkerManager::CloseAll()
 {
 	m_acceptor.Close();
 	for (auto& worker : m_workers) {
@@ -69,20 +69,20 @@ void WorkerManager::OnAccept(std::shared_ptr<SocketWorker> pNewWorker)
 	/*auto newWorker = std::make_shared<SocketWorker>(this);
 	m_acceptor.Accept(*newWorker);*/
 
-	if (inspect(pNewWorker)) {
+	if (Inspect(pNewWorker)) {
 		m_workers.push_back(pNewWorker);
 	}
 	else {
 		
 	}
 
-	Log::log("[%d번 째 워커]", m_workers.size());
+	Logger::Log("[%d번 째 워커]", m_workers.size());
 
 	CString ipAddress;
 	UINT port;
 	pNewWorker->GetPeerName(ipAddress, port);
 
-	notify();
+	Notify();
 	/*assert(m_pRecepient);
 	m_pRecepient->OnAccept(ipAddress, port, 0);*/
 	//m_pRecepient->OnAccept(pNewWorker->getIpAddress(), pNewWorker->getPort(), 0);
@@ -106,42 +106,42 @@ void WorkerManager::OnClose(const CString& ipAddress, UINT port, int errorCode)
 	/* 이 함수는 임시 함수로 사용하지 말 것*/
 	assert(true);
 
-	bool removeSuccess = removeOrFalse(ipAddress, port);
+	bool removeSuccess = RemoveOrFalse(ipAddress, port);
 	if (!removeSuccess) {
-		Log::err("IP:%s, PORT:%d: 비정상적 접근: ", ipAddress, port);
+		Logger::Err("IP:%s, PORT:%d: 비정상적 접근: ", ipAddress, port);
 	}
 
 	//m_pRecepient->OnClose(ipAddress, port, errorCode);
 }
 
-bool WorkerManager::isListening() const
+bool WorkerManager::IsListening() const
 {
 	return m_isListening;
 }
 
-bool WorkerManager::inspect(std::shared_ptr<SocketWorker> target)
+bool WorkerManager::Inspect(std::shared_ptr<SocketWorker> target)
 {
 	return true;
 }
 
-void WorkerManager::update()
+void WorkerManager::Update()
 {
-	notify();
+	Notify();
 }
 
-void WorkerManager::notify()
+void WorkerManager::Notify()
 {
 	if (m_pStatePane != NULL) {
-		m_pStatePane->update();
+		m_pStatePane->Update();
 	}
 }
 
-void WorkerManager::setSocketStatePane(StatePane * pStatePane)
+void WorkerManager::SetSocketStatePane(StatePane * pStatePane)
 {
 	m_pStatePane = pStatePane;
 }
 
-std::shared_ptr<SocketWorker> WorkerManager::getWorkerOrNull(const CString & ipAddress, UINT port) const
+std::shared_ptr<SocketWorker> WorkerManager::GetWorkerOrNull(const CString & ipAddress, UINT port) const
 {	
 	for (auto& worker : m_workers) {
 		CString ipTest;
@@ -155,7 +155,7 @@ std::shared_ptr<SocketWorker> WorkerManager::getWorkerOrNull(const CString & ipA
 	return NULL;
 }
 
-bool WorkerManager::removeOrFalse(const CString & ipAddress, UINT port)
+bool WorkerManager::RemoveOrFalse(const CString & ipAddress, UINT port)
 {
 	std::vector<std::shared_ptr<SocketWorker>>::iterator itor;
 	for (itor = m_workers.begin(); itor != m_workers.end(); ++itor) {

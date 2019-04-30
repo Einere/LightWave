@@ -1072,7 +1072,7 @@ namespace ProgramManager
 				CadPointGetCoord(h, &x, &y, &z);
 
 				auto pTaskManager = TaskManager::GetInstance();
-				auto surveys = pTaskManager->getSurveys();
+				auto surveys = pTaskManager->GetSurveys();
 				for (auto& s : surveys) {
 					double srcX = s.GetX();
 					double srcY = s.GetY();
@@ -1090,7 +1090,7 @@ namespace ProgramManager
 			}
 		}
 
-		Log::log("X: %.3f, Y: %.3f", fY, fX);
+		Logger::Log("X: %.3f, Y: %.3f", fY, fX);
 		if (m_fnMouseClickEvent != NULL)
 		{
 			(*m_fnMouseClickEvent)(fX, fY);
@@ -1178,19 +1178,19 @@ namespace ProgramManager
 		case __CAD_CM_REGISTER_TASK_PARCELS__:
 		{
 			auto pTaskManager = TaskManager::GetInstance();
-			UINT id = pTaskManager->getSelectedTaskIdOrZero();
+			UINT id = pTaskManager->GetSelectedTaskIdOrZero();
 			if (-1 == id) break;
 
 			SurveyTask::Task* pTask;
-			pTask = pTaskManager->getTaskById(id);
+			pTask = pTaskManager->GetTaskById(id);
 			assert(pTask != NULL);
 
 			auto pCadManager = CCadManager::GetInstance();
 			auto selectedParcels = pCadManager->getSelectedParcels();
-			pTask->clearParcelPoints();
-			int size = pTask->addParcels(selectedParcels);
+			pTask->ClearParcelPoints();
+			int size = pTask->AddParcels(selectedParcels);
 
-			pTask->store();
+			pTask->Store();
 		}
 		case __CAD_CM_REGISTER_SURVEY_POINT__:
 		{
@@ -1202,12 +1202,12 @@ namespace ProgramManager
 			double x, y, z;
 			CadPointGetCoord(hEnt, &x, &y, &z);
 
-			auto pTask = TaskManager::GetInstance()->getLoadedTask();
+			auto pTask = TaskManager::GetInstance()->GetLoadedTask();
 			SurveyTask::Survey survey(x, y);
-			pTask->registerSurvey(survey);
-			pTask->store();
+			pTask->RegisterSurvey(survey);
+			pTask->Store();
 
-			Log::log("측량점 생성 완료: %d",survey.GetId());
+			Logger::Log("측량점 생성 완료: %d",survey.GetId());
 
 			CadEntityErase(hEnt, true);
 			SurveyViewManager::GetInstance()->LoadSurveysFromTask(*pTask);

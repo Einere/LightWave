@@ -137,7 +137,6 @@
     <ClInclude Include="Caculate.h" />
     <ClInclude Include="CadManager.h" />
     <ClInclude Include="ConnectionStateDlg.h" />
-    <ClInclude Include="FileManager.h" />
     <ClInclude Include="json.h" />
     <ClInclude Include="ParcelAddDlg.h" />
     <ClInclude Include="ParcelMonkey.h" />
@@ -178,11 +177,9 @@
     <ClInclude Include="SurveyInfoDlg.h" />
     <ClInclude Include="SurveyViewManager.h" />
     <ClInclude Include="SurveyMonkey.h" />
-    <ClInclude Include="SurveyView.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Task.h" />
     <ClInclude Include="TaskAddDlg.h" />
-    <ClInclude Include="SurveyInfoPainter.h" />
     <ClInclude Include="TaskManager.h" />
     <ClInclude Include="TaskMonkey.h" />
     <ClInclude Include="TaskWnd.h" />
@@ -199,7 +196,6 @@
     <ClCompile Include="Caculate.cpp" />
     <ClCompile Include="CadManager.cpp" />
     <ClCompile Include="ConnectionStateDlg.cpp" />
-    <ClCompile Include="FileManager.cpp" />
     <ClCompile Include="json.cpp" />
     <ClCompile Include="Monkey.cpp" />
     <ClCompile Include="ParcelAddDlg.cpp" />
@@ -241,10 +237,8 @@
     <ClCompile Include="SurveyInfoDlg.cpp" />
     <ClCompile Include="SurveyViewManager.cpp" />
     <ClCompile Include="SurveyMonkey.cpp" />
-    <ClCompile Include="SurveyView.cpp" />
     <ClCompile Include="Task.cpp" />
     <ClCompile Include="TaskAddDlg.cpp" />
-    <ClCompile Include="SurveyInfoPainter.cpp" />
     <ClCompile Include="TaskManager.cpp" />
     <ClCompile Include="TaskMonkey.cpp" />
     <ClCompile Include="TaskWnd.cpp" />

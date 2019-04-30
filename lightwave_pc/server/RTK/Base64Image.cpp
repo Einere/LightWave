@@ -18,12 +18,12 @@ namespace SurveyTask {
 	{
 	}
 
-	BOOL Base64Image::resolveFileData(const char * data)
+	BOOL Base64Image::ResolveFileData(const char * data)
 	{
 		return TRUE;
 	}
 
-	std::string Base64Image::toFileContent()
+	std::string Base64Image::ToFileContent()
 	{
 		if ("" == m_decoded) {
 			m_decoded = base64_decode(m_encoded.GetString());

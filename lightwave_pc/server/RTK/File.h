@@ -11,7 +11,7 @@ namespace File {
 	const CString rootDir = "./working-data";
 	const int MAX_PATH_LEN = 256;
 
-	void findFile(const path & dirPath, const std::regex & regex, std::vector<path>& filesFound);
+	void FindFile(const path & dirPath, const std::regex & regex, std::vector<path>& filesFound);
 
 	class Storable
 	{
@@ -19,9 +19,9 @@ namespace File {
 		Storable(CString parentPath = File::rootDir);
 		~Storable();
 
-		CString store(CString path = NULL);
-		bool load(CString path);
-		CString remove(BOOL everything=FALSE);
+		CString Store(CString path = NULL);
+		bool Load(CString path);
+		CString Remove(BOOL everything=FALSE);
 
 		/*
 		디렉토리가 이미 존재할 경우: true
@@ -35,7 +35,7 @@ namespace File {
 		CString GetExt() const;
 		CString GetParentPath() const;
 
-		virtual std::string toFileContent() = 0;
+		virtual std::string ToFileContent() = 0;
 
 	protected:
 		CString m_filePath;
@@ -43,10 +43,10 @@ namespace File {
 		CString m_fileName;
 		CString m_ext;
 
-		virtual BOOL resolveFileData(const char* data) = 0;
+		virtual BOOL ResolveFileData(const char* data) = 0;
 
 	private:
-		void deleteFileOrDirectory(std::experimental::filesystem::v1::directory_entry entry);
+		void DeleteFileOrDirectory(std::experimental::filesystem::v1::directory_entry entry);
 		GlobalUtil::CFileUtil m_fileUtil;
 	};
 }

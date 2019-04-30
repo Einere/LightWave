@@ -12,20 +12,20 @@ public:
 	SocketWorker(WorkerManager* pWorkerManager = NULL);
 	~SocketWorker();
 
-	void setWorkerManager(WorkerManager* pWorkerManager);
+	void SetWorkerManager(WorkerManager* pWorkerManager);
 
 	Workers::Worker GetWorker() const;
 
-	void setWorkerName(CString workerName);
-	CString getWorkerName();
+	void SetWorkerName(CString workerName);
+	CString GetWorkerName();
 
-	void setAuthorized();
-	bool isAuthorized() const;
+	void SetAuthorized();
+	bool IsAuthorized() const;
 
 	virtual void OnReceive(int nErrorCode);
 	virtual void OnClose(int nErrorCode);
 
-	void notifyUpdate() const;
+	void NotifyUpdate() const;
 
 private:
 	Service::RequestResolver m_requestResolver;
@@ -33,7 +33,7 @@ private:
 	std::string readIn();
 
 	Workers::Worker m_worker;
-	int getJsonSize(std::string stringContainingKeyOfSize);
+	int GetJsonSize(std::string stringContainingKeyOfSize);
 
 	WorkerManager* m_pWorkerManager = NULL;
 };
