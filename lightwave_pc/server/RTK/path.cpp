@@ -1,7 +1,7 @@
 #include "stdafx.h";
 #include "path.h"
 
-int Path::findLastSlash(CString path)
+int Path::FindLastSlash(CString path)
 {
 	int lastIndex = path.GetLength() - 1;
 	for (int index = lastIndex; index >= 0; --index) {
@@ -13,17 +13,17 @@ int Path::findLastSlash(CString path)
 	return -1;
 }
 
-CString Path::getFileName(CString path)
+CString Path::GetFileName(CString path)
 {
-	int lastSlashIndex = findLastSlash(path);
+	int lastSlashIndex = FindLastSlash(path);
 	assert(lastSlashIndex >= 0);
 
 	return path.Right(path.GetLength() - lastSlashIndex - 1);
 }
 
-CString Path::getDirPath(CString path)
+CString Path::GetDirPath(CString path)
 {
-	int lastSlashIndex = findLastSlash(path);
+	int lastSlashIndex = FindLastSlash(path);
 	assert(lastSlashIndex >= 0);
 
 	return path.Left(lastSlashIndex);

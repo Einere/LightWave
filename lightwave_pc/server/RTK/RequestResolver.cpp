@@ -12,6 +12,10 @@
 
 #include "json.h"
 
+#include "TextEncoding.h"
+
+#include <atlstr.h>
+
 namespace Service {
 	RequestResolver::RequestResolver()
 	{
@@ -28,21 +32,25 @@ namespace Service {
 	{
 	}
 
-	std::string RequestResolver::resolve(SocketWorker& pSocket, std::string json)
+	std::string RequestResolver::Resolve(SocketWorker& pSocket, std::string json)
 	{
 		Json::Value props = Json::parse(json);
 		if (props==Json::nullValue) {
-			return Json::json2Str(error("요청 형식이 올바른 json 형태여야 합니다."));
+			return Json::json2Str(Error("요청 형식이 올바른 json 형태여야 합니다."));
 		}
 
-		std::shared_ptr<Monkey> monkey = getMonkeyOrNull(props);
+		std::shared_ptr<Monkey> monkey = GetMonkeyOrNull(props);
 
-		Json::Value result = monkey->handle(props, pSocket);
+		Json::Value result = monkey->Handle(props, pSocket);
 
-		return Json::json2Str(result) + '\n';
+		// TODO: UTF-8 변환 후 반환
+		
+		
+
+		return Json::json2Str(result).c_str();
 	}
 
-	std::shared_ptr<Monkey> RequestResolver::getMonkeyOrNull(Json::Value root)
+	std::shared_ptr<Monkey> RequestResolver::GetMonkeyOrNull(Json::Value root)
 	{
 		const std::string subject = root["subject"].asString();
 		if (subject == "") {
@@ -51,7 +59,7 @@ namespace Service {
 		}
 
 		for (auto pMonkey : monkeys) {
-			if (pMonkey->getSubject().compare(subject) == 0) {
+			if (pMonkey->GetSubject().compare(subject) == 0) {
 				return pMonkey;
 			}
 		}

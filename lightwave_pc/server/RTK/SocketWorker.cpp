@@ -11,7 +11,7 @@ SocketWorker::~SocketWorker()
 {
 }
 
-void SocketWorker::setWorkerManager(WorkerManager * pWorkerManager)
+void SocketWorker::SetWorkerManager(WorkerManager * pWorkerManager)
 {
 	m_pWorkerManager = pWorkerManager;
 }
@@ -21,18 +21,18 @@ Workers::Worker SocketWorker::GetWorker() const
 	return m_worker;
 }
 
-void SocketWorker::setWorkerName(CString workerName)
+void SocketWorker::SetWorkerName(CString workerName)
 {
 	m_worker.name = workerName;
-	notifyUpdate();
+	NotifyUpdate();
 }
 
-CString SocketWorker::getWorkerName()
+CString SocketWorker::GetWorkerName()
 {
 	return m_worker.name;
 }
 
-void SocketWorker::setAuthorized()
+void SocketWorker::SetAuthorized()
 {
 	m_worker.authorized = true;
 
@@ -40,29 +40,28 @@ void SocketWorker::setAuthorized()
 	GetPeerName(m_worker.ip, m_worker.port);
 }
 
-bool SocketWorker::isAuthorized() const
+bool SocketWorker::IsAuthorized() const
 {
 	return m_worker.authorized;
 }
 
 void SocketWorker::OnReceive(int nErrorCode)
 {
-	Log::log("요청 들어옴. 처리 중...");
 	const std::string data = readIn();
-	Log::log("요청 내용: %s", data);
+	Logger::Log("request: %s", data.c_str());
 	
-	std::string response = m_requestResolver.resolve(*this, data);
-	Log::log("response: %s", response.c_str());
+	std::string response = m_requestResolver.Resolve(*this, data);
+	Logger::Log("response: %s", response.c_str());
 
 	auto res = response.c_str();
 
 	int result = this->Send((void*)(res), response.length(), sends);
 	if (SOCKET_ERROR == result) {
-		Log::log("응답 실패");
+		Logger::Log("응답 실패");
 		return;
 	}
 
-	Log::log("Sent: %d bytes", result);
+	Logger::Log("Sent: %d bytes", result);
 }
 
 void SocketWorker::OnClose(int nErrorCode)
@@ -73,15 +72,14 @@ void SocketWorker::OnClose(int nErrorCode)
 	WorkerManager::GetInstance()->OnClose(ipAddress, port, nErrorCode);
 }
 
-void SocketWorker::notifyUpdate() const
+void SocketWorker::NotifyUpdate() const
 {
-	WorkerManager::GetInstance()->update();
+	WorkerManager::GetInstance()->Update();
 }
 
 std::string SocketWorker::readIn()
 {
 	std::string buf;
-	Log::log("max_size: %d", buf.max_size());
 
 	const int BLOCK_SIZE = 1024;
 	int receivedLength = 0;
@@ -94,7 +92,7 @@ std::string SocketWorker::readIn()
 	return buf;
 }
 
-int SocketWorker::getJsonSize(std::string stringContainingKeyOfSize)
+int SocketWorker::GetJsonSize(std::string stringContainingKeyOfSize)
 {
 	const std::string s = stringContainingKeyOfSize;
 	const std::string key = "\"size:\"";

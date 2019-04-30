@@ -19,15 +19,15 @@ public:
 
 	/*const SocketRecipient* getRecepient() const;
 	void setRecepient(SocketRecipient* recep);*/
-	void setSocketStatePane(StatePane* dlg);
+	void SetSocketStatePane(StatePane* dlg);
 
-	std::shared_ptr<SocketWorker> getWorkerOrNull(const CString& ipAddress, UINT port) const;
-	const std::vector<std::shared_ptr<SocketWorker>>& getWorkers();
+	std::shared_ptr<SocketWorker> GetWorkerOrNull(const CString& ipAddress, UINT port) const;
+	const std::vector<std::shared_ptr<SocketWorker>>& GetWorkers();
 
-	void startServer();
+	void StartServer();
 	//void startServer(SocketRecipient* recep);
 
-	void stopServer();
+	void StopServer();
 
 	void OnAccept(std::shared_ptr<SocketWorker> pNewWorker);
 
@@ -35,14 +35,14 @@ public:
 	void OnReceive(SocketWorker * pSocketWorker, std::string json, int errorCode);
 	void OnClose(const CString& ipAddress, UINT port, int errorCode);
 
-	bool isListening() const;
+	bool IsListening() const;
 
-	void closeAll();
+	void CloseAll();
 
-	bool inspect(std::shared_ptr<SocketWorker> target);
+	bool Inspect(std::shared_ptr<SocketWorker> target);
 
-	void update();
-	void notify();
+	void Update();
+	void Notify();
 
 private:
 	//SocketRecipient* m_pRecepient = NULL;
@@ -55,7 +55,7 @@ private:
 	bool m_isListening = false;
 
 protected:
-	bool removeOrFalse(const CString& ipAddress, UINT port);
+	bool RemoveOrFalse(const CString& ipAddress, UINT port);
 
 protected:
 	WorkerManager();

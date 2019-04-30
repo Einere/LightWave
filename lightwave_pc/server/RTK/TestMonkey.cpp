@@ -12,7 +12,7 @@ TestMonkey::~TestMonkey()
 {
 }
 
-Json::Value TestMonkey::doGet(Json::Value props, SocketWorker& socketWorker)
+Json::Value TestMonkey::DoGet(Json::Value props, SocketWorker& socketWorker)
 {
 	auto pMainWnd = (CMainFrame*)AfxGetMainWnd();
 

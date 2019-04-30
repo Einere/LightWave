@@ -2,9 +2,9 @@
 #include "OutputWnd.h"
 #include "Log.h"
 
-CLogWnd Log::lout;
+CLogWnd Logger::lout;
 
-CString Log::getCurTime() {
+CString Logger::getCurTime() {
 	std::time_t t = std::time(0);   // get time now
 	std::tm* now = std::localtime(&t);
 	CString nowStr;
@@ -17,7 +17,7 @@ CString Log::getCurTime() {
 }
 
 
-void Log::log(const char* format, ...) {
+void Logger::Log(const char* format, ...) {
 	CString msg;
 	va_list ap;
 
@@ -32,7 +32,7 @@ void Log::log(const char* format, ...) {
 	lout.addLog("[notice]: " + msg);
 }
 
-void Log::err(const char* format, ...) {
+void Logger::Err(const char* format, ...) {
 	CString msg;
 	va_list ap;
 

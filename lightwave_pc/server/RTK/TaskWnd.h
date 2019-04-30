@@ -29,7 +29,7 @@ public:
 	afx_msg BOOL OnInitDialog();
 
 private:
-	UINT getSelectedId() const;
+	UINT GetSelectedId() const;
 	int deleteSelectedTask();
 
 	CListCtrl m_listTask;

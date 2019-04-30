@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "TaskManager.h"
 #include "ParcelManager.h"
+#include "SurveyViewManager.h"
 
 
 namespace ProgramManager {
@@ -12,20 +13,20 @@ namespace ProgramManager {
 	{
 	}
 
-	const std::vector<SurveyTask::Task>& TaskManager::getTasks() const
+	const std::vector<SurveyTask::Task>& TaskManager::GetTasks() const
 	{
 		return m_tasks;
 	}
 
-	SurveyTask::Task & TaskManager::getTaskByIndex(UINT index)
+	SurveyTask::Task & TaskManager::GetTaskByIndex(UINT index)
 	{
 		return m_tasks[index];
 	}
 
-	SurveyTask::Task* TaskManager::getTaskById(UINT id)
+	SurveyTask::Task* TaskManager::GetTaskById(UINT id)
 	{
 		for (auto& task : m_tasks) {
-			if (id == task.getId()) {
+			if (id == task.GetId()) {
 				return &task;
 			}
 		}
@@ -33,131 +34,133 @@ namespace ProgramManager {
 		return NULL;
 	}
 
-	UINT TaskManager::getSelectedTaskIdOrZero() const
+	UINT TaskManager::GetSelectedTaskIdOrZero() const
 	{
 		return m_selectedId > 0 ? m_selectedId : 0;
 	}
 
-	UINT TaskManager::getTasksCount() const
+	UINT TaskManager::GetTasksCount() const
 	{
 		return m_tasks.size();
 	}
 
-	SurveyTask::Task* TaskManager::getStartedTask()
+	SurveyTask::Task* TaskManager::GetStartedTask()
 	{
 		if (0 == m_startedTaskId) return NULL;
 
-		return getTaskById(m_startedTaskId);
+		return GetTaskById(m_startedTaskId);
 	}
 
-	SurveyTask::Task * TaskManager::getLoadedTask()
+	SurveyTask::Task * TaskManager::GetLoadedTask()
 	{
 		if (0 == m_loadedTaskId) return NULL;
 
-		return getTaskById(m_loadedTaskId);
+		return GetTaskById(m_loadedTaskId);
 	}
 
-	void TaskManager::appendTask(const SurveyTask::Task & task)
+	void TaskManager::AppendTask(const SurveyTask::Task & task)
 	{
 		m_tasks.push_back(SurveyTask::Task(task));
 	}
 
-	BOOL TaskManager::removeTask(UINT id)
+	bool TaskManager::RemoveTask(UINT id)
 	{
 		std::vector<SurveyTask::Task>::iterator itor;
 		for (itor = m_tasks.begin(); itor != m_tasks.end(); ++itor) {
-			if (id == itor->getId()) {
-				CString result = itor->remove(TRUE);
-				if (result.IsEmpty()) return FALSE;
+			if (id == itor->GetId()) {
+				CString result = itor->Remove(true);
+				if (result.IsEmpty()) return false;
 
 				m_tasks.erase(itor);
-				return TRUE;
+				return true;
 			}
 		}
 
-		return FALSE;
+		return false;
 	}
 
-	BOOL TaskManager::setSelection(UINT id, BOOL select)
+	bool TaskManager::SetSelection(UINT id, bool select)
 	{
 		if (!select) {
 			m_selectedId = -1;
-			return TRUE;
+			return true;
 		}
 
 		SurveyTask::Task* pTask;
-		pTask = getTaskById(id);
-		if (pTask == NULL) return FALSE;
+		pTask = GetTaskById(id);
+		if (pTask == NULL) return false;
 
 		m_selectedId = id;
 
-		return TRUE;
+		return true;
 	}
 
-	BOOL TaskManager::startTask(UINT id)
+	bool TaskManager::StartTask(UINT id)
 	{
 		SurveyTask::Task* pTask;
-		pTask = getTaskById(id);
+		pTask = GetTaskById(id);
 		assert(pTask != NULL);
 
 		if (0 != m_startedTaskId) {
 			SurveyTask::Task* pTaskToBeStopped;
-			pTaskToBeStopped = getTaskById(m_startedTaskId);
-			pTaskToBeStopped->stop();
+			pTaskToBeStopped = GetTaskById(m_startedTaskId);
+			pTaskToBeStopped->Stop();
 		}
 
-		BOOL hasStarted = pTask->start();
+		bool hasStarted = pTask->Start();
 		if (!hasStarted) return NULL;
 
 		m_startedTaskId = id;
-		return TRUE;
+		return true;
 	}
 
-	BOOL TaskManager::stopTask(UINT id)
+	bool TaskManager::StopTask(UINT id)
 	{
 		SurveyTask::Task* pTask;
-		pTask = getTaskById(id);
+		pTask = GetTaskById(id);
 		assert(pTask != NULL);
 
-		BOOL hasStopped = pTask->stop();
+		bool hasStopped = pTask->Stop();
 		if (!hasStopped) return NULL;
 
 		assert(m_startedTaskId == id);
 		m_startedTaskId = 0;
-		return TRUE;
+		return true;
 	}
 
-	BOOL TaskManager::loadTask(UINT id)
+	bool TaskManager::LoadTask(UINT id)
 	{
 		SurveyTask::Task* pTask;
-		pTask = getTaskById(id);
+		pTask = GetTaskById(id);
 		assert(pTask != NULL);
 
 		if (id == m_loadedTaskId) {
-			return FALSE;
+			return false;
 		}
 
 		m_loadedTaskId = id;
 
-		bool result = CParcelManager::GetInstance()->LoadCif(pTask->getCifPath());
-		if (!result) {
-			return FALSE;
+		bool loadCifResult = CParcelManager::GetInstance()->LoadCif(pTask->GetCifPath());
+		if (!loadCifResult) {
+			return false;
 		}
 
-		return TRUE;
+		SurveyViewManager::GetInstance()->LoadSurveysFromTask(*pTask);
+
+		return true;
 	}
 
-	void TaskManager::registerSurvey(SurveyTask::Survey survey, UINT taskId)
+	void TaskManager::RegisterSurvey(SurveyTask::Survey survey, UINT taskId)
 	{
 		if (taskId == 0) {
 			taskId = m_startedTaskId;
 		}
 
-		SurveyTask::Task* task = getTaskById(taskId);
-		task->registerSurvey(survey);
+		SurveyTask::Task* task = GetTaskById(taskId);
+		task->RegisterSurvey(survey);
 	}
 
-	const std::vector<SurveyTask::Survey>& TaskManager::getSurveys(UINT taskId)
+	const std::vector<SurveyTask::Survey>& TaskManager::GetSurveys(UINT taskId)
 	{
 		if (taskId == 0 && 0 != m_loadedTaskId) {
 			taskId = m_loadedTaskId;
@@ -166,8 +169,8 @@ namespace ProgramManager {
 			return std::vector<SurveyTask::Survey>();
 		}
 
-		SurveyTask::Task* task = getTaskById(taskId);
-		return task->getSurveys();
+		SurveyTask::Task* task = GetTaskById(taskId);
+		return task->GetSurveys();
 	}
 
 	TaskManager* TaskManager::m_pThis = NULL;

@@ -8,8 +8,6 @@
 #include "TaskWnd.h"
 #include "SocketRecipient.h"
 #include "WorkerManager.h"
-#include "FileManager.h"
-#include "SurveyView.h"
 #include "Task.h"
 
 class TaskAddDlg;
@@ -30,7 +28,7 @@ protected: // serialization에서만 만들어집니다.
 
 // 작업입니다.
 public:
-	void addTask(SurveyTask::Task task);
+	void AddTask(SurveyTask::Task task);
 
 // 재정의입니다.
 public:
@@ -128,7 +126,7 @@ public:
 	afx_msg void OnServerStart();
 	afx_msg void OnServerStop();
 	afx_msg void OnUpdateServerStop(CCmdUI *pCmdUI);
-	afx_msg void showStateDlg();
+	afx_msg void ShowStateDlg();
 	afx_msg void OnShowLog();
 	afx_msg void OnAddTask();
 

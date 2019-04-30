@@ -9,28 +9,24 @@ namespace ProgramManager {
 	public:
 		~TaskManager();
 
-		const std::vector<SurveyTask::Task>& getTasks() const;
-		SurveyTask::Task& getTaskByIndex(UINT index);
-		SurveyTask::Task* getTaskById(UINT id);
-		UINT getSelectedTaskIdOrZero() const;
-		UINT getTasksCount() const;
-		SurveyTask::Task* getStartedTask();
-		SurveyTask::Task* getLoadedTask();
+		const std::vector<SurveyTask::Task>& GetTasks() const;
+		SurveyTask::Task& GetTaskByIndex(UINT index);
+		SurveyTask::Task* GetTaskById(UINT id);
+		UINT GetSelectedTaskIdOrZero() const;
+		UINT GetTasksCount() const;
+		SurveyTask::Task* GetStartedTask();
+		SurveyTask::Task* GetLoadedTask();
 
-		void appendTask(const SurveyTask::Task& task);
+		bool StartTask(UINT id);
+		bool StopTask(UINT id);
+		bool LoadTask(UINT id);
+		void AppendTask(const SurveyTask::Task& task);
+		bool RemoveTask(UINT id);
 
-		BOOL removeTask(UINT id);
+		bool SetSelection(UINT id, bool select=true);
 
-		BOOL setSelection(UINT id, BOOL select=TRUE);
-
-		BOOL startTask(UINT id);
-
-		BOOL stopTask(UINT id);
-
-		BOOL loadTask(UINT id);
-
-		void registerSurvey(SurveyTask::Survey survey, UINT taskId=0);
-		const std::vector<SurveyTask::Survey>& getSurveys(UINT taskId=0);
+		void RegisterSurvey(SurveyTask::Survey survey, UINT taskId=0);
+		const std::vector<SurveyTask::Survey>& GetSurveys(UINT taskId=0);
 
 	private:
 		std::vector<SurveyTask::Task> m_tasks;

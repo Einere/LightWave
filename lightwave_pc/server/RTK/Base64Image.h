@@ -12,8 +12,8 @@ namespace SurveyTask {
 		~Base64Image();
 
 	protected:
-		virtual BOOL resolveFileData(const char* data);
-		virtual std::string toFileContent();
+		virtual BOOL ResolveFileData(const char* data);
+		virtual std::string ToFileContent();
 
 		const CString m_encoded = "";
 		std::string m_decoded = "";

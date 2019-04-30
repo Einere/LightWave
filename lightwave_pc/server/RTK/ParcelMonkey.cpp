@@ -12,17 +12,17 @@ ParcelMonkey::~ParcelMonkey()
 {
 }
 
-Json::Value ParcelMonkey::doGet(Json::Value props, SocketWorker& socketWorker)
+Json::Value ParcelMonkey::DoGet(Json::Value props, SocketWorker& socketWorker)
 {
 	auto pTaskManager = ProgramManager::TaskManager::GetInstance();
-	auto tasks = pTaskManager->getTasks();
+	auto tasks = pTaskManager->GetTasks();
 
 	Json::Value jsonTasksList(Json::arrayValue);
 	for (auto& task : tasks) {
 		Json::Value jsonTask;
-		jsonTask["taskId"] = task.getId();
-		jsonTask["taskName"] = (LPCTSTR)task.getTaskName();
-		jsonTask["taskDesc"] = (LPCTSTR)task.getTaskDesc();
+		jsonTask["taskId"] = task.GetId();
+		jsonTask["taskName"] = (LPCTSTR)task.GetTaskName();
+		jsonTask["taskDesc"] = (LPCTSTR)task.GetTaskDesc();
 		jsonTasksList.append(jsonTask);
 	}
 

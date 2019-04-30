@@ -253,17 +253,8 @@
     <ClInclude Include="File.h">
       <Filter>models</Filter>
     </ClInclude>
-    <ClInclude Include="FileManager.h">
-      <Filter>common</Filter>
-    </ClInclude>
     <ClInclude Include="Survey.h">
       <Filter>models</Filter>
-    </ClInclude>
-    <ClInclude Include="SurveyInfoPainter.h">
-      <Filter>Map</Filter>
-    </ClInclude>
-    <ClInclude Include="SurveyView.h">
-      <Filter>Map</Filter>
     </ClInclude>
     <ClInclude Include="json.h">
       <Filter>common</Filter>
@@ -302,6 +293,12 @@
       <Filter>models</Filter>
     </ClInclude>
     <ClInclude Include="time.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="SurveyViewManager.h">
+      <Filter>Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="TextEncoding.h">
       <Filter>common</Filter>
     </ClInclude>
   </ItemGroup>
@@ -423,17 +420,8 @@
     <ClCompile Include="File.cpp">
       <Filter>models</Filter>
     </ClCompile>
-    <ClCompile Include="FileManager.cpp">
-      <Filter>common</Filter>
-    </ClCompile>
     <ClCompile Include="Survey.cpp">
       <Filter>models</Filter>
-    </ClCompile>
-    <ClCompile Include="SurveyInfoPainter.cpp">
-      <Filter>Map</Filter>
-    </ClCompile>
-    <ClCompile Include="SurveyView.cpp">
-      <Filter>Map</Filter>
     </ClCompile>
     <ClCompile Include="json.cpp">
       <Filter>common</Filter>
@@ -472,6 +460,12 @@
       <Filter>models</Filter>
     </ClCompile>
     <ClCompile Include="time.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="SurveyViewManager.cpp">
+      <Filter>Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="TextEncoding.cpp">
       <Filter>common</Filter>
     </ClCompile>
   </ItemGroup>

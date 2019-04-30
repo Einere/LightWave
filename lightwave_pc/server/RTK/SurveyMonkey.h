@@ -10,5 +10,5 @@ public:
 	SurveyMonkey();
 	~SurveyMonkey();
 
-	virtual Json::Value doPost(Json::Value props, SocketWorker& socketWorker);
+	virtual Json::Value DoPost(Json::Value props, SocketWorker& socketWorker);
 };

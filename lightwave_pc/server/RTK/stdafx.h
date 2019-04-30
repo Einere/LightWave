@@ -60,6 +60,7 @@
 #endif
 
 #include "GlobalDefine.h"
+
 #include "Log.h"
 #include "Resource.h"
 #include <afxcontrolbars.h>
@@ -72,9 +73,4 @@
 #include <cstdarg>
 #include <ctime>
 #include <chrono>
-#include <afxcontrolbars.h>
 #include <afxsock.h>
-#include <afxcontrolbars.h>
-#include <afxcontrolbars.h>
-#include <afxcontrolbars.h>
-#include <afxcontrolbars.h>

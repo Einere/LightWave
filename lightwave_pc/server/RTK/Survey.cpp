@@ -3,18 +3,24 @@
 #include "time.h"
 
 namespace SurveyTask {
-	Survey::Survey() : Survey(0,0)
-	{
-		
-	}
-
-	Survey::Survey(double fX, double fY) : CDS_Point(fX, fY)
+	Survey::Survey(double fX, double fY, UINT id) : CDS_Point(fX, fY)
 	{
 		GetLocalTime(&m_updatedTime);
+		if(0==id) m_id = GenerateId();
+	}
+
+	Survey::Survey(const Json::Value& root)
+	{
+		FromJson(root);
 	}
 
 	Survey::~Survey()
 	{
+	}
+
+	UINT Survey::GetId() const
+	{
+		return m_id;
 	}
 
 	void Survey::SetMemo(CString memo)
@@ -38,8 +44,8 @@ namespace SurveyTask {
 			HRESULT hResult = out_Images->at(i).Load(m_imagesPaths[i]);
 			if (FAILED(hResult)) {
 				CString errorMessage;
-				errorMessage.Format("%s Àº Á¤»óÀûÀÎ ÀÌ¹ÌÁö ÆÄÀÏÀÌ ¾Æ´Õ´Ï´Ù.", m_imagesPaths[i]);
-				Log::err(errorMessage);
+				errorMessage.Format("%s ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¹ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Æ´Õ´Ï´ï¿½.", m_imagesPaths[i]);
+				Logger::Err(errorMessage);
 			}
 		}
 	}
@@ -74,10 +80,22 @@ namespace SurveyTask {
 		return m_worker;
 	}
 
+	void Survey::SetSurveyed(bool surveyed)
+	{
+		m_hasBeenSurveyed = surveyed;
+	}
+
+	bool Survey::HasBeenSurveyed() const
+	{
+		return m_hasBeenSurveyed;
+	}
+
 	Json::Value Survey::ToJson() const
 	{
 		Json::Value root;
-		root["updatedTime"] = TimeUtil::convertTime2StrSimple(m_updatedTime).GetString();
+		root["id"] = m_id;
+		root["hasBeenSurveyed"] = m_hasBeenSurveyed;
+		root["updatedTime"] = TimeUtil::ConvertTime2StrSimple(m_updatedTime).GetString();
 
 		root["worker"] = m_worker.ToJson();
 
@@ -97,17 +115,27 @@ namespace SurveyTask {
 
 	bool Survey::FromJson(Json::Value root)
 	{
+		Json::Value idRoot = root["id"];
+		Json::Value hasBeenSurveyedRoot = root["hasBeenSurveyed"];
+		Json::Value timeRoot = root["updatedTime"];
 		Json::Value coordRoot = root["coord"];
 		Json::Value memoRoot = root["memo"];
 		Json::Value workerRoot = root["worker"];
 		Json::Value imgPathsRoot = root["images"];
 
-		if (coordRoot.isNull()
+		if (idRoot.isNull()
+			|| hasBeenSurveyedRoot.isNull()
+			|| timeRoot.isNull()
+			|| coordRoot.isNull()
 			|| memoRoot.isNull()
 			|| workerRoot.isNull()
 			|| imgPathsRoot.isNull()) {
 			return false;
 		}
+
+		m_id = idRoot.asUInt();
+		m_hasBeenSurveyed = hasBeenSurveyedRoot.asBool();
+		m_updatedTime = TimeUtil::ConvertStrSimple2Time(timeRoot.asCString());
 
 		bool result = m_worker.FromJson(workerRoot);
 		if (!result) {
@@ -125,5 +153,33 @@ namespace SurveyTask {
 		}
 
 		return true;
+	}
+
+	void Survey::Update(const Survey& src)
+	{
+		m_worker = src.GetWorker();
+		m_memo = src.GetMemo();
+		m_imagesPaths = src.GetImagesPaths();
+
+		GetLocalTime(&m_updatedTime);
+		m_hasBeenSurveyed = true;
+	}
+
+	UINT Survey::GenerateId() const
+	{
+		const int LENGTH = 9;
+		SYSTEMTIME curTime;
+		GetLocalTime(&curTime);
+
+		CString timeInStr = TimeUtil::ConvertTime2StrNumber(curTime);
+		CString idInStr = "1";
+
+		std::srand(time(NULL));
+		for (int i = 0; i < LENGTH-1; ++i) {
+			int randomIndex = rand() % LENGTH;
+			idInStr+=timeInStr[randomIndex];
+		}
+
+		return atoi(idInStr);
 	}
 }
