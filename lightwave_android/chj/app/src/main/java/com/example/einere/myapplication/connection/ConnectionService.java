@@ -160,7 +160,8 @@ public class ConnectionService extends Service {
                 // !Thread.currentThread().isInterrupted() &&
                 while((receivedData = reader.readLine()) != null){
                     existReceivedData = true;
-                    Log.d(TAG, String.format("read data : %s", receivedData));
+                    Log.d(TAG, String.format("read data : %s...", receivedData));
+                    Log.d(TAG, String.format("read data length : %d...", receivedData.length()));
                 }
                 Log.d(TAG, "myReceive()'s thread exit while loop");
             }
@@ -206,7 +207,9 @@ public class ConnectionService extends Service {
     }
 
     void resetReceivedData(){
+        Log.d(TAG, "resetReceivedData call");
         existReceivedData = false;
         receivedData = null;
+        Log.d(TAG, "resetReceivedData end");
     }
 }

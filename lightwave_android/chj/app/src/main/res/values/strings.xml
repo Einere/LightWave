@@ -20,4 +20,8 @@
     <string name="client_memo_hint">메모를 입력해 주세요</string>
     <string name="done">선택완료</string>
     <string name="no_memo">저장된 메모가 없습니다</string>
+    <string name="default_port">8080</string>
+    <string name="save_memo">메모저장</string>
+    <string name="delete_memo">메모삭제</string>
+    <string name="first_ip">첫번째아이피</string>
 </resources>
