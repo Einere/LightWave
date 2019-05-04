@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
             // work name
             intent.putExtra("taskName", data.getString("taskName"));
             // location number
-            intent.putExtra("lotNumber", data.getString("lotNumber"));
+            intent.putExtra("landNo", data.getString("landNo"));
             // work information (memo?)
             intent.putExtra("taskDesc", data.getString("taskDesc"));
         } catch (Exception e) {
