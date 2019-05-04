@@ -5,6 +5,12 @@
 #include "Worker.h"
 
 namespace SurveyTask {
+	struct Geometry {
+		double latitude;
+		double longitude;
+		double azimuth;
+	};
+
 	class Survey 
 		: public DataType::ShapeType::CDS_Point
 	{
@@ -18,6 +24,9 @@ namespace SurveyTask {
 
 		void SetMemo(CString memo);
 		CString GetMemo() const;
+
+		void SetName(CString name);
+		CString GetName() const;
 
 		void LoadAndGetImages(std::vector<CImage>* out_Images) const;
 		std::vector<CString> GetImagesPaths() const;
@@ -40,6 +49,7 @@ namespace SurveyTask {
 
 	private:
 		UINT m_id;
+		CString m_name;
 		SYSTEMTIME m_updatedTime;
 		Workers::Worker m_worker;
 		CString m_memo;
