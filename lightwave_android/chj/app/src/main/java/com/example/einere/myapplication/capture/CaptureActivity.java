@@ -1,9 +1,6 @@
 package com.example.einere.myapplication.capture;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -12,7 +9,6 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.media.Image;
-import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -26,6 +22,7 @@ import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,7 +34,6 @@ import com.example.einere.myapplication.SocketManager;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -71,6 +67,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
     private final int GALLERY_CODE = 1112;
     private final String TAG = "CaptureActivity";
     private GoogleMap mMap;
+    private MyMapFragment myMapFragment;
 
     // socket transmission
     SocketManager socketManager = null;
@@ -92,9 +89,6 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
     TextView tv_azimuth = null;
     private GpsInfo gps;
 
-    // capture broadcast
-    BroadcastReceiver cameraBroadcastReceiver = null;
-
     // upload ArrayList
     ArrayList<File> upImageList = new ArrayList<>();
     ArrayList<File> upTextList = new ArrayList<>();
@@ -113,8 +107,12 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         setContentView(R.layout.activity_capture);
 
         // google map
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.Googlemap);
-        mapFragment.getMapAsync(this); //getMapAsync must be called on the main thread.
+//        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.frg_google_map);
+//        mapFragment.getMapAsync(this); //getMapAsync must be called on the main thread.
+        myMapFragment = (MyMapFragment) getSupportFragmentManager().findFragmentById(R.id.frg_google_map);
+        if (myMapFragment != null) {
+            myMapFragment.getMapAsync(this);
+        }
 
         // get views
         TextView tv_work_name = findViewById(R.id.tv_work_name);
@@ -127,29 +125,16 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         // set views
         Intent receivedIntent = getIntent();
         String method = receivedIntent.getStringExtra("method");
-        if(method.equals("new")){
+        if (method != null && method.equals("new")) {
             tv_work_name.setText(receivedIntent.getStringExtra("taskName"));
-            tv_location_number.setText(receivedIntent.getStringExtra("lotNumber"));
+            tv_location_number.setText(receivedIntent.getStringExtra("landNo"));
             et_server_memo.setText(receivedIntent.getStringExtra("taskDesc"));
         }
-
 
         // get sensor manager
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         magnetometer = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
-
-        // register camera capture broadcast receiver
-        IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-        intentFilter.addAction("android.hardware.action.NEW_PICTURE");
-        cameraBroadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                Log.i(TAG, String.format("azimuth1 : %s...", tv_azimuth.getText()));
-                Toast.makeText(getBaseContext(), "captured!!!", Toast.LENGTH_SHORT).show();
-            }
-        };
-        registerReceiver(cameraBroadcastReceiver, intentFilter);
 
         // make RecyclerView
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
@@ -187,9 +172,6 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
-        // unregister broadcast receiver
-        unregisterReceiver(cameraBroadcastReceiver);
     }
 
 
@@ -237,6 +219,10 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
 
         // 카메라를 여의도 위치로 옮긴다.
         mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+        // prevent double scroll
+        ScrollView sv_root_layout = findViewById(R.id.sv_root_layout);
+        myMapFragment.setListener(() -> sv_root_layout.requestDisallowInterceptTouchEvent(true));
     }
 
     public void refreshClick(View v) {
@@ -392,7 +378,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
                 }
                 // put text data
                 i = 0;
-                for (File file : upTextList){
+                for (File file : upTextList) {
                     data.put(String.format(Locale.KOREA, "text%d", i), getFileContents(file));
                     i++;
                 }
@@ -433,12 +419,12 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         }
 
         if (gravity != null && geomagnetic != null) {
-            float R[] = new float[9];
-            float I[] = new float[9];
+            float[] R = new float[9];
+            float[] I = new float[9];
 
             boolean success = SensorManager.getRotationMatrix(R, I, gravity, geomagnetic);
             if (success) {
-                float orientation[] = new float[3];
+                float[] orientation = new float[3];
                 SensorManager.getOrientation(R, orientation);
 
                 // orientation contains: azimuth, pitch  and roll
@@ -497,11 +483,17 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
                 }
             }
             FileOutputStream fos = new FileOutputStream(clientMemoFile);
-            BufferedWriter buw = new BufferedWriter(new OutputStreamWriter(fos, StandardCharsets.UTF_8));
-            buw.write(memoStr);
-            buw.close();
+            BufferedWriter buw = null;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+                buw = new BufferedWriter(new OutputStreamWriter(fos, StandardCharsets.UTF_8));
+            }
+            if (buw != null) {
+                buw.write(memoStr);
+                buw.close();
+            }
             fos.close();
             Toast.makeText(this, "저장완료", Toast.LENGTH_SHORT).show();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -518,7 +510,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         et_client_memo.setText("");
 
         if (clientMemoFile.exists()) {
-            if(clientMemoFile.delete()) Toast.makeText(this, "삭제 완료", Toast.LENGTH_LONG).show();
+            if (clientMemoFile.delete()) Toast.makeText(this, "삭제 완료", Toast.LENGTH_LONG).show();
             else Toast.makeText(this, "삭제 실패", Toast.LENGTH_LONG).show();
         }
     }
