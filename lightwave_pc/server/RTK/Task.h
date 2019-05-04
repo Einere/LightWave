@@ -36,6 +36,7 @@ namespace SurveyTask {
 		BOOL Stop();
 
 		void RegisterSurvey(Survey survey);
+		bool PatchSurvey(UINT surveyId, Survey survey);
 		Survey* GetSurveyById(UINT id);
 		const std::vector<Survey>& GetSurveys() const;
 		Survey* GetSurveyByCoord(double x, double y);

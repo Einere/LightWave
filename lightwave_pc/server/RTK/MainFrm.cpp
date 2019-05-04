@@ -20,6 +20,7 @@
 #include "SocketRecipient.h"
 #include "TaskAddDlg.h"
 #include "ParcelAddDlg.h"
+#include "EditSurveyPointDlg.h"
 #include "Survey.h"
 
 #ifdef _DEBUG
@@ -81,6 +82,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_ADD_TASK, &CMainFrame::OnAddTask)
 	ON_COMMAND(ID_ADD_PARCEL, &CMainFrame::OnSetParcel)
 	ON_COMMAND(ID_DEV_TEST, &CMainFrame::OnDevTest)
+	ON_COMMAND(ID_MANAGE_SURVEY_POINTS, &CMainFrame::OnManageSurveyPoints)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -962,4 +964,32 @@ void CMainFrame::OnSetParcel()
 
 void CMainFrame::OnDevTest()
 {
+	/*projPJ pj_merc, pj_latlong;
+
+	double x, y;
+
+
+
+	if (!(pj_merc = pj_init_plus("+proj=merc +ellps=clrk66 +lat_ts=33")))
+		MessageBox("1");
+
+	if (!(pj_latlong = pj_init_plus("+proj=latlong +ellps=clrk66")))
+		MessageBox("2");
+
+	while (scanf_s("%lf %lf", &x, &y) == 2) {
+		x *= DEG_TO_RAD;
+		y *= DEG_TO_RAD;
+		int p = pj_transform(pj_latlong, pj_merc, 1, 1, &x, &y, NULL);
+		Logger::Log("%.2f\t%.2f\n", x, y);
+
+	}
+
+	exit(0);*/
+}
+
+
+void CMainFrame::OnManageSurveyPoints()
+{
+	EditSurveyPointDlg dlg;
+	dlg.DoModal();
 }

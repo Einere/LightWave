@@ -34,6 +34,10 @@ Json::Value SurveyMonkey::DoPost(Json::Value props, SocketWorker& socketWorker)
 	}
 
 	UINT surveyId = (jsonData["surveyId"].isNull() ? -1 : jsonData["surveyId"].asUInt());
+	auto pSurvey = pTask->GetSurveyById(surveyId);
+	if (nullptr == pSurvey) {
+		return Service::Error("유효하지 않은 측량점 아이디입니다.");
+	}
 	SurveyTask::Survey survey;
 
 	if (survey.HasBeenSurveyed()) {
@@ -66,9 +70,8 @@ Json::Value SurveyMonkey::DoPost(Json::Value props, SocketWorker& socketWorker)
 
 	survey.setWorker(socketWorker.GetWorker());
 
-	auto pSurvey = pTask->GetSurveyById(surveyId);
 	pSurvey->Update(survey);
-
+	pTask->PatchSurvey(pSurvey->GetId(), *pSurvey);
 	pTask->Store();
 
 	auto pOnGoingTask = pTaskManager->GetLoadedTask();

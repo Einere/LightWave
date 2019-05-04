@@ -113,6 +113,19 @@ namespace SurveyTask {
 		m_surveys.push_back(survey);
 	}
 
+	bool Task::PatchSurvey(UINT surveyId, Survey survey)
+	{
+		for (auto& s : m_surveys) {
+			if (surveyId == s.GetId()) {
+				s = survey;
+				Store();
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	Survey * Task::GetSurveyById(UINT id)
 	{
 		int surveysCount = m_surveys.size();
