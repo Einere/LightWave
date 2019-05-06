@@ -20,7 +20,7 @@ void SocketAcceptor::OnAccept(int nErrorCode)
 	Accept(*pWorker);
 	
 	auto pManager = WorkerManager::GetInstance();
-	pManager->OnAccept(pWorker);
+	pManager->AppendWorker(pWorker);
 	
 	Listen();
 }

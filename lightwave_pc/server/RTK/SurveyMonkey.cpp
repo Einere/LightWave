@@ -21,6 +21,8 @@ Json::Value SurveyMonkey::DoPost(Json::Value props, SocketWorker& socketWorker)
 {
 	Json::Value jsonData = props["data"];
 
+	// TODO: json 데이터 유/무 validation 함수를 별도로 정의하여 호출하기
+
 	UINT taskId = (jsonData["taskId"].isNull() ? -1 : jsonData["taskId"].asUInt());
 	if (-1 == taskId) {
 		return Service::Error("\'taskId\' 필드가 존재하지 않음.");

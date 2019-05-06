@@ -45,7 +45,6 @@ namespace SurveyTask {
 
 	void Survey::LoadAndGetImages(std::vector<CImage>* out_Images) const
 	{
-
 		out_Images->clear();
 
 		const int imagesCount = m_imagesPaths.size();
@@ -54,7 +53,7 @@ namespace SurveyTask {
 			HRESULT hResult = out_Images->at(i).Load(m_imagesPaths[i]);
 			if (FAILED(hResult)) {
 				CString errorMessage;
-				errorMessage.Format("%s �� �������� �̹��� ������ �ƴմϴ�.", m_imagesPaths[i]);
+				errorMessage.Format("파일 [%s] 을 열 수 없습니다..", m_imagesPaths[i]);
 				Logger::Err(errorMessage);
 			}
 		}
