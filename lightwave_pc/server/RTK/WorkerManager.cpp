@@ -64,7 +64,7 @@ void WorkerManager::CloseAll()
 	}
 }
 
-void WorkerManager::OnAccept(std::shared_ptr<SocketWorker> pNewWorker)
+void WorkerManager::AppendWorker(std::shared_ptr<SocketWorker> pNewWorker)
 {
 	/*auto newWorker = std::make_shared<SocketWorker>(this);
 	m_acceptor.Accept(*newWorker);*/
@@ -88,30 +88,21 @@ void WorkerManager::OnAccept(std::shared_ptr<SocketWorker> pNewWorker)
 	//m_pRecepient->OnAccept(pNewWorker->getIpAddress(), pNewWorker->getPort(), 0);
 }
 
-void WorkerManager::OnReceive(SocketWorker * pSocketWorker, std::string json, int errorCode)
+void WorkerManager::DeleteWorker(const CString& targetIpaddr, UINT targetPort)
 {
 	/* 이 함수는 임시 함수로 사용하지 말 것*/
 	assert(true);
-
-	CString ipAddress;
-	UINT port;
-	pSocketWorker->GetPeerName(ipAddress, port);
-
-	/*assert(m_pRecepient);
-	m_pRecepient->OnReceive(ipAddress, port, json, errorCode);*/
-}
-
-void WorkerManager::OnClose(const CString& ipAddress, UINT port, int errorCode)
-{
-	/* 이 함수는 임시 함수로 사용하지 말 것*/
-	assert(true);
-
-	bool removeSuccess = RemoveOrFalse(ipAddress, port);
-	if (!removeSuccess) {
-		Logger::Err("IP:%s, PORT:%d: 비정상적 접근: ", ipAddress, port);
+	auto itor = m_workers.begin();
+	for (auto itor = m_workers.begin(); itor != m_workers.end(); ++itor) {
+		CString ipAddr;
+		UINT port;
+		(*itor)->GetPeerName(ipAddr, port);
+		if (targetIpaddr == ipAddr && port == targetPort) {
+			m_workers.erase(itor);
+			Notify();
+			break;
+		}
 	}
-
-	//m_pRecepient->OnClose(ipAddress, port, errorCode);
 }
 
 bool WorkerManager::IsListening() const
@@ -153,22 +144,6 @@ std::shared_ptr<SocketWorker> WorkerManager::GetWorkerOrNull(const CString & ipA
 	}
 
 	return NULL;
-}
-
-bool WorkerManager::RemoveOrFalse(const CString & ipAddress, UINT port)
-{
-	std::vector<std::shared_ptr<SocketWorker>>::iterator itor;
-	for (itor = m_workers.begin(); itor != m_workers.end(); ++itor) {
-		CString ipTest;
-		UINT portTest;
-		(*itor)->GetPeerName(ipTest, portTest);
-		if (ipTest.Compare(ipAddress) == 0 && port == portTest) {
-			m_workers.erase(itor);
-			return true;
-		}
-	}
-
-	return false;
 }
 
 WorkerManager* WorkerManager::m_pThis = NULL;

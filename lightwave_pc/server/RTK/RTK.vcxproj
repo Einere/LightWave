@@ -45,7 +45,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>$(ProjectDir)..\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
+    <IncludePath>$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -56,6 +57,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -137,6 +139,7 @@
     <ClInclude Include="Caculate.h" />
     <ClInclude Include="CadManager.h" />
     <ClInclude Include="ConnectionStateDlg.h" />
+    <ClInclude Include="EditSurveyPointDlg.h" />
     <ClInclude Include="json.h" />
     <ClInclude Include="ParcelAddDlg.h" />
     <ClInclude Include="ParcelMonkey.h" />
@@ -174,6 +177,7 @@
     <ClInclude Include="File.h" />
     <ClInclude Include="Survey.h" />
     <ClInclude Include="Base64Image.h" />
+    <ClInclude Include="SurveyImageViewDlg.h" />
     <ClInclude Include="SurveyInfoDlg.h" />
     <ClInclude Include="SurveyViewManager.h" />
     <ClInclude Include="SurveyMonkey.h" />
@@ -197,6 +201,7 @@
     <ClCompile Include="Caculate.cpp" />
     <ClCompile Include="CadManager.cpp" />
     <ClCompile Include="ConnectionStateDlg.cpp" />
+    <ClCompile Include="EditSurveyPointDlg.cpp" />
     <ClCompile Include="json.cpp" />
     <ClCompile Include="Monkey.cpp" />
     <ClCompile Include="ParcelAddDlg.cpp" />
@@ -235,6 +240,7 @@
     <ClCompile Include="File.cpp" />
     <ClCompile Include="Survey.cpp" />
     <ClCompile Include="Base64Image.cpp" />
+    <ClCompile Include="SurveyImageViewDlg.cpp" />
     <ClCompile Include="SurveyInfoDlg.cpp" />
     <ClCompile Include="SurveyViewManager.cpp" />
     <ClCompile Include="SurveyMonkey.cpp" />

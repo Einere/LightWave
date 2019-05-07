@@ -6,7 +6,7 @@ namespace SurveyTask {
 	Survey::Survey(double fX, double fY, UINT id) : CDS_Point(fX, fY)
 	{
 		GetLocalTime(&m_updatedTime);
-		if(0==id) m_id = GenerateId();
+		if (0 == id) m_id = GenerateId();
 	}
 
 	Survey::Survey(const Json::Value& root)
@@ -33,9 +33,18 @@ namespace SurveyTask {
 		return m_memo;
 	}
 
+	void Survey::SetName(CString name)
+	{
+		m_name = name;
+	}
+
+	CString Survey::GetName() const
+	{
+		return m_name;
+	}
+
 	void Survey::LoadAndGetImages(std::vector<CImage>* out_Images) const
 	{
-		
 		out_Images->clear();
 
 		const int imagesCount = m_imagesPaths.size();
@@ -44,7 +53,7 @@ namespace SurveyTask {
 			HRESULT hResult = out_Images->at(i).Load(m_imagesPaths[i]);
 			if (FAILED(hResult)) {
 				CString errorMessage;
-				errorMessage.Format("%s �� �������� �̹��� ������ �ƴմϴ�.", m_imagesPaths[i]);
+				errorMessage.Format("파일 [%s] 을 열 수 없습니다..", m_imagesPaths[i]);
 				Logger::Err(errorMessage);
 			}
 		}
@@ -96,7 +105,7 @@ namespace SurveyTask {
 		root["id"] = m_id;
 		root["hasBeenSurveyed"] = m_hasBeenSurveyed;
 		root["updatedTime"] = TimeUtil::ConvertTime2StrSimple(m_updatedTime).GetString();
-
+		root["name"] = m_name.GetString();
 		root["worker"] = m_worker.ToJson();
 
 		root["coord"] = Json::Value();
@@ -118,6 +127,7 @@ namespace SurveyTask {
 		Json::Value idRoot = root["id"];
 		Json::Value hasBeenSurveyedRoot = root["hasBeenSurveyed"];
 		Json::Value timeRoot = root["updatedTime"];
+		Json::Value nameRoot = root["name"];
 		Json::Value coordRoot = root["coord"];
 		Json::Value memoRoot = root["memo"];
 		Json::Value workerRoot = root["worker"];
@@ -126,6 +136,7 @@ namespace SurveyTask {
 		if (idRoot.isNull()
 			|| hasBeenSurveyedRoot.isNull()
 			|| timeRoot.isNull()
+			|| nameRoot.isNull()
 			|| coordRoot.isNull()
 			|| memoRoot.isNull()
 			|| workerRoot.isNull()
@@ -136,6 +147,7 @@ namespace SurveyTask {
 		m_id = idRoot.asUInt();
 		m_hasBeenSurveyed = hasBeenSurveyedRoot.asBool();
 		m_updatedTime = TimeUtil::ConvertStrSimple2Time(timeRoot.asCString());
+		m_name = nameRoot.asCString();
 
 		bool result = m_worker.FromJson(workerRoot);
 		if (!result) {
@@ -144,9 +156,9 @@ namespace SurveyTask {
 
 		m_fX = coordRoot["X"].asDouble();
 		m_fY = coordRoot["Y"].asDouble();
-		
+
 		m_memo = memoRoot.asCString();
-		
+
 		m_imagesPaths.clear();
 		for (const auto& imgPath : imgPathsRoot) {
 			m_imagesPaths.push_back(imgPath.asCString());
@@ -175,9 +187,9 @@ namespace SurveyTask {
 		CString idInStr = "1";
 
 		std::srand(time(NULL));
-		for (int i = 0; i < LENGTH-1; ++i) {
+		for (int i = 0; i < LENGTH - 1; ++i) {
 			int randomIndex = rand() % LENGTH;
-			idInStr+=timeInStr[randomIndex];
+			idInStr += timeInStr[randomIndex];
 		}
 
 		return atoi(idInStr);

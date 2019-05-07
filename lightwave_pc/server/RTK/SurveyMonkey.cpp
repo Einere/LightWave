@@ -21,6 +21,8 @@ Json::Value SurveyMonkey::DoPost(Json::Value props, SocketWorker& socketWorker)
 {
 	Json::Value jsonData = props["data"];
 
+	// TODO: json 데이터 유/무 validation 함수를 별도로 정의하여 호출하기
+
 	UINT taskId = (jsonData["taskId"].isNull() ? -1 : jsonData["taskId"].asUInt());
 	if (-1 == taskId) {
 		return Service::Error("\'taskId\' 필드가 존재하지 않음.");
@@ -34,6 +36,10 @@ Json::Value SurveyMonkey::DoPost(Json::Value props, SocketWorker& socketWorker)
 	}
 
 	UINT surveyId = (jsonData["surveyId"].isNull() ? -1 : jsonData["surveyId"].asUInt());
+	auto pSurvey = pTask->GetSurveyById(surveyId);
+	if (nullptr == pSurvey) {
+		return Service::Error("유효하지 않은 측량점 아이디입니다.");
+	}
 	SurveyTask::Survey survey;
 
 	if (survey.HasBeenSurveyed()) {
@@ -66,9 +72,8 @@ Json::Value SurveyMonkey::DoPost(Json::Value props, SocketWorker& socketWorker)
 
 	survey.setWorker(socketWorker.GetWorker());
 
-	auto pSurvey = pTask->GetSurveyById(surveyId);
 	pSurvey->Update(survey);
-
+	pTask->PatchSurvey(pSurvey->GetId(), *pSurvey);
 	pTask->Store();
 
 	auto pOnGoingTask = pTaskManager->GetLoadedTask();

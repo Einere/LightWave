@@ -74,3 +74,5 @@
 #include <ctime>
 #include <chrono>
 #include <afxsock.h>
+#include <afxcontrolbars.h>
+#include <afxcontrolbars.h>

@@ -136,4 +136,5 @@ public:
 	virtual void OnClose(const CString& ipAddress, UINT port, int errorCode);
 	afx_msg void OnSetParcel();
 	afx_msg void OnDevTest();
+	afx_msg void OnManageSurveyPoints();
 };

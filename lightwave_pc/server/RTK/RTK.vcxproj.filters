@@ -301,6 +301,12 @@
     <ClInclude Include="TextEncoding.h">
       <Filter>common</Filter>
     </ClInclude>
+    <ClInclude Include="SurveyImageViewDlg.h">
+      <Filter>windows</Filter>
+    </ClInclude>
+    <ClInclude Include="EditSurveyPointDlg.h">
+      <Filter>windows</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -467,6 +473,12 @@
     </ClCompile>
     <ClCompile Include="TextEncoding.cpp">
       <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="SurveyImageViewDlg.cpp">
+      <Filter>windows</Filter>
+    </ClCompile>
+    <ClCompile Include="EditSurveyPointDlg.cpp">
+      <Filter>windows</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

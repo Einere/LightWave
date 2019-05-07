@@ -70,7 +70,7 @@ void SocketWorker::OnClose(int nErrorCode)
 	CString ipAddress;
 	UINT port;
 	GetPeerName(ipAddress, port);
-	WorkerManager::GetInstance()->OnClose(ipAddress, port, nErrorCode);
+	WorkerManager::GetInstance()->DeleteWorker(ipAddress, port);
 }
 
 void SocketWorker::NotifyUpdate() const

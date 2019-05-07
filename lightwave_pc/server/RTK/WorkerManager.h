@@ -29,11 +29,12 @@ public:
 
 	void StopServer();
 
-	void OnAccept(std::shared_ptr<SocketWorker> pNewWorker);
+	
+	void AppendWorker(std::shared_ptr<SocketWorker> pNewWorker);
+	void DeleteWorker(const CString& ipAddress, UINT port);
 
 	/* Deprecated: 이전 구현에서 사용되는 함수 */
 	void OnReceive(SocketWorker * pSocketWorker, std::string json, int errorCode);
-	void OnClose(const CString& ipAddress, UINT port, int errorCode);
 
 	bool IsListening() const;
 
