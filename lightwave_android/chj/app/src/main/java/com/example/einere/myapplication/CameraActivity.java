@@ -359,6 +359,7 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
             buw.write(String.valueOf(takeazimuth) + "\n");
             buw.write(String.valueOf(latitude) + "\n");
             buw.write(String.valueOf(longitude) + "\n");
+            Log.d(TAG, String.format("latitude : %f, longitude : %f", latitude, longitude));
             buw.close();
             fos.close();
         } catch (Exception e) {

@@ -19,15 +19,15 @@
         android:theme="@style/AppTheme">
 
         <activity android:name=".connection.ConnectionActivity">
+
+        </activity>
+        <activity android:name=".main.MainActivity" />
+        <activity android:name=".capture.CaptureActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-        <activity android:name=".main.MainActivity"/>
-        <activity android:name=".capture.CaptureActivity">
-
         </activity>
         <activity android:name=".ListViewActivity" />
         <activity android:name=".MemoActivity" />
