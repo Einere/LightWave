@@ -99,7 +99,7 @@ namespace ProgramManager {
 	{
 		SurveyTask::Task* pTask;
 		pTask = GetTaskById(id);
-		assert(pTask != NULL);
+		ASSERT(pTask != NULL);
 
 		if (0 != m_startedTaskId) {
 			SurveyTask::Task* pTaskToBeStopped;
@@ -118,12 +118,12 @@ namespace ProgramManager {
 	{
 		SurveyTask::Task* pTask;
 		pTask = GetTaskById(id);
-		assert(pTask != NULL);
+		ASSERT(pTask != NULL);
 
 		bool hasStopped = pTask->Stop();
 		if (!hasStopped) return NULL;
 
-		assert(m_startedTaskId == id);
+		ASSERT(m_startedTaskId == id);
 		m_startedTaskId = 0;
 		return true;
 	}
@@ -132,7 +132,7 @@ namespace ProgramManager {
 	{
 		SurveyTask::Task* pTask;
 		pTask = GetTaskById(id);
-		assert(pTask != NULL);
+		ASSERT(pTask != NULL);
 
 		if (id == m_loadedTaskId) {
 			return false;

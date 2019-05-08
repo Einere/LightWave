@@ -22,6 +22,7 @@
 #include "ParcelAddDlg.h"
 #include "EditSurveyPointDlg.h"
 #include "Survey.h"
+#include "CoordConverter.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -851,15 +852,7 @@ void CMainFrame::OnExportSvy()
 
 
 void CMainFrame::OnServerStart()
-{
-	
-	/*auto pMenu = m_wndMenuBar.GetMenu();
-	assert(pMenu);
-
-	pMenu->EnableMenuItem(ID_SERVER_START, true);
-	pMenu->EnableMenuItem(ID_SERVER_STOP, false);
-*/
-	
+{	
 	WorkerManager::GetInstance()->StartServer();
 	updateStateDlg();
 	Logger::Log("서버가 시작되었습니다.\n클라이언트로부터 연결 요청을 받을 수 있습니다.");
@@ -964,27 +957,13 @@ void CMainFrame::OnSetParcel()
 
 void CMainFrame::OnDevTest()
 {
-	/*projPJ pj_merc, pj_latlong;
+	
 
-	double x, y;
+	double lat = 193090.674;
+	double lon = 446606.226;
 
-
-
-	if (!(pj_merc = pj_init_plus("+proj=merc +ellps=clrk66 +lat_ts=33")))
-		MessageBox("1");
-
-	if (!(pj_latlong = pj_init_plus("+proj=latlong +ellps=clrk66")))
-		MessageBox("2");
-
-	while (scanf_s("%lf %lf", &x, &y) == 2) {
-		x *= DEG_TO_RAD;
-		y *= DEG_TO_RAD;
-		int p = pj_transform(pj_latlong, pj_merc, 1, 1, &x, &y, NULL);
-		Logger::Log("%.2f\t%.2f\n", x, y);
-
-	}
-
-	exit(0);*/
+	CoordConverter::TMtoWGS84(&lat, &lon);
+	Logger::Log("%f  %f\n", lat, lon);
 }
 
 

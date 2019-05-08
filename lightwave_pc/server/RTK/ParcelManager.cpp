@@ -275,7 +275,7 @@ namespace ProgramManager
 	const std::vector<CDS_Point> CParcelManager::GetPointList(CString sParcelKey)
 	{
 		CParcel * pParcel = &(m_lsParcelMap[sParcelKey]);
-		assert(pParcel);
+		ASSERT(pParcel);
 		/*if (!pParcel) {
 
 		}*/

@@ -16,7 +16,7 @@ int Path::FindLastSlash(CString path)
 CString Path::GetFileName(CString path)
 {
 	int lastSlashIndex = FindLastSlash(path);
-	assert(lastSlashIndex >= 0);
+	ASSERT(lastSlashIndex >= 0);
 
 	return path.Right(path.GetLength() - lastSlashIndex - 1);
 }
@@ -24,7 +24,7 @@ CString Path::GetFileName(CString path)
 CString Path::GetDirPath(CString path)
 {
 	int lastSlashIndex = FindLastSlash(path);
-	assert(lastSlashIndex >= 0);
+	ASSERT(lastSlashIndex >= 0);
 
 	return path.Left(lastSlashIndex);
 }

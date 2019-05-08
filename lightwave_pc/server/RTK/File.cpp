@@ -43,13 +43,13 @@ namespace File {
 	{
 		CFile file;
 		const bool isOpenSucceed = file.Open(path, CFile::modeRead);
-		assert(isOpenSucceed);
+		ASSERT(isOpenSucceed);
 
 		int length = file.GetLength();
 		char *buf = new char[length];
 		file.Read((void*)buf, length);
 
-		assert(ResolveFileData(buf));
+		ASSERT(ResolveFileData(buf));
 
 		file.Close();
 

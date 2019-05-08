@@ -141,7 +141,7 @@ void CTaskMngDlg::OnBnClickedButtonAddTask()
 	TaskAddDlg dlg;
 	if (dlg.DoModal() == IDOK) {
 		auto& newTask = appendTask(dlg.getTask());
-		assert(newTask.Store());
+		ASSERT(newTask.Store());
 
 		Logger::Log("작업이 등록되었습니다: [작업명: %s\t 대표지번: %s]", newTask.GetTaskName(), newTask.GetLotNumber());
 	}
@@ -280,7 +280,7 @@ void CTaskMngDlg::OnTaskMngToggleState()
 	
 	SurveyTask::Task* pTask;
 	pTask = taskManager->GetTaskById(id);
-	assert(pTask != NULL);
+	ASSERT(pTask != NULL);
 
 	char notice[100];
 	sprintf(notice, "작업이 시작되었습니다.\n작업 ID: %d\n작업 이름: %s", pTask->GetId(), pTask->GetTaskName().GetString());

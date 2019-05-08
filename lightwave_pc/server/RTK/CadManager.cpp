@@ -1183,7 +1183,7 @@ namespace ProgramManager
 
 			SurveyTask::Task* pTask;
 			pTask = pTaskManager->GetTaskById(id);
-			assert(pTask != NULL);
+			ASSERT(pTask != NULL);
 
 			auto pCadManager = CCadManager::GetInstance();
 			auto selectedParcels = pCadManager->getSelectedParcels();
@@ -1192,6 +1192,7 @@ namespace ProgramManager
 
 			pTask->Store();
 		}
+		break;
 		case __CAD_CM_REGISTER_SURVEY_POINT__:
 		{
 			auto pManager = CCadManager::GetInstance();

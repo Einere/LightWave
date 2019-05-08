@@ -4,6 +4,9 @@
 // 들어 있는 포함 파일입니다.
 
 #pragma once
+//#pragma comment(linker, "/entry:WinMainCRTStartup /subsystem:console")
+
+#define _AFXDLL 1
 
 #ifndef _SECURE_ATL
 #define _SECURE_ATL 1
@@ -17,7 +20,7 @@
 
 #define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS      // 일부 CString 생성자는 명시적으로 선언됩니다.
 
-#define _CRT_SECURE_NO_WARNINGS //
+#define _CRT_SECURE_NO_WARNINGS 1
 
 // MFC의 공통 부분과 무시 가능한 경고 메시지에 대한 숨기기를 해제합니다.
 #define _AFX_ALL_WARNINGS
@@ -59,6 +62,7 @@
 #endif
 #endif
 
+	
 #include "GlobalDefine.h"
 
 #include "Log.h"
@@ -66,6 +70,7 @@
 #include <afxcontrolbars.h>
 
 #include <iostream>
+#include <proj_api.h>
 #include <string>
 #include <vector>
 #include <mutex>
