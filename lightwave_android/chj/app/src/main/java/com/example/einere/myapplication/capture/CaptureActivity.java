@@ -41,6 +41,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -129,6 +130,8 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
             tv_work_name.setText(receivedIntent.getStringExtra("taskName"));
             tv_location_number.setText(receivedIntent.getStringExtra("landNo"));
             et_server_memo.setText(receivedIntent.getStringExtra("taskDesc"));
+            workNum = receivedIntent.getStringExtra("id");
+            Toast.makeText(this, workNum, Toast.LENGTH_SHORT).show();
         }
 
         // get sensor manager
@@ -226,7 +229,129 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
     }
 
     public void refreshClick(View v) {
+        takeTask();
+    }
+    //작업정보 가져오기
+    public void takeTask(){
+        // request work data to server
+        JSONObject packet = new JSONObject();
+        try {
+            packet.put("method", "GET");
+            packet.put("subject", "task");
+            socketManager.send(packet.toString());
+        } catch (JSONException e) {
+            Toast.makeText(this, "error at make json...", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        } catch (RemoteException e) {
+            Toast.makeText(this, "maybe socket error...", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
+
+        // receive & parse requested data
+        String receivedData = null;
+        try {
+            receivedData = socketManager.receive();
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+        Log.d(TAG, String.format("received data : %s", receivedData));
+
+        JSONObject parsedData = new JSONObject();
+        try {
+            parsedData = new JSONObject(receivedData);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         mMap.clear();
+
+        try {
+            JSONObject data = (JSONObject) parsedData.get("data");
+            JSONArray parcels = (JSONArray)data.get("parcels");
+            JSONArray surveyPoints = (JSONArray)data.get("surveyPoints");
+
+            //도형 점 정보 그림
+            for(int i = 0; i< parcels.length(); i++){
+                JSONObject tmp = (JSONObject)parcels.get(i);
+                JSONArray parcelPoints = (JSONArray)tmp.get("parcelPoints");
+                ArrayList<Double> YparcelPointsList = new ArrayList();
+                ArrayList<Double> XparcelPointsList = new ArrayList();
+                for(int j=0; j< parcelPoints.length(); j++){
+                    JSONObject tmp2 = (JSONObject)parcelPoints.get(i);
+                    double x = tmp2.getDouble("X");
+                    double y = tmp2.getDouble("Y");
+                   XparcelPointsList.add(x);
+                   YparcelPointsList.add(y);
+                    if(i != 0) {
+                        LatLng poly1 = new LatLng(XparcelPointsList.get(i-1), YparcelPointsList.get(i-1));
+                        LatLng poly2 = new LatLng(XparcelPointsList.get(i), YparcelPointsList.get(i));
+                        PolylineOptions poly = new PolylineOptions();
+                        poly.color(Color.RED);
+                        poly.width(4);
+                        poly.add(poly1);
+                        poly.add(poly2);
+                        mMap.addPolyline(poly);
+                    }
+                }
+            }
+
+            //작업 점 정보 그림
+            for(int i = 0; i< surveyPoints.length(); i++){
+                JSONObject tmp = (JSONObject)surveyPoints.get(i);
+                double x = tmp.getDouble("X");
+                double y = tmp.getDouble("Y");
+                boolean surveyed = tmp.getBoolean("surveyed");
+
+                LatLng point = new LatLng(x, y);
+
+                MarkerOptions makerOptions = new MarkerOptions();
+                if(surveyed == true) {
+                    makerOptions
+                            .position(point)
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
+                            .title("212");
+                }else{
+                    makerOptions
+                            .position(point)
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+                            .title("212");
+                }
+
+                // 마커를 생성한다.
+                mMap.addMarker(makerOptions);
+                mMap.setOnMarkerClickListener(this);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        File file2 = new File(Environment.getExternalStorageDirectory() + "/" + workNum);
+        if (!file2.exists()) {
+            file2.mkdir();
+        }
+        File file = new File(Environment.getExternalStorageDirectory() + "/" + workNum+"/history");
+        if (!file.exists()) {
+            file.mkdir();
+        }
+
+        String historyPath = Environment.getExternalStorageDirectory() + "/" + workNum + "/history/history.txt";
+        File historyFile = new File(historyPath);
+
+        try {
+            if (!historyFile.exists()) {
+                try {
+                    FileOutputStream fos = new FileOutputStream(historyFile);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            FileOutputStream fos = new FileOutputStream(historyFile);
+            BufferedWriter buw = new BufferedWriter(new OutputStreamWriter(fos, StandardCharsets.UTF_8));
+            buw.write(receivedData);
+            buw.close();
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Override
