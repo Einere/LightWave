@@ -88,6 +88,10 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra("landNo", data.getString("landNo"));
             // work information (memo?)
             intent.putExtra("taskDesc", data.getString("taskDesc"));
+            // 도형 정보 배열
+            intent.putExtra("parcels", data.getString("parcels"));
+            // 작업해야 할 점 배열
+            intent.putExtra("surveyPoints", data.getString("surveyPoints"));
         } catch (Exception e) {
             e.printStackTrace();
         }

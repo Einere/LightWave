@@ -9,7 +9,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import com.example.einere.myapplication.R;
@@ -40,7 +39,7 @@ public class ConnectionActivity extends AppCompatActivity {
     EditText et_port = null;
     EditText et_user_name = null;
     Button btn_connect_to_server = null;
-    Button btn_pop_up_menu = null;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +55,7 @@ public class ConnectionActivity extends AppCompatActivity {
         et_port = findViewById(R.id.et_port);
         et_user_name = findViewById(R.id.et_user_name);
         btn_connect_to_server = findViewById(R.id.btn_connect_to_server);
-        btn_pop_up_menu = findViewById(R.id.btn_pop_up_menu);
+
 
         // request permission
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -71,7 +70,7 @@ public class ConnectionActivity extends AppCompatActivity {
                 Toast.makeText(this, "connection failed...", Toast.LENGTH_SHORT).show();
             }
         });
-        btn_pop_up_menu.setOnClickListener(v -> popup());
+
     }
 
     @Override
@@ -156,7 +155,7 @@ public class ConnectionActivity extends AppCompatActivity {
         }
     }
 
-    public void popup(){
+    /*public void popup(){
         //Creating the instance of PopupMenu
         PopupMenu popup = new PopupMenu(this, btn_pop_up_menu);
         //Inflating the Popup using xml file
@@ -169,5 +168,5 @@ public class ConnectionActivity extends AppCompatActivity {
         });
 
         popup.show();//showing popup menu
-    }
+    }*/
 }
