@@ -307,6 +307,9 @@
     <ClInclude Include="EditSurveyPointDlg.h">
       <Filter>windows</Filter>
     </ClInclude>
+    <ClInclude Include="CoordConverter.h">
+      <Filter>common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -479,6 +482,9 @@
     </ClCompile>
     <ClCompile Include="EditSurveyPointDlg.cpp">
       <Filter>windows</Filter>
+    </ClCompile>
+    <ClCompile Include="CoordConverter.cpp">
+      <Filter>common</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

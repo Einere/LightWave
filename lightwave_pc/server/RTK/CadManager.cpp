@@ -1183,7 +1183,7 @@ namespace ProgramManager
 
 			SurveyTask::Task* pTask;
 			pTask = pTaskManager->GetTaskById(id);
-			assert(pTask != NULL);
+			ASSERT(pTask != NULL);
 
 			auto pCadManager = CCadManager::GetInstance();
 			auto selectedParcels = pCadManager->getSelectedParcels();

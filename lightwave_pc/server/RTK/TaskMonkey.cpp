@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "TaskMonkey.h"
-
 #include "TaskManager.h"
+#include "CoordConverter.h"
 
 
 TaskMonkey::TaskMonkey() : Monkey("task")
@@ -64,8 +64,11 @@ Json::Value TaskMonkey::DeriveJsonFromSurvey(const SurveyTask::Survey & survey)
 {
 	Json::Value root;
 	root["id"] = survey.GetId();
-	root["X"] = const_cast<SurveyTask::Survey*>(&survey)->GetX();
-	root["Y"] = const_cast<SurveyTask::Survey*>(&survey)->GetX();
+	double x = const_cast<SurveyTask::Survey*>(&survey)->GetX();
+	double y = const_cast<SurveyTask::Survey*>(&survey)->GetY();
+	CoordConverter::TMtoWGS84(&x, &y);
+	root["X"] = x;
+	root["Y"] = y;
 	root["surveyed"] = survey.HasBeenSurveyed();
 
 	return root;
@@ -93,8 +96,11 @@ Json::Value TaskMonkey::DeriveJsonFromParcelPoints(const std::vector<SurveyTask:
 Json::Value TaskMonkey::DeriveJsonFromParcelPoint(const SurveyTask::Point & point)
 {
 	Json::Value root;
-	root["X"] = point.first;
-	root["Y"] = point.second;
+	double x = point.first;
+	double y = point.second;
+	CoordConverter::TMtoWGS84(&x, &y);
+	root["X"] = x;
+	root["Y"] = y;
 
 	return root;
 }

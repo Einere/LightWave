@@ -83,7 +83,7 @@ void WorkerManager::AppendWorker(std::shared_ptr<SocketWorker> pNewWorker)
 	pNewWorker->GetPeerName(ipAddress, port);
 
 	Notify();
-	/*assert(m_pRecepient);
+	/*ASSERT(m_pRecepient);
 	m_pRecepient->OnAccept(ipAddress, port, 0);*/
 	//m_pRecepient->OnAccept(pNewWorker->getIpAddress(), pNewWorker->getPort(), 0);
 }
@@ -91,7 +91,7 @@ void WorkerManager::AppendWorker(std::shared_ptr<SocketWorker> pNewWorker)
 void WorkerManager::DeleteWorker(const CString& targetIpaddr, UINT targetPort)
 {
 	/* 이 함수는 임시 함수로 사용하지 말 것*/
-	assert(true);
+	ASSERT(true);
 	auto itor = m_workers.begin();
 	for (auto itor = m_workers.begin(); itor != m_workers.end(); ++itor) {
 		CString ipAddr;

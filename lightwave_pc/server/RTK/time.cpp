@@ -44,7 +44,7 @@ namespace TimeUtil {
 			tokens[index] = atoi(token);
 			++index;
 		}
-		assert(8 == index);
+		ASSERT(8 == index);
 
 		SYSTEMTIME time;
 		memcpy(&time, tokens, sizeof(WORD) * 8);

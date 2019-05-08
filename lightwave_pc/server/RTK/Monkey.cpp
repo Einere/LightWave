@@ -40,7 +40,7 @@ namespace Service {
 			result = Error("Invalid Method: Send with one in these methods ['GET', 'POST', 'PUT', 'DELETE']");
 			break;
 		default:
-			assert(false);
+			ASSERT(false);
 		}
 
 		if (result["status"].isNull()) {

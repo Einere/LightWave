@@ -45,11 +45,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>$(LibraryPath)</LibraryPath>
-    <IncludePath>$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)\proj4\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)\proj4\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>E:\private\graduation-project\src_root\lightwave_pc\server\RTK\proj4\include;$(IncludePath)</IncludePath>
+    <LibraryPath>E:\private\graduation-project\src_root\lightwave_pc\server\RTK\proj4\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -58,11 +60,12 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>msvcrtd.lib;msvcmrt.lib;proj.lib;proj_i.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>Rpcrt4.lib %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <Midl>
@@ -85,13 +88,14 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>SrPoseSeed.lib;SerialLibD.lib;UseReleaseDll\\SerialCustomDll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>proj.lib;proj_i.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -139,6 +143,7 @@
     <ClInclude Include="Caculate.h" />
     <ClInclude Include="CadManager.h" />
     <ClInclude Include="ConnectionStateDlg.h" />
+    <ClInclude Include="CoordConverter.h" />
     <ClInclude Include="EditSurveyPointDlg.h" />
     <ClInclude Include="json.h" />
     <ClInclude Include="ParcelAddDlg.h" />
@@ -201,6 +206,7 @@
     <ClCompile Include="Caculate.cpp" />
     <ClCompile Include="CadManager.cpp" />
     <ClCompile Include="ConnectionStateDlg.cpp" />
+    <ClCompile Include="CoordConverter.cpp" />
     <ClCompile Include="EditSurveyPointDlg.cpp" />
     <ClCompile Include="json.cpp" />
     <ClCompile Include="Monkey.cpp" />
