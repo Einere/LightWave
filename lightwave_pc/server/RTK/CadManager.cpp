@@ -1192,6 +1192,7 @@ namespace ProgramManager
 
 			pTask->Store();
 		}
+		break;
 		case __CAD_CM_REGISTER_SURVEY_POINT__:
 		{
 			auto pManager = CCadManager::GetInstance();
