@@ -252,6 +252,7 @@ namespace SurveyTask {
 
 		return parcelToStore;
 	}
+
 	Json::Value Parcel2Json(ParcelToStore & parcel)
 	{
 		Json::Value parcelRoot;

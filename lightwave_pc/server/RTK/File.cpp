@@ -23,6 +23,17 @@ namespace File {
 		auto dirPath = Path::GetDirPath(path);
 		if (GetFileAttributes(dirPath) == INVALID_FILE_ATTRIBUTES) {
 			CreateDirectory(dirPath, NULL);
+			DWORD resultOfDirCreation = GetLastError();
+			switch (resultOfDirCreation) {
+			case ERROR_ALREADY_EXISTS:
+				MessageBox(NULL, dirPath+": 이미 존재하는 디렉토리를 생성 시도 하였습니다.", "디렉토리 생성 오류", MB_ICONERROR);
+				break;
+			case ERROR_PATH_NOT_FOUND:
+				MessageBox(NULL, dirPath+": 경로가 유효하지 않습니다.", "디렉토리 생성 오류", MB_ICONERROR);
+				break;
+			default:
+				ASSERT(false);
+			}
 		}
 
 		CFile file;
