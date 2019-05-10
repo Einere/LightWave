@@ -8,7 +8,7 @@ using namespace std::experimental::filesystem;
 
 namespace File {
 
-	const CString rootDir = "./working-data";
+	const CString rootDir = "../RTK/working-data";
 	const int MAX_PATH_LEN = 256;
 
 	void FindFile(const path & dirPath, const std::regex & regex, std::vector<path>& filesFound);
@@ -34,6 +34,7 @@ namespace File {
 		CString GetFileName() const;
 		CString GetExt() const;
 		CString GetParentPath() const;
+		CString GetCurrentPath() const;
 
 		virtual std::string ToFileContent() = 0;
 
