@@ -51,7 +51,7 @@ void SocketWorker::OnReceive(int nErrorCode)
 	Logger::Log("request: %s", data.c_str());
 	
 	std::string response = m_requestResolver.Resolve(*this, data);
-	response += '\n';
+	//response += '\n';
 	Logger::Log("response: %s", response.c_str());
 
 	auto res = response.c_str();
