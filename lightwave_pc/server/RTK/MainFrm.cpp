@@ -23,6 +23,7 @@
 #include "EditSurveyPointDlg.h"
 #include "Survey.h"
 #include "CoordConverter.h"
+#include "ConnectionSettingDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -84,6 +85,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_ADD_PARCEL, &CMainFrame::OnSetParcel)
 	ON_COMMAND(ID_DEV_TEST, &CMainFrame::OnDevTest)
 	ON_COMMAND(ID_MANAGE_SURVEY_POINTS, &CMainFrame::OnManageSurveyPoints)
+	ON_COMMAND(ID_CONNECTION_SETTING, &CMainFrame::OnConnectionSetting)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -853,10 +855,14 @@ void CMainFrame::OnExportSvy()
 
 void CMainFrame::OnServerStart()
 {	
-	WorkerManager::GetInstance()->StartServer();
+	auto pWorkerManager = WorkerManager::GetInstance();
+	pWorkerManager->StartServer();
 	updateStateDlg();
-	Logger::Log("서버가 시작되었습니다.\n클라이언트로부터 연결 요청을 받을 수 있습니다.");
-	MessageBoxA("서버가 시작되었습니다.\n클라이언트로부터 연결 요청을 받을 수 있습니다.", "서버 시작");
+	
+	CString msg;
+	msg.Format("서버 리스닝 시작\n  IP: %s\n  PORT: %d", "unknown", pWorkerManager->GetPortNow());
+	Logger::Log(msg);
+	MessageBox(msg, "서버 시작");
 }
 
 
@@ -969,4 +975,18 @@ void CMainFrame::OnManageSurveyPoints()
 {
 	EditSurveyPointDlg dlg;
 	dlg.DoModal();
+}
+
+
+void CMainFrame::OnConnectionSetting()
+{
+	ConnectionSettingDlg dlg;
+	if (IDOK == dlg.DoModal()) {
+		auto pWorkerManager = WorkerManager::GetInstance();
+		pWorkerManager->SetPort(dlg.GetPort());
+		
+		if (pWorkerManager->IsListening()) {
+			MessageBox("변경된 포트를 적용할면 서버를 Stop했다가 다시 시작해야합니다.");
+		}
+	}
 }

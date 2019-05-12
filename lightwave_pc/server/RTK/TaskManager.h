@@ -40,6 +40,6 @@ namespace ProgramManager {
 
 	public:
 		static TaskManager* GetInstance();
-		void ReleaseInstance();		
+		static void ReleaseInstance();		
 	};
 }

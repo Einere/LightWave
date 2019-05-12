@@ -142,6 +142,7 @@
     <ClInclude Include="BasePoint.h" />
     <ClInclude Include="Caculate.h" />
     <ClInclude Include="CadManager.h" />
+    <ClInclude Include="ConnectionSettingDlg.h" />
     <ClInclude Include="ConnectionStateDlg.h" />
     <ClInclude Include="CoordConverter.h" />
     <ClInclude Include="EditSurveyPointDlg.h" />
@@ -149,6 +150,7 @@
     <ClInclude Include="ParcelAddDlg.h" />
     <ClInclude Include="ParcelMonkey.h" />
     <ClInclude Include="path.h" />
+    <ClInclude Include="Registry.h" />
     <ClInclude Include="Service.h" />
     <ClInclude Include="GlobalDefine.h" />
     <ClInclude Include="GlobalUtil\FileUtil.h" />
@@ -205,6 +207,7 @@
     <ClCompile Include="BasePoint.cpp" />
     <ClCompile Include="Caculate.cpp" />
     <ClCompile Include="CadManager.cpp" />
+    <ClCompile Include="ConnectionSettingDlg.cpp" />
     <ClCompile Include="ConnectionStateDlg.cpp" />
     <ClCompile Include="CoordConverter.cpp" />
     <ClCompile Include="EditSurveyPointDlg.cpp" />
@@ -213,6 +216,7 @@
     <ClCompile Include="ParcelAddDlg.cpp" />
     <ClCompile Include="ParcelMonkey.cpp" />
     <ClCompile Include="path.cpp" />
+    <ClCompile Include="Registry.cpp" />
     <ClCompile Include="RequestResolver.cpp" />
     <ClCompile Include="SocketAcceptor.cpp" />
     <ClCompile Include="SocketWorker.cpp" />

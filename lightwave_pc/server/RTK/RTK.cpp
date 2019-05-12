@@ -13,6 +13,9 @@
 
 #include "CadManager.h"
 #include "ParcelManager.h"
+#include "TaskManager.h"
+#include "SurveyViewManager.h"
+#include "WorkerManager.h"
 
 
 #ifdef _DEBUG
@@ -94,7 +97,8 @@ BOOL CRTKApp::InitInstance()
 	// 해당 설정이 저장된 레지스트리 키를 변경하십시오.
 	// TODO: 이 문자열을 회사 또는 조직의 이름과 같은
 	// 적절한 내용으로 수정해야 합니다.
-	SetRegistryKey(_T("로컬 응용 프로그램 마법사에서 생성된 응용 프로그램"));
+	SetRegistryKey(_T("한국인프라 광파기 서버"));
+	LoadCustomState();
 	LoadStdProfileSettings(0);  // MRU를 포함하여 표준 INI 파일 옵션을 로드합니다.
 
 
@@ -162,13 +166,17 @@ BOOL CRTKApp::InitInstance()
 
 int CRTKApp::ExitInstance()
 {
-	//TODO: 추가한 추가 리소스를 처리합니다.
 	AfxOleTerm(FALSE);
+
+	SaveCustomState();
 
 	// ======================================================
 	// 전체적으로 쓰는 싱글톤 패턴들의 클래스들을 여기서 삭제함
 	CCadManager::ReleaseInstance();
 	CParcelManager::ReleaseInstance();
+	TaskManager::ReleaseInstance();
+	SurveyViewManager::ReleaseInstance();
+	WorkerManager::ReleaseInstance();
 
 	return CWinAppEx::ExitInstance();
 }
@@ -233,10 +241,14 @@ void CRTKApp::PreLoadState()
 
 void CRTKApp::LoadCustomState()
 {
+	UINT port = GetProfileInt(_T("Connection"), _T("Port"), 0);
+	if (port) WorkerManager::GetInstance()->SetPort(port);
 }
 
 void CRTKApp::SaveCustomState()
 {
+	const UINT port = WorkerManager::GetInstance()->GetPort();
+	WriteProfileInt(_T("Connection"), _T("Port"), port);
 }
 
 // CRTKApp 메시지 처리기
