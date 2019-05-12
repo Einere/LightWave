@@ -18,16 +18,10 @@ namespace File {
 	CString Storable::Store(CString path)
 	{
 		if (!path || path == "") path = GetFilePath();
-		/*char path[_MAX_PATH];
-		_fullpath(path, path, _MAX_PATH);*/
 
 		m_filePath = CString(path);
 
 		auto dirPath = Path::GetDirPath(path);
-
-		Logger::Log("rootDir [%s]", rootDir);
-		Logger::Log("filePath [%s]", m_filePath);
-		Logger::Log("dirPath [%s]", dirPath);
 
 		auto errorCode= CreateDir(rootDir);
 		if (errorCode) handleDirCreationError(errorCode, rootDir);

@@ -1190,6 +1190,10 @@ namespace ProgramManager
 			pTask->ClearParcelPoints();
 			int size = pTask->AddParcels(selectedParcels);
 
+			if (size > 0) {
+				MessageBox(NULL, "현재 선택된 점들이 성공적으로 작업 도면에 등록되었습니다.", "점 등록 성공", MB_OK);
+			}
+
 			pTask->Store();
 		}
 		break;
