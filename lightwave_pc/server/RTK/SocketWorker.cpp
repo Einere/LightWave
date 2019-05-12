@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "TextEncoding.h"
 #include "WorkerManager.h"
 #include "MainFrm.h"
 #include "SocketWorker.h"
@@ -52,11 +53,14 @@ void SocketWorker::OnReceive(int nErrorCode)
 	
 	std::string response = m_requestResolver.Resolve(*this, data);
 	response += '\n';
+
 	Logger::Log("response: %s", response.c_str());
 
+	std::string responseU8 = UTF8Encoding::gogoUTF8(response);
 	auto res = response.c_str();
 
-	int result = this->Send((void*)(res), response.length(), sends);
+
+	int result = this->Send((void*)(res), responseU8.size(), sends);
 	if (SOCKET_ERROR == result) {
 		Logger::Log("응답 실패");
 		return;
