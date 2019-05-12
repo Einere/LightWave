@@ -47,26 +47,27 @@ namespace SurveyTask {
 	{
 		out_Images->clear();
 
-		const int imagesCount = m_imagesPaths.size();
+		const int imagesCount = m_images.size();
 		for (int i = 0; i < imagesCount; ++i) {
 			out_Images->push_back(CImage());
-			HRESULT hResult = out_Images->at(i).Load(m_imagesPaths[i]);
+			CString imagePath = m_images[i].path;
+			HRESULT hResult = out_Images->at(i).Load(imagePath);
 			if (FAILED(hResult)) {
 				CString errorMessage;
-				errorMessage.Format("파일 [%s] 을 열 수 없습니다..", m_imagesPaths[i]);
+				errorMessage.Format("파일 [%s] 을 열 수 없습니다..", imagePath);
 				Logger::Err(errorMessage);
 			}
 		}
 	}
 
-	std::vector<CString> Survey::GetImagesPaths() const
+	std::vector<SurveyImage> Survey::GetImages() const
 	{
-		return m_imagesPaths;
+		return m_images;
 	}
 
-	void Survey::AppendImageFile(CString path)
+	void Survey::AppendImage(SurveyImage image)
 	{
-		m_imagesPaths.push_back(path);
+		m_images.push_back(image);
 	}
 
 	void Survey::setWorker(Workers::Worker worker)
@@ -115,8 +116,17 @@ namespace SurveyTask {
 		root["memo"] = m_memo.GetString();
 		root["images"] = Json::Value(Json::arrayValue);
 
-		for (const auto& path : m_imagesPaths) {
-			root["images"].append(path.GetString());
+		int imageCount = m_images.size();
+		for (int i = 0; i < imageCount; ++i) {
+			Json::Value imageRoot;
+			imageRoot["path"] = m_images[i].path.GetString();
+
+			Json::Value geoRoot;
+			geoRoot["lat"] = m_images[i].geometry.latitude; // 위도
+			geoRoot["lon"] = m_images[i].geometry.longitude; // 경도
+			geoRoot["azi"] = m_images[i].geometry.azimuth; // 방위
+			imageRoot["geometry"] = geoRoot;
+			root["images"].append(imageRoot);
 		}
 
 		return root;
@@ -131,7 +141,7 @@ namespace SurveyTask {
 		Json::Value coordRoot = root["coord"];
 		Json::Value memoRoot = root["memo"];
 		Json::Value workerRoot = root["worker"];
-		Json::Value imgPathsRoot = root["images"];
+		Json::Value imgRoot = root["images"];
 
 		if (idRoot.isNull()
 			|| hasBeenSurveyedRoot.isNull()
@@ -140,7 +150,7 @@ namespace SurveyTask {
 			|| coordRoot.isNull()
 			|| memoRoot.isNull()
 			|| workerRoot.isNull()
-			|| imgPathsRoot.isNull()) {
+			|| imgRoot.isNull()) {
 			return false;
 		}
 
@@ -159,9 +169,16 @@ namespace SurveyTask {
 
 		m_memo = memoRoot.asCString();
 
-		m_imagesPaths.clear();
-		for (const auto& imgPath : imgPathsRoot) {
-			m_imagesPaths.push_back(imgPath.asCString());
+		m_images.clear();
+		for (const auto& imgItem : imgRoot) {
+			CString path = imgItem["path"].asCString();
+			Geometry geometry = {
+				imgItem["geometry"]["lat"].asDouble(),
+				imgItem["geometry"]["lon"].asDouble(),
+				imgItem["geometry"]["azi"].asDouble()
+			};
+
+			m_images.push_back({ path, geometry });
 		}
 
 		return true;
@@ -171,7 +188,7 @@ namespace SurveyTask {
 	{
 		m_worker = src.GetWorker();
 		m_memo = src.GetMemo();
-		m_imagesPaths = src.GetImagesPaths();
+		m_images = src.GetImages();
 
 		GetLocalTime(&m_updatedTime);
 		m_hasBeenSurveyed = true;

@@ -11,11 +11,16 @@ namespace SurveyTask {
 		double azimuth;
 	};
 
-	class Survey 
+	struct SurveyImage {
+		CString path;
+		Geometry geometry;
+	};
+
+	class Survey
 		: public DataType::ShapeType::CDS_Point
 	{
 	public:
-		Survey(double fX=0.0, double fY=0.0, UINT id = 0);
+		Survey(double fX = 0.0, double fY = 0.0, UINT id = 0);
 		Survey(const Json::Value& root);
 		//Survey(const Survey& Source);
 		~Survey();
@@ -29,8 +34,8 @@ namespace SurveyTask {
 		CString GetName() const;
 
 		void LoadAndGetImages(std::vector<CImage>* out_Images) const;
-		std::vector<CString> GetImagesPaths() const;
-		void AppendImageFile(CString path);
+		std::vector<SurveyImage> GetImages() const;
+		void AppendImage(SurveyImage image);
 
 		void setWorker(Workers::Worker worker);
 		void setWorker(UINT id, CString name, CString ip, UINT port);
@@ -53,7 +58,9 @@ namespace SurveyTask {
 		SYSTEMTIME m_updatedTime;
 		Workers::Worker m_worker;
 		CString m_memo;
-		std::vector<CString> m_imagesPaths;
+		std::vector<SurveyImage> m_images;
+		//std::vector<CString> m_imagesPaths;
+		//std::vector<Geometry> m_geometries;
 
 		BOOL m_hasBeenSurveyed = FALSE;
 
