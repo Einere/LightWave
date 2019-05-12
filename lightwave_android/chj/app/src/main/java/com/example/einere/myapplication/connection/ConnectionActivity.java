@@ -56,7 +56,6 @@ public class ConnectionActivity extends AppCompatActivity {
         et_user_name = findViewById(R.id.et_user_name);
         btn_connect_to_server = findViewById(R.id.btn_connect_to_server);
 
-
         // request permission
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA,
@@ -70,7 +69,6 @@ public class ConnectionActivity extends AppCompatActivity {
                 Toast.makeText(this, "connection failed...", Toast.LENGTH_SHORT).show();
             }
         });
-
     }
 
     @Override
@@ -120,7 +118,7 @@ public class ConnectionActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
             socketManager.send(packet.toString());
-            Toast.makeText(this, "Connected!", Toast.LENGTH_SHORT).show();
+            Log.d(TAG, String.format("send POST / meta packet"));
 
             // need to receive work data...
             String receivedData = socketManager.receive();
@@ -129,24 +127,23 @@ public class ConnectionActivity extends AppCompatActivity {
             // 스테이터스 값이 2이면 넘어가고 4이면 에러처리
             int returnStatus = STATUS_ABNORMAL;
 
-            if(receivedData != null) {
+            if (receivedData != null) {
                 try {
                     JSONObject parsedData = new JSONObject(receivedData);
-                    returnStatus =  parsedData.getInt("status");
+                    returnStatus = parsedData.getInt("status");
                     Log.d(TAG, String.format("status : %d", returnStatus));
                 } catch (JSONException e) {
                     e.printStackTrace();
-                } catch (NullPointerException e){
+                } catch (NullPointerException e) {
                     e.printStackTrace();
                 }
             }
 
-            if(returnStatus == STATUS_NORMAL) {
+            if (returnStatus == STATUS_NORMAL) {
                 // go to main activity
                 Intent intent = new Intent(this, MainActivity.class);
                 startActivity(intent);
-            }
-            else if (returnStatus == STATUS_ABNORMAL) {
+            } else if (returnStatus == STATUS_ABNORMAL) {
                 Toast.makeText(this, "잘못된 요청입니다. 재시도해주세요.", Toast.LENGTH_SHORT).show();
             }
 

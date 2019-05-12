@@ -17,6 +17,7 @@ import java.io.OutputStreamWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.nio.charset.StandardCharsets;
 
 public class ConnectionService extends Service {
     final String TAG = "ConnectionService";
@@ -115,8 +116,8 @@ public class ConnectionService extends Service {
         new Thread(() -> {
             try {
                 socket.connect(socketAddress, TIME_OUT);
-                writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-                reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8));
+                reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
                 status = STATUS_CONNECTED;
                 Log.i("ConnectionService", "myConnect2()");
             } catch (IOException e) {
@@ -164,8 +165,7 @@ public class ConnectionService extends Service {
                     Log.d(TAG, String.format("read data length : %d...", receivedData.length()));
                 }
                 Log.d(TAG, "myReceive()'s thread exit while loop");
-            }
-            catch (IOException e){
+            } catch (Exception e) {
                 e.printStackTrace();
                 Log.d(TAG, "myReceive()'s thread error");
             }
@@ -192,8 +192,8 @@ public class ConnectionService extends Service {
                 try{
                     if(socket.isClosed()){
                         socket.connect(socketAddress, TIME_OUT);
-                        writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-                        reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                        writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8));
+                        reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
                         status = STATUS_CONNECTED;
                         Log.i("ConnectionService", "myConnect2()");
                     }
