@@ -957,13 +957,11 @@ void CMainFrame::OnSetParcel()
 
 void CMainFrame::OnDevTest()
 {
-	
-
-	double lat = 193090.674;
-	double lon = 446606.226;
-
-	CoordConverter::TMtoWGS84(&lat, &lon);
-	Logger::Log("%f  %f\n", lat, lon);
+	char buffer[MAX_PATH];
+	GetModuleFileName(NULL, buffer, MAX_PATH);
+	std::string::size_type pos = std::string(buffer).find_last_of("\\/");
+	auto result = std::string(buffer).substr(0, pos);
+	Logger::Log("%s", result.c_str());
 }
 
 

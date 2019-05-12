@@ -18,12 +18,16 @@ namespace File {
 	CString Storable::Store(CString path)
 	{
 		if (!path || path == "") path = GetFilePath();
+
 		m_filePath = CString(path);
 
 		auto dirPath = Path::GetDirPath(path);
-		if (GetFileAttributes(dirPath) == INVALID_FILE_ATTRIBUTES) {
-			CreateDirectory(dirPath, NULL);
-		}
+
+		auto errorCode= CreateDir(rootDir);
+		if (errorCode) handleDirCreationError(errorCode, rootDir);
+
+		errorCode = CreateDir(dirPath);
+		if (errorCode) handleDirCreationError(errorCode, dirPath);
 
 		CFile file;
 		const bool isOpenSucceed = file.Open(path, CFile::modeWrite | CFile::modeCreate);
@@ -82,17 +86,6 @@ namespace File {
 		return m_filePath;
 	}
 
-	bool Storable::CreateDir(CString path)
-	{
-		auto dirPath = Path::GetDirPath(path);
-		if (GetFileAttributes(dirPath) == INVALID_FILE_ATTRIBUTES) {
-			return CreateDirectory(dirPath, NULL);
-		}
-		else {
-			return true;
-		}
-	}
-
 	CString Storable::GetFilePath() const
 	{
 		CString filePath;
@@ -113,6 +106,14 @@ namespace File {
 	CString Storable::GetParentPath() const
 	{
 		return m_parentPath;
+	}
+
+	CString Storable::GetCurrentPath() const
+	{
+		char buffer[MAX_PATH];
+		GetModuleFileName(NULL, buffer, MAX_PATH);
+		std::string::size_type pos = std::string(buffer).find_last_of("\\/");
+		return std::string(buffer).substr(0, pos).c_str();
 	}
 
 	void Storable::DeleteFileOrDirectory(fs::v1::directory_entry entry)
@@ -139,6 +140,32 @@ namespace File {
 			else if (std::regex_match(itr->path().generic_string().c_str(), regex)) {
 				filesFound.push_back(itr->path());
 			}
+		}
+	}
+
+	DWORD CreateDir(CString path)
+	{
+		DWORD errorCode = 0;
+
+		if (GetFileAttributes(path) == INVALID_FILE_ATTRIBUTES) {
+			CreateDirectory(path, NULL);
+			errorCode = GetLastError();
+		}
+		
+		return errorCode;
+	}
+
+	void handleDirCreationError(DWORD errorCode, CString dirPath)
+	{
+		switch (errorCode) {
+		case ERROR_ALREADY_EXISTS:
+			MessageBox(NULL, dirPath + " 이미 존재하는 디렉토리를 생성 시도 하였습니다.", "디렉토리 생성 오류", MB_ICONERROR);
+			break;
+		case ERROR_PATH_NOT_FOUND:
+			MessageBox(NULL, dirPath + " 경로가 유효하지 않습니다.", "디렉토리 생성 오류", MB_ICONERROR);
+			break;
+		default:
+			break;
 		}
 	}
 }

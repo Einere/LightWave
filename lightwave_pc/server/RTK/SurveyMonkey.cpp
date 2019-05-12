@@ -58,6 +58,17 @@ Json::Value SurveyMonkey::DoPost(Json::Value props, SocketWorker& socketWorker)
 		return Service::Error("\'images\' 필드가 존재하지 않음.");
 	}
 
+	Json::Value geometriesRoot = jsonData["geometry"];
+	if (geometriesRoot.isNull()) {
+		return Service::Error("\'geometry\' 필드가 존재하지 않음.");
+	}
+
+	int imageCount = imagesRoot.size();
+	int geometryCount = geometriesRoot.size();
+	if (imageCount != geometryCount) {
+		return Service::Error("이미지와 위경도방위정보의 갯수가 일치하지 않습니다.");
+	}
+
 	std::vector<CString> images;
 	for (auto& img : imagesRoot) {
 		images.push_back(img.asCString());
@@ -67,7 +78,14 @@ Json::Value SurveyMonkey::DoPost(Json::Value props, SocketWorker& socketWorker)
 	for (int i = 0; i < imagesCount; ++i) {
 		SurveyTask::Base64Image b64img(pTask->GetParentPath(), images[i]);
 		CString imgPath = b64img.Store();
-		survey.AppendImageFile(imgPath);
+		
+		SurveyTask::Geometry geometry = {
+			geometriesRoot[i]["latitude"].asDouble(),
+			geometriesRoot[i]["longitude"].asDouble(),
+			geometriesRoot[i]["azimuth"].asDouble()
+		};
+
+		survey.AppendImage({imgPath, geometry});
 	}
 
 	survey.setWorker(socketWorker.GetWorker());

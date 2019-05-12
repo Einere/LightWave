@@ -46,8 +46,17 @@ namespace TimeUtil {
 		}
 		ASSERT(8 == index);
 
-		SYSTEMTIME time;
-		memcpy(&time, tokens, sizeof(WORD) * 8);
+		SYSTEMTIME time = {
+			tokens[INDEX_YEAR],
+			tokens[INDEX_MONTH],
+			tokens[INDEX_DAYOFWEEK],
+			tokens[INDEX_DAY],
+			tokens[INDEX_HOUR],
+			tokens[INDEX_MINUTE],
+			tokens[INDEX_SECOND],
+			tokens[INDEX_MILLISECOND]
+		};
+
 		return time;
 	}
 
