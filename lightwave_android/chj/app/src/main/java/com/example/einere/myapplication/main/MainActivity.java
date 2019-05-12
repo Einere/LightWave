@@ -71,31 +71,39 @@ public class MainActivity extends AppCompatActivity {
         JSONObject parsedData = new JSONObject();
         try {
             parsedData = new JSONObject(receivedData);
+
+            // check status
+            if (parsedData.getInt("status") == 2) {
+                // go to CaptureActivity
+                Intent intent = new Intent(this, CaptureActivity.class);
+                intent.putExtra("method", "new");
+                try {
+                    JSONObject data = (JSONObject) parsedData.get("data");
+                    // work id
+                    intent.putExtra("id", data.getString("id"));
+                    // work name
+                    intent.putExtra("taskName", data.getString("taskName"));
+                    // location number
+                    intent.putExtra("landNo", data.getString("landNo"));
+                    // work information (memo?)
+                    intent.putExtra("taskDesc", data.getString("taskDesc"));
+                    // 도형 정보 배열
+                    intent.putExtra("parcels", data.getString("parcels"));
+                    // 작업해야 할 점 배열
+                    intent.putExtra("surveyPoints", data.getString("surveyPoints"));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                startActivity(intent);
+            } else {
+                Toast.makeText(this, String.format("서버로부터 비정상적인 데이터를 수신했습니다. %s", parsedData.getString("message")), Toast.LENGTH_SHORT).show();
+            }
+        } catch (NullPointerException e) {
+            Toast.makeText(this, "서버로부터 데이터를 받지 못했습니다.", Toast.LENGTH_SHORT).show();
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
-        // go to CaptureActivity
-        Intent intent = new Intent(this, CaptureActivity.class);
-        intent.putExtra("method", "new");
-        try {
-            JSONObject data = (JSONObject) parsedData.get("data");
-            // work id
-            intent.putExtra("id", data.getString("id"));
-            // work name
-            intent.putExtra("taskName", data.getString("taskName"));
-            // location number
-            intent.putExtra("landNo", data.getString("landNo"));
-            // work information (memo?)
-            intent.putExtra("taskDesc", data.getString("taskDesc"));
-            // 도형 정보 배열
-            intent.putExtra("parcels", data.getString("parcels"));
-            // 작업해야 할 점 배열
-            intent.putExtra("surveyPoints", data.getString("surveyPoints"));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        startActivity(intent);
     }
 
     public void goToContinueCapture() {

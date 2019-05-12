@@ -18,12 +18,17 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name=".connection.ConnectionActivity">
+        <activity
+            android:name=".splash.SplashActivity"
+            android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity android:name=".connection.ConnectionActivity">
+
         </activity>
         <activity android:name=".main.MainActivity" />
         <activity android:name=".capture.CaptureActivity">
@@ -42,7 +47,7 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyDlQ5q2Ipt0LF5YECkcTLGfDov65amiszo"/>
+            android:value="AIzaSyDlQ5q2Ipt0LF5YECkcTLGfDov65amiszo" />
     </application>
 
 </manifest>

@@ -231,8 +231,9 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
     public void refreshClick(View v) {
         takeTask();
     }
+
     //작업정보 가져오기
-    public void takeTask(){
+    public void takeTask() {
         // request work data to server
         JSONObject packet = new JSONObject();
         try {
@@ -265,25 +266,33 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         mMap.clear();
 
         try {
-            JSONObject data = (JSONObject) parsedData.get("data");
-            JSONArray parcels = (JSONArray)data.get("parcels");
-            JSONArray surveyPoints = (JSONArray)data.get("surveyPoints");
+            int status = parsedData.getInt("status");
+
+            // if receive error message
+            if (status == 4) {
+                String message = parsedData.getString("message");
+                Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            JSONObject data = parsedData.getJSONObject("data");
+            JSONArray parcels = data.getJSONArray("parcels");
+            JSONArray surveyPoints = data.getJSONArray("surveyPoints");
 
             //도형 점 정보 그림
-            for(int i = 0; i< parcels.length(); i++){
-                JSONObject tmp = (JSONObject)parcels.get(i);
-                JSONArray parcelPoints = (JSONArray)tmp.get("parcelPoints");
-                ArrayList<Double> YparcelPointsList = new ArrayList();
-                ArrayList<Double> XparcelPointsList = new ArrayList();
-                for(int j=0; j< parcelPoints.length(); j++){
-                    JSONObject tmp2 = (JSONObject)parcelPoints.get(i);
+            for (int i = 0; i < parcels.length(); i++) {
+                JSONObject tmp = parcels.getJSONObject(i);
+                JSONArray parcelPoints = tmp.getJSONArray("parcelPoints");
+                ArrayList<Double> yParcelPointsList = new ArrayList<>();
+                ArrayList<Double> xParcelPointsList = new ArrayList<>();
+                for (int j = 0; j < parcelPoints.length(); j++) {
+                    JSONObject tmp2 = parcelPoints.getJSONObject(i);
                     double x = tmp2.getDouble("X");
                     double y = tmp2.getDouble("Y");
-                   XparcelPointsList.add(x);
-                   YparcelPointsList.add(y);
-                    if(i != 0) {
-                        LatLng poly1 = new LatLng(XparcelPointsList.get(i-1), YparcelPointsList.get(i-1));
-                        LatLng poly2 = new LatLng(XparcelPointsList.get(i), YparcelPointsList.get(i));
+                    xParcelPointsList.add(x);
+                    yParcelPointsList.add(y);
+                    if (i != 0) {
+                        LatLng poly1 = new LatLng(xParcelPointsList.get(i - 1), yParcelPointsList.get(i - 1));
+                        LatLng poly2 = new LatLng(xParcelPointsList.get(i), yParcelPointsList.get(i));
                         PolylineOptions poly = new PolylineOptions();
                         poly.color(Color.RED);
                         poly.width(4);
@@ -295,8 +304,8 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
             }
 
             //작업 점 정보 그림
-            for(int i = 0; i< surveyPoints.length(); i++){
-                JSONObject tmp = (JSONObject)surveyPoints.get(i);
+            for (int i = 0; i < surveyPoints.length(); i++) {
+                JSONObject tmp = (JSONObject) surveyPoints.get(i);
                 double x = tmp.getDouble("X");
                 double y = tmp.getDouble("Y");
                 boolean surveyed = tmp.getBoolean("surveyed");
@@ -304,12 +313,12 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
                 LatLng point = new LatLng(x, y);
 
                 MarkerOptions makerOptions = new MarkerOptions();
-                if(surveyed == true) {
+                if (surveyed) {
                     makerOptions
                             .position(point)
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
                             .title("212");
-                }else{
+                } else {
                     makerOptions
                             .position(point)
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
@@ -327,7 +336,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         if (!file2.exists()) {
             file2.mkdir();
         }
-        File file = new File(Environment.getExternalStorageDirectory() + "/" + workNum+"/history");
+        File file = new File(Environment.getExternalStorageDirectory() + "/" + workNum + "/history");
         if (!file.exists()) {
             file.mkdir();
         }
@@ -351,7 +360,6 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     @Override
@@ -402,7 +410,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
             StringBuilder sb = new StringBuilder();
             try {
                 InputStream is = new FileInputStream(clientMemoPath);
-                BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+                BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
 
                 // read line
                 String line = "";
@@ -512,6 +520,8 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
                 // send to server
                 socketManager.send(packet.toString());
                 Toast.makeText(this, "send!", Toast.LENGTH_SHORT).show();
+                Log.d(TAG, String.format("send data : %s", packet.toString()));
+                Log.d(TAG, String.format("send data size : %d", packet.toString().length()));
                 socketManager.receive();
             } else {
                 Toast.makeText(this, "not connected to server or no selected image", Toast.LENGTH_SHORT).show();
@@ -765,7 +775,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
 
         try {
             final InputStream inputStream = new FileInputStream(file);
-            final BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
             boolean done = false;
 
             while (!done) {
