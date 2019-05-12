@@ -62,6 +62,7 @@ void WorkerManager::CloseAll()
 		worker->Close();
 		//m_pRecepient->OnClose(ipAddress, port, 0);
 	}
+	m_workers.clear();
 }
 
 void WorkerManager::AppendWorker(std::shared_ptr<SocketWorker> pNewWorker)
