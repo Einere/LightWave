@@ -8,10 +8,12 @@ using namespace std::experimental::filesystem;
 
 namespace File {
 
-	const CString rootDir = "../RTK/working-data";
+	const CString rootDir = "./working-data";
 	const int MAX_PATH_LEN = 256;
 
 	void FindFile(const path & dirPath, const std::regex & regex, std::vector<path>& filesFound);
+	static DWORD CreateDir(CString path);
+	static void handleDirCreationError(DWORD errorCode, CString dirPath = "");
 
 	class Storable
 	{
@@ -22,13 +24,6 @@ namespace File {
 		CString Store(CString path = NULL);
 		bool Load(CString path);
 		CString Remove(BOOL everything=FALSE);
-
-		/*
-		디렉토리가 이미 존재할 경우: true
-		디렉토리 생성에 성공한 경우: true
-		디렉토리 생성에 실패한 경우: false
-		*/
-		static bool CreateDir(CString path);
 
 		CString Storable::GetFilePath() const;
 		CString GetFileName() const;
