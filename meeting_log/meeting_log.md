@@ -235,4 +235,8 @@ ConnectionActivity에서, 서버에 연결시 보내는 패킷을 수정.
   
 # 19/05/04
 ## 이중 스크롤 방지 (CHJ)
-ScrollView 내부의 RelativeView(Google Map Fragment)가 중첩되어 있어, 이중 스크롤이 되어 지도 조작이 불편했음. MyMapFragment로 해결.
+ScrollView 내부의 RelativeView(Google Map Fragment)가 중첩되어 있어, 이중 스크롤이 되어 지도 조작이 불편했음. MyMapFragment로 해결.  
+  
+# 19/05/12
+## 스플래시 스크린 추가 (CHJ)
+SplashActivity.java, splash_background.xml 등등 추가.  
