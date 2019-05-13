@@ -2,6 +2,7 @@ package com.example.einere.myapplication.main;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.RemoteException;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -13,6 +14,13 @@ import com.example.einere.myapplication.capture.CaptureActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 public class MainActivity extends AppCompatActivity {
     private final String TAG = "MainActivity";
@@ -87,10 +95,8 @@ public class MainActivity extends AppCompatActivity {
                     intent.putExtra("landNo", data.getString("landNo"));
                     // work information (memo?)
                     intent.putExtra("taskDesc", data.getString("taskDesc"));
-                    // 도형 정보 배열
-                    intent.putExtra("parcels", data.getString("parcels"));
-                    // 작업해야 할 점 배열
-                    intent.putExtra("surveyPoints", data.getString("surveyPoints"));
+                    // receivedData
+                    intent.putExtra("receivedData", receivedData);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -109,7 +115,54 @@ public class MainActivity extends AppCompatActivity {
     public void goToContinueCapture() {
         Intent intent = new Intent(this, CaptureActivity.class);
         intent.putExtra("method", "continue");
-        startActivity(intent);
+        String path = Environment.getExternalStorageDirectory() + "/workHistory/beforeHistory.txt";
+        File file = new File(path);
+        if (!file.exists()) {
+            Toast.makeText(this, "전 작업이 없습니다", Toast.LENGTH_SHORT).show();
+            return;
+        } else {
+            StringBuilder sb = new StringBuilder();
+            try {
+                InputStream is = new FileInputStream(path);
+                BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+
+                // read line
+                String line = "";
+                while ((line = reader.readLine()) != null) {
+                    sb.append(line).append("\n");
+                }
+
+                // close stream
+                reader.close();
+                is.close();
+                JSONObject parsedData = new JSONObject();
+                try {
+                    parsedData = new JSONObject(sb.toString());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                try {
+                    JSONObject data = (JSONObject) parsedData.get("data");
+                    // work id
+                    intent.putExtra("id", data.getString("id"));
+                    // work name
+                    intent.putExtra("taskName", data.getString("taskName"));
+                    // location number
+                    intent.putExtra("landNo", data.getString("landNo"));
+                    // work information (memo?)
+                    intent.putExtra("taskDesc", data.getString("taskDesc"));
+                    // receivedData
+                    intent.putExtra("receivedData", sb.toString());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                startActivity(intent);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void goToCheckHistory() {

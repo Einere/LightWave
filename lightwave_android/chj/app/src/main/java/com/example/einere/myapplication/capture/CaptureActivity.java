@@ -101,6 +101,10 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
     //image ArrayList
     private ArrayList<Image> images = new ArrayList<>();
 
+    //receivedData
+    private String receivedData = null;
+    private String taskName = null;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,6 +136,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
             et_server_memo.setText(receivedIntent.getStringExtra("taskDesc"));
             workNum = receivedIntent.getStringExtra("id");
             Toast.makeText(this, workNum, Toast.LENGTH_SHORT).show();
+            receivedData = receivedIntent.getStringExtra("receivedData");
         }
 
         // get sensor manager
@@ -153,6 +158,55 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         findViewById(R.id.btn_test).setOnClickListener(v -> checkArrayListForUpload());
         findViewById(R.id.btn_memo_save).setOnClickListener(v -> saveMemo());
         findViewById(R.id.btn_memo_delete).setOnClickListener(v -> deleteMemo());
+
+         //이어하기 내역
+        File file = new File(Environment.getExternalStorageDirectory() + "/" + "workHistory");
+        if (!file.exists()) {
+            file.mkdir();
+        }
+
+        String historyPath = Environment.getExternalStorageDirectory() + "/workHistory/beforeHistory.txt";
+        File historyFile = new File(historyPath);
+        if (historyFile.exists()) {
+            historyFile.delete();
+        }
+
+        try {
+            if (!historyFile.exists()) {
+                try {
+                    FileOutputStream fos = new FileOutputStream(historyFile);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            FileOutputStream fos = new FileOutputStream(historyFile);
+            BufferedWriter buw = new BufferedWriter(new OutputStreamWriter(fos, StandardCharsets.UTF_8));
+            buw.write(receivedData);
+            buw.close();
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        String taskhistoryPath = Environment.getExternalStorageDirectory() + "/workHistory/"+ taskName +".txt";
+        File taskhistoryFile = new File(taskhistoryPath);
+
+        try {
+            if (!taskhistoryFile.exists()) {
+                try {
+                    FileOutputStream fos = new FileOutputStream(taskhistoryFile);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            FileOutputStream fos = new FileOutputStream(taskhistoryFile);
+            BufferedWriter buw = new BufferedWriter(new OutputStreamWriter(fos, StandardCharsets.UTF_8));
+            buw.write(receivedData);
+            buw.close();
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -184,7 +238,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         // 구글 맵 객체를 불러온다.
         mMap = googleMap;
 
-        // 서울 여의도에 대한 위치 설정
+       /* // 서울 여의도에 대한 위치 설정
         LatLng seoul = new LatLng(37.52487, 126.92723);
         LatLng seoul2 = new LatLng(37.52440, 126.92750);
 
@@ -210,8 +264,10 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         poly.width(4);
         poly.add(seoul);
         poly.add(seoul2);
-        mMap.addPolyline(poly);
+        mMap.addPolyline(poly);*/
 
+       drawMap();
+        LatLng seoul = new LatLng(37.52487, 126.92723);
         // 카메라 옵션
         CameraPosition cameraPosition = new CameraPosition.Builder()
                 .target(seoul)      // Sets the center of the map to Mountain View
@@ -229,11 +285,11 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
     }
 
     public void refreshClick(View v) {
-        takeTask();
+        drawMap();
     }
 
     //작업정보 가져오기
-    public void takeTask() {
+    public void drawMap() {
         // request work data to server
         JSONObject packet = new JSONObject();
         try {
@@ -286,8 +342,8 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
                 ArrayList<Double> xParcelPointsList = new ArrayList<>();
                 for (int j = 0; j < parcelPoints.length(); j++) {
                     JSONObject tmp2 = parcelPoints.getJSONObject(i);
-                    double x = tmp2.getDouble("X");
-                    double y = tmp2.getDouble("Y");
+                    double x = tmp2.getDouble("Y");
+                    double y = tmp2.getDouble("X");
                     xParcelPointsList.add(x);
                     yParcelPointsList.add(y);
                     if (i != 0) {
@@ -306,8 +362,8 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
             //작업 점 정보 그림
             for (int i = 0; i < surveyPoints.length(); i++) {
                 JSONObject tmp = (JSONObject) surveyPoints.get(i);
-                double x = tmp.getDouble("X");
-                double y = tmp.getDouble("Y");
+                double x = tmp.getDouble("Y");
+                double y = tmp.getDouble("X");
                 boolean surveyed = tmp.getBoolean("surveyed");
 
                 LatLng point = new LatLng(x, y);
