@@ -79,6 +79,18 @@ namespace Service {
 		return payload;
 	}
 
+	Json::Value NoResponse()
+	{
+		Json::Value ret;
+		ret["noResponse"] = true;
+		return ret;
+	}
+
+	bool isNoResponse(Json::Value v)
+	{
+		return (v["noResponse"]!=Json::nullValue && v["noResponse"].asBool());
+	}
+
 	bool IsAuthorized(const SocketWorker & worker)
 	{
 		return worker.IsAuthorized();

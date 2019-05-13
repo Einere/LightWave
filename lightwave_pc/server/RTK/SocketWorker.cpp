@@ -3,6 +3,7 @@
 #include "WorkerManager.h"
 #include "MainFrm.h"
 #include "SocketWorker.h"
+#include "LengthMiddleware.h"
 
 SocketWorker::SocketWorker( WorkerManager* pWorkerManager) {
 	m_pWorkerManager = pWorkerManager;
@@ -57,6 +58,7 @@ void SocketWorker::OnReceive(int nErrorCode)
 	Logger::Log("request: %s", m_data.c_str());
 	
 	std::string response = m_requestResolver.Resolve(*this, m_data);
+	if (response == "") return;
 	response += '\n';
 
 	std::string responseU8 = UTF8Encoding::gogoUTF8(response);
@@ -89,11 +91,13 @@ void SocketWorker::NotifyUpdate() const
 
 void SocketWorker::beginBlob(int size)
 {
+	m_data.clear();
 	m_blobSize = size;
 }
 
 void SocketWorker::endBlob()
 {
+	m_data.clear();
 	m_blobSize = 0;
 }
 
