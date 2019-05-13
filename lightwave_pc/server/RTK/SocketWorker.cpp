@@ -49,16 +49,16 @@ bool SocketWorker::IsAuthorized() const
 void SocketWorker::OnReceive(int nErrorCode)
 {
 	const std::string data = readIn();
-	Logger::Log("request: %s", data.c_str());
+	Logger::Log("request size: %d bytes", data.size());
+	Logger::Log("request: %s", data);
 	
 	std::string response = m_requestResolver.Resolve(*this, data);
 	response += '\n';
 
-	Logger::Log("response: %s", response.c_str());
-
 	std::string responseU8 = UTF8Encoding::gogoUTF8(response);
-	auto res = response.c_str();
+	auto res = responseU8.c_str();
 
+	Logger::Log("response: %s", responseU8.c_str());
 
 	int result = this->Send((void*)(res), responseU8.size(), sends);
 	if (SOCKET_ERROR == result) {
