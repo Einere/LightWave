@@ -313,9 +313,6 @@
     <ClInclude Include="ConnectionSettingDlg.h">
       <Filter>windows</Filter>
     </ClInclude>
-    <ClInclude Include="Registry.h">
-      <Filter>common</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -494,9 +491,6 @@
     </ClCompile>
     <ClCompile Include="ConnectionSettingDlg.cpp">
       <Filter>windows</Filter>
-    </ClCompile>
-    <ClCompile Include="Registry.cpp">
-      <Filter>common</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

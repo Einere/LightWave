@@ -14,7 +14,7 @@
     <ProjectGuid>{5D478A88-930D-4861-AF31-58E3EB21C366}</ProjectGuid>
     <RootNamespace>RTK</RootNamespace>
     <Keyword>MFCProj</Keyword>
-    <ProjectName>Sample</ProjectName>
+    <ProjectName>Lightwave</ProjectName>
     <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -150,7 +150,6 @@
     <ClInclude Include="ParcelAddDlg.h" />
     <ClInclude Include="ParcelMonkey.h" />
     <ClInclude Include="path.h" />
-    <ClInclude Include="Registry.h" />
     <ClInclude Include="Service.h" />
     <ClInclude Include="GlobalDefine.h" />
     <ClInclude Include="GlobalUtil\FileUtil.h" />
@@ -216,7 +215,6 @@
     <ClCompile Include="ParcelAddDlg.cpp" />
     <ClCompile Include="ParcelMonkey.cpp" />
     <ClCompile Include="path.cpp" />
-    <ClCompile Include="Registry.cpp" />
     <ClCompile Include="RequestResolver.cpp" />
     <ClCompile Include="SocketAcceptor.cpp" />
     <ClCompile Include="SocketWorker.cpp" />

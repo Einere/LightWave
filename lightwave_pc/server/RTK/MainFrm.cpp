@@ -230,18 +230,6 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	// 빠른(<Alt> 키를 누른 채 끌기) 도구 모음 사용자 지정을 활성화합니다.
 	CMFCToolBar::EnableQuickCustomization();
 
-	/*m_surveyView.setManager(CCadManager::GetInstance());
-	BOOL surveyViewCreated = m_surveyView.Create(IDD_SURVEY_VIEW_LAYER, this);
-	if (!surveyViewCreated) {
-		MessageBox("SurveyView 창을 만들 수 없습니다.");
-		return -1;
-	}
-
-	m_surveyView.ShowWindow(SW_SHOW);
-
-	SurveyTask::Survey survey(446800.614, 193000.033);
-	m_surveyView.addSurvey(survey);*/
-
 	/*
 	if (CMFCToolBar::GetUserImages() == NULL)
 	{
@@ -350,13 +338,13 @@ BOOL CMainFrame::CreateDockingWindows()
 	const int leftPanelWidth = 250;
 	if (!m_wndTask.Create("작업 정보", this, CRect(0, 0, leftPanelWidth, 500), TRUE, ID_VIEW_TASKWND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_LEFT | CBRS_FLOAT_MULTI))
 	{
-		TRACE0("출력 창을 만들지 못했습니다.\n");
+		TRACE0("작업 정보 창을 만들지 못했습니다.\n");
 		return FALSE;
 	}
 
 	if (!m_wndStatePane.Create("상태", this, CRect(0, 0, leftPanelWidth, 250), TRUE, ID_VIEW_STATEWND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_LEFT | CBRS_FLOAT_MULTI))
 	{
-		TRACE0("출력 창을 만들지 못했습니다.\n");
+		TRACE0("서버 상태 창을 만들지 못했습니다.\n");
 		return FALSE;
 	}
 
