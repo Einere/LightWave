@@ -137,4 +137,5 @@ public:
 	afx_msg void OnSetParcel();
 	afx_msg void OnDevTest();
 	afx_msg void OnManageSurveyPoints();
+	afx_msg void OnConnectionSetting();
 };

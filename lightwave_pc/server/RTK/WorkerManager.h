@@ -7,10 +7,7 @@
 class SocketRecipient;
 class SocketAcceptor;
 
-enum Host {
-	PORT = 8080,
-	BUFLEN = 1024
-};
+#define BUFLEN 1024
 
 class WorkerManager
 {
@@ -45,13 +42,17 @@ public:
 	void Update();
 	void Notify();
 
-private:
-	//SocketRecipient* m_pRecepient = NULL;
+	void SetPort(UINT port);
+	UINT GetPortNow() const;
+	UINT GetPort() const;
 
+private:
 	SocketAcceptor m_acceptor;
 	std::vector<std::shared_ptr<SocketWorker>> m_workers;
-
 	StatePane* m_pStatePane = NULL;
+
+	UINT m_port = 8080;
+	UINT m_nextPort = 0;
 
 	bool m_isListening = false;
 

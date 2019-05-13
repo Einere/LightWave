@@ -14,7 +14,7 @@
     <ProjectGuid>{5D478A88-930D-4861-AF31-58E3EB21C366}</ProjectGuid>
     <RootNamespace>RTK</RootNamespace>
     <Keyword>MFCProj</Keyword>
-    <ProjectName>Sample</ProjectName>
+    <ProjectName>Lightwave</ProjectName>
     <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -142,6 +142,7 @@
     <ClInclude Include="BasePoint.h" />
     <ClInclude Include="Caculate.h" />
     <ClInclude Include="CadManager.h" />
+    <ClInclude Include="ConnectionSettingDlg.h" />
     <ClInclude Include="ConnectionStateDlg.h" />
     <ClInclude Include="CoordConverter.h" />
     <ClInclude Include="EditSurveyPointDlg.h" />
@@ -205,6 +206,7 @@
     <ClCompile Include="BasePoint.cpp" />
     <ClCompile Include="Caculate.cpp" />
     <ClCompile Include="CadManager.cpp" />
+    <ClCompile Include="ConnectionSettingDlg.cpp" />
     <ClCompile Include="ConnectionStateDlg.cpp" />
     <ClCompile Include="CoordConverter.cpp" />
     <ClCompile Include="EditSurveyPointDlg.cpp" />

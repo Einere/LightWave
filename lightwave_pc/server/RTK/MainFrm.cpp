@@ -23,6 +23,7 @@
 #include "EditSurveyPointDlg.h"
 #include "Survey.h"
 #include "CoordConverter.h"
+#include "ConnectionSettingDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -84,6 +85,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_ADD_PARCEL, &CMainFrame::OnSetParcel)
 	ON_COMMAND(ID_DEV_TEST, &CMainFrame::OnDevTest)
 	ON_COMMAND(ID_MANAGE_SURVEY_POINTS, &CMainFrame::OnManageSurveyPoints)
+	ON_COMMAND(ID_CONNECTION_SETTING, &CMainFrame::OnConnectionSetting)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -228,18 +230,6 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	// 빠른(<Alt> 키를 누른 채 끌기) 도구 모음 사용자 지정을 활성화합니다.
 	CMFCToolBar::EnableQuickCustomization();
 
-	/*m_surveyView.setManager(CCadManager::GetInstance());
-	BOOL surveyViewCreated = m_surveyView.Create(IDD_SURVEY_VIEW_LAYER, this);
-	if (!surveyViewCreated) {
-		MessageBox("SurveyView 창을 만들 수 없습니다.");
-		return -1;
-	}
-
-	m_surveyView.ShowWindow(SW_SHOW);
-
-	SurveyTask::Survey survey(446800.614, 193000.033);
-	m_surveyView.addSurvey(survey);*/
-
 	/*
 	if (CMFCToolBar::GetUserImages() == NULL)
 	{
@@ -348,13 +338,13 @@ BOOL CMainFrame::CreateDockingWindows()
 	const int leftPanelWidth = 250;
 	if (!m_wndTask.Create("작업 정보", this, CRect(0, 0, leftPanelWidth, 500), TRUE, ID_VIEW_TASKWND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_LEFT | CBRS_FLOAT_MULTI))
 	{
-		TRACE0("출력 창을 만들지 못했습니다.\n");
+		TRACE0("작업 정보 창을 만들지 못했습니다.\n");
 		return FALSE;
 	}
 
 	if (!m_wndStatePane.Create("상태", this, CRect(0, 0, leftPanelWidth, 250), TRUE, ID_VIEW_STATEWND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_LEFT | CBRS_FLOAT_MULTI))
 	{
-		TRACE0("출력 창을 만들지 못했습니다.\n");
+		TRACE0("서버 상태 창을 만들지 못했습니다.\n");
 		return FALSE;
 	}
 
@@ -853,10 +843,14 @@ void CMainFrame::OnExportSvy()
 
 void CMainFrame::OnServerStart()
 {	
-	WorkerManager::GetInstance()->StartServer();
+	auto pWorkerManager = WorkerManager::GetInstance();
+	pWorkerManager->StartServer();
 	updateStateDlg();
-	Logger::Log("서버가 시작되었습니다.\n클라이언트로부터 연결 요청을 받을 수 있습니다.");
-	MessageBoxA("서버가 시작되었습니다.\n클라이언트로부터 연결 요청을 받을 수 있습니다.", "서버 시작");
+	
+	CString msg;
+	msg.Format("서버 리스닝 시작\n  IP: %s\n  PORT: %d", "unknown", pWorkerManager->GetPortNow());
+	Logger::Log(msg);
+	MessageBox(msg, "서버 시작");
 }
 
 
@@ -969,4 +963,18 @@ void CMainFrame::OnManageSurveyPoints()
 {
 	EditSurveyPointDlg dlg;
 	dlg.DoModal();
+}
+
+
+void CMainFrame::OnConnectionSetting()
+{
+	ConnectionSettingDlg dlg;
+	if (IDOK == dlg.DoModal()) {
+		auto pWorkerManager = WorkerManager::GetInstance();
+		pWorkerManager->SetPort(dlg.GetPort());
+		
+		if (pWorkerManager->IsListening()) {
+			MessageBox("변경된 포트를 적용할면 서버를 Stop했다가 다시 시작해야합니다.");
+		}
+	}
 }

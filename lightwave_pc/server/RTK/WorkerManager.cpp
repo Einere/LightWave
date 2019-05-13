@@ -35,7 +35,11 @@ const std::vector<std::shared_ptr<SocketWorker>>& WorkerManager::GetWorkers()
 
 void WorkerManager::StartServer()
 {
-	m_acceptor.Create(PORT);
+	/*const int PORT_STR_LENGTH = 5;
+	char portInStr[PORT_STR_LENGTH];
+	m_port = GetEnvironmentVariable("PORT", portInStr, PORT_STR_LENGTH) ? atoi(portInStr) : 8080;*/
+
+	m_acceptor.Create(m_port);
 	m_acceptor.Listen();
 	m_isListening = true;
 }
@@ -50,6 +54,7 @@ void WorkerManager::StopServer()
 {
 	CloseAll();
 	m_isListening = false;
+	m_port = m_nextPort;
 }
 
 void WorkerManager::CloseAll()
@@ -62,6 +67,7 @@ void WorkerManager::CloseAll()
 		worker->Close();
 		//m_pRecepient->OnClose(ipAddress, port, 0);
 	}
+	m_workers.clear();
 }
 
 void WorkerManager::AppendWorker(std::shared_ptr<SocketWorker> pNewWorker)
@@ -73,7 +79,7 @@ void WorkerManager::AppendWorker(std::shared_ptr<SocketWorker> pNewWorker)
 		m_workers.push_back(pNewWorker);
 	}
 	else {
-		
+
 	}
 
 	Logger::Log("[%d번 째 워커]", m_workers.size());
@@ -127,13 +133,33 @@ void WorkerManager::Notify()
 	}
 }
 
+void WorkerManager::SetPort(UINT port)
+{
+	if (IsListening()) {
+		m_nextPort = port;
+		return;
+	}
+
+	m_port = port;
+}
+
+UINT WorkerManager::GetPortNow() const
+{
+	return m_port;
+}
+
+UINT WorkerManager::GetPort() const
+{
+	return (m_nextPort ? m_nextPort : m_port);
+}
+
 void WorkerManager::SetSocketStatePane(StatePane * pStatePane)
 {
 	m_pStatePane = pStatePane;
 }
 
 std::shared_ptr<SocketWorker> WorkerManager::GetWorkerOrNull(const CString & ipAddress, UINT port) const
-{	
+{
 	for (auto& worker : m_workers) {
 		CString ipTest;
 		UINT portTest;
