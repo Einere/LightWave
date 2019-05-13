@@ -525,6 +525,18 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
 
 
     /* ******************* socket methods start ******************* */
+    public JSONObject makePacket(String method, String subject, JSONObject data) {
+        JSONObject packet = new JSONObject();
+        try {
+            packet.put("method", method);
+            packet.put("subject", subject);
+            packet.put("data", data);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return packet;
+    }
+
     public void clickPoint(View v) {
         Intent intent = new Intent(this, ListViewActivity.class);
         startActivity(intent);
@@ -538,24 +550,13 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
                 // get uri list
 //                ArrayList<Uri> uriList = recyclerAdapter.getSelectedUriList();
 
-                // make json object
-                JSONObject packet = new JSONObject();
+                // make data JSONObject
                 JSONObject data = new JSONObject();
-                packet.put("method", "GET"); // POST로 수정해야 될듯?
-                packet.put("subject", "test"); // subject는 점 이름으로 해야 할 듯?
                 data.put("userName", socketManager.getUserName());
 
-                // put bitmap data
+                // put serialized picture data
                 int i = 0;
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                /*for (Uri uri : uriList) {
-                    tmpBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-                    tmpBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-                    byte[] bytes = stream.toByteArray();
-                    String serialized = Base64.encodeToString(bytes, Base64.NO_WRAP);
-                    data.put(String.format(Locale.KOREA, "image%d", i), serialized);
-                    i++;
-                }*/
                 for (Uri uri : selectedUriList) {
                     Bitmap tmpBitmap = BitmapFactory.decodeFile(uri.getPath());
                     tmpBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
@@ -571,13 +572,24 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
                     data.put(String.format(Locale.KOREA, "text%d", i), getFileContents(file));
                     i++;
                 }
-                packet.put("data", data);
+                // make packet
+                JSONObject packet = makePacket("POST", "survey", data);
 
-                // send to server
+                // make data length packet
+                JSONObject lengthData = new JSONObject();
+                lengthData.put("length", packet.toString().getBytes().length); // 단순히 String의 길이? 혹은 byte?
+                Log.d(TAG, String.format(Locale.KOREA, "length : %d, byte : %d", packet.toString().length(), packet.toString().getBytes().length));
+                JSONObject lengthPacket = makePacket("POST", "length", lengthData);
+
+                // send packet length to server
+                socketManager.send(lengthPacket.toString());
+
+                // send packet to server
                 socketManager.send(packet.toString());
                 Toast.makeText(this, "send!", Toast.LENGTH_SHORT).show();
                 Log.d(TAG, String.format("send data : %s", packet.toString()));
-                Log.d(TAG, String.format("send data size : %d", packet.toString().length()));
+
+                // receive response packet from server
                 socketManager.receive();
             } else {
                 Toast.makeText(this, "not connected to server or no selected image", Toast.LENGTH_SHORT).show();
