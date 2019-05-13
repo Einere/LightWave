@@ -60,7 +60,7 @@ void SocketWorker::OnReceive(int nErrorCode)
 	if (response == Service::NO_RESPONSE) return;
 	response += '\n';
 
-	std::string responseU8 = UTF8Encoding::gogoUTF8(response);
+	std::string responseU8 = TextEncoding::gogoUTF8(response);
 
 	int sentSizeOrError = this->Send((void*)(responseU8.c_str()), responseU8.size(), sends);
 	if (SOCKET_ERROR == sentSizeOrError) {

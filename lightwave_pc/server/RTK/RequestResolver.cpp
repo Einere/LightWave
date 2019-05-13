@@ -57,7 +57,7 @@ namespace Service {
 		}
 
 
-		return (isNoResponse(result)) ? "" : Json::json2Str(result).c_str();
+		return (IsNoResponse(result)) ? "" : Json::json2Str(result).c_str();
 	}
 
 	std::shared_ptr<Monkey> RequestResolver::GetMonkeyOrNull(Json::Value root)

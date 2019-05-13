@@ -86,7 +86,7 @@ namespace Service {
 		return ret;
 	}
 
-	bool isNoResponse(Json::Value v)
+	bool IsNoResponse(Json::Value v)
 	{
 		return (v["noResponse"]!=Json::nullValue && v["noResponse"].asBool());
 	}

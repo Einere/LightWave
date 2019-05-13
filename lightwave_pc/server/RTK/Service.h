@@ -25,7 +25,7 @@ namespace Service
 	Json::Value Error(std::string msg);
 	Json::Value Success(Json::Value payload);
 	Json::Value NoResponse();
-	bool isNoResponse(Json::Value v);
+	bool IsNoResponse(Json::Value v);
 	bool IsAuthorized(const SocketWorker& worker);
 
 	typedef bool authRequirements[4];

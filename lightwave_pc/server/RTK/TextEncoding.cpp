@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "TextEncoding.h"
 
-namespace UTF8Encoding{
+namespace TextEncoding{
 	std::string gogoUTF8(std::string mbs)
 	{
 		USES_CONVERSION;
