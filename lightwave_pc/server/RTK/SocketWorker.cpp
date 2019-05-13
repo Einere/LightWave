@@ -48,11 +48,15 @@ bool SocketWorker::IsAuthorized() const
 
 void SocketWorker::OnReceive(int nErrorCode)
 {
-	const std::string data = readIn();
-	Logger::Log("request size: %d bytes", data.size());
-	Logger::Log("request: %s", data.c_str());
+	m_data += readIn();
+	if (m_blobSize > 0) {
+		return;
+	}
+
+	Logger::Log("request size: %d bytes", m_data.size());
+	Logger::Log("request: %s", m_data.c_str());
 	
-	std::string response = m_requestResolver.Resolve(*this, data);
+	std::string response = m_requestResolver.Resolve(*this, m_data);
 	response += '\n';
 
 	std::string responseU8 = UTF8Encoding::gogoUTF8(response);
@@ -67,6 +71,7 @@ void SocketWorker::OnReceive(int nErrorCode)
 	}
 
 	Logger::Log("Sent: %d bytes", result);
+	m_data.clear();
 }
 
 void SocketWorker::OnClose(int nErrorCode)
@@ -82,6 +87,16 @@ void SocketWorker::NotifyUpdate() const
 	WorkerManager::GetInstance()->Update();
 }
 
+void SocketWorker::beginBlob(int size)
+{
+	m_blobSize = size;
+}
+
+void SocketWorker::endBlob()
+{
+	m_blobSize = 0;
+}
+
 std::string SocketWorker::readIn()
 {
 	std::string buf;
@@ -93,6 +108,10 @@ std::string SocketWorker::readIn()
 		receivedLength = Receive((void*)block, BLOCK_SIZE);
 		buf.append(block, receivedLength);
 	} while (receivedLength == 1024 && buf[buf.size()-1]!=0);
+
+	if (m_blobSize > 0) {
+		m_blobSize -= receivedLength;
+	}
 
 	return buf;
 }

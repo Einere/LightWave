@@ -147,6 +147,7 @@
     <ClInclude Include="CoordConverter.h" />
     <ClInclude Include="EditSurveyPointDlg.h" />
     <ClInclude Include="json.h" />
+    <ClInclude Include="LengthMiddleware.h" />
     <ClInclude Include="ParcelAddDlg.h" />
     <ClInclude Include="ParcelMonkey.h" />
     <ClInclude Include="path.h" />
@@ -211,6 +212,7 @@
     <ClCompile Include="CoordConverter.cpp" />
     <ClCompile Include="EditSurveyPointDlg.cpp" />
     <ClCompile Include="json.cpp" />
+    <ClCompile Include="LengthMiddleware.cpp" />
     <ClCompile Include="Monkey.cpp" />
     <ClCompile Include="ParcelAddDlg.cpp" />
     <ClCompile Include="ParcelMonkey.cpp" />

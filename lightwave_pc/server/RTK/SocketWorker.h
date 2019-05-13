@@ -27,10 +27,15 @@ public:
 
 	void NotifyUpdate() const;
 
+	void beginBlob(int size);
+	void endBlob();
+
 private:
 	Service::RequestResolver m_requestResolver;
 
 	std::string readIn();
+	std::string m_data;
+	int m_blobSize = 0;
 
 	Workers::Worker m_worker;
 	int GetJsonSize(std::string stringContainingKeyOfSize);
