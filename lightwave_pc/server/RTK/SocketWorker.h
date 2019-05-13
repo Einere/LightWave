@@ -30,6 +30,8 @@ public:
 	void beginBlob(int size);
 	void endBlob();
 
+	bool isEndOfRequest() const;
+
 private:
 	Service::RequestResolver m_requestResolver;
 

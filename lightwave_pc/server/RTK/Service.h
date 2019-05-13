@@ -20,6 +20,7 @@ namespace Service
 	};
 
 	const std::map<std::string, Method> methodMap = { {"GET", Get}, {"POST", Post}, {"PUT", Put}, {"DELETE", Delete} };
+	const std::string NO_RESPONSE = "";
 
 	Json::Value Error(std::string msg);
 	Json::Value Success(Json::Value payload);
