@@ -15,6 +15,9 @@ namespace Service {
 	Json::Value Monkey::Handle(Json::Value props, SocketWorker& socketWorker)
 	{
 		Method method = GetMethodOrInvalid(props);
+		if (method == Method::Invalid) {
+			return Error("요청 메소드가 명시되지 않았습니다. 큰 데이터를 보내는 경우라면 데이터 사이즈를 명시하는 요청이 선행되어야 합니다.");
+		}
 
 		if (m_authList[method]) {
 			if (!socketWorker.IsAuthorized()) {
@@ -77,6 +80,18 @@ namespace Service {
 	{
 		payload["status"] = OK;
 		return payload;
+	}
+
+	Json::Value NoResponse()
+	{
+		Json::Value ret;
+		ret["noResponse"] = true;
+		return ret;
+	}
+
+	bool IsNoResponse(Json::Value v)
+	{
+		return (v["noResponse"]!=Json::nullValue && v["noResponse"].asBool());
 	}
 
 	bool IsAuthorized(const SocketWorker & worker)
