@@ -20,9 +20,12 @@ namespace Service
 	};
 
 	const std::map<std::string, Method> methodMap = { {"GET", Get}, {"POST", Post}, {"PUT", Put}, {"DELETE", Delete} };
+	const std::string NO_RESPONSE = "";
 
 	Json::Value Error(std::string msg);
 	Json::Value Success(Json::Value payload);
+	Json::Value NoResponse();
+	bool IsNoResponse(Json::Value v);
 	bool IsAuthorized(const SocketWorker& worker);
 
 	typedef bool authRequirements[4];
@@ -33,7 +36,7 @@ namespace Service
 		Monkey(const std::string subject);
 		~Monkey();
 
-		Json::Value Handle(Json::Value props, SocketWorker& socketWorker);
+		virtual Json::Value Handle(Json::Value props, SocketWorker& socketWorker);
 		const std::string GetSubject();
 
 		virtual Json::Value DoGet(Json::Value props, SocketWorker& socketWorker) { return Json::nullValue; };
@@ -58,7 +61,9 @@ namespace Service
 
 	private:
 		std::shared_ptr<Monkey> GetMonkeyOrNull(Json::Value root);
-		std::vector<std::shared_ptr<Monkey>> monkeys;
+		std::shared_ptr<Monkey> GetMiddlewareOrNull(Json::Value root);
+		std::vector<std::shared_ptr<Monkey>> m_monkeys;
+		std::vector<std::shared_ptr<Monkey>> m_middlewares;
 	};
 
 

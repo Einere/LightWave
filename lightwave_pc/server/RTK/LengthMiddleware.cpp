@@ -14,11 +14,11 @@ namespace Service {
 	{
 	}
 
-	Json::Value Service::LengthMiddleware::Handle(Json::Value props, SocketWorker & socketWorker)
+	Json::Value LengthMiddleware::Handle(Json::Value props, SocketWorker & socketWorker)
 	{
 		int length = props["data"]["length"].asInt();
 		socketWorker.beginBlob(length);
-		return Service::Success("");
+		return Service::NoResponse();
 	}
 
 }
