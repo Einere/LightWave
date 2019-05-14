@@ -96,7 +96,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
 
     // id_number
     private String pointNum = null;
-    private String workNum = "111";
+    private String taskId = "111";
 
     //image ArrayList
     private ArrayList<Image> images = new ArrayList<>();
@@ -134,9 +134,9 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
             tv_work_name.setText(receivedIntent.getStringExtra("taskName"));
             tv_location_number.setText(receivedIntent.getStringExtra("landNo"));
             et_server_memo.setText(receivedIntent.getStringExtra("taskDesc"));
-            taskName=receivedIntent.getStringExtra("taskDesc");
-            workNum = receivedIntent.getStringExtra("id");
-            Toast.makeText(this, workNum, Toast.LENGTH_SHORT).show();
+            taskName=receivedIntent.getStringExtra("taskName");
+            taskId = receivedIntent.getStringExtra("id");
+            Toast.makeText(this, taskId, Toast.LENGTH_SHORT).show();
             receivedData = receivedIntent.getStringExtra("receivedData");
         }
 
@@ -160,10 +160,19 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         findViewById(R.id.btn_memo_save).setOnClickListener(v -> saveMemo());
         findViewById(R.id.btn_memo_delete).setOnClickListener(v -> deleteMemo());
 
-         //이어하기 내역
+         memoHistory();
+    }
+
+    public void memoHistory(){
+        //이어하기 내역
         File file = new File(Environment.getExternalStorageDirectory() + "/" + "workHistory");
         if (!file.exists()) {
             file.mkdir();
+        }
+
+        File file2 = new File(Environment.getExternalStorageDirectory() + "/" + "workHistory/task");
+        if (!file2.exists()) {
+            file2.mkdir();
         }
 
         String historyPath = Environment.getExternalStorageDirectory() + "/workHistory/beforeHistory.txt";
@@ -189,7 +198,8 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
             e.printStackTrace();
         }
 
-        String taskhistoryPath = Environment.getExternalStorageDirectory() + "/workHistory/"+ taskName +".txt";
+        //작업리스트 내역
+        String taskhistoryPath = Environment.getExternalStorageDirectory() + "/workHistory/task/"+ taskName +".txt";
         File taskhistoryFile = new File(taskhistoryPath);
         if (taskhistoryFile.exists()) {
             taskhistoryFile.delete();
@@ -242,81 +252,6 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         // 구글 맵 객체를 불러온다.
         mMap = googleMap;
 
-       /* // 서울 여의도에 대한 위치 설정
-        LatLng seoul = new LatLng(37.52487, 126.92723);
-        LatLng seoul2 = new LatLng(37.52440, 126.92750);
-
-        // 구글 맵에 표시할 마커에 대한 옵션 설정
-        MarkerOptions makerOptions = new MarkerOptions();
-        makerOptions
-                .position(seoul)
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW))
-                .title("212");
-
-        MarkerOptions makerOptions2 = new MarkerOptions();
-        makerOptions2
-                .position(seoul2)
-                .title("213");
-
-        // 마커를 생성한다.
-        mMap.addMarker(makerOptions);
-        mMap.addMarker(makerOptions2);
-        mMap.setOnMarkerClickListener(this);
-
-        PolylineOptions poly = new PolylineOptions();
-        poly.color(Color.RED);
-        poly.width(4);
-        poly.add(seoul);
-        poly.add(seoul2);
-        mMap.addPolyline(poly);*/
-
-       drawMap();
-        LatLng seoul = new LatLng(37.52487, 126.92723);
-        // 카메라 옵션
-        CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(seoul)      // Sets the center of the map to Mountain View
-                .zoom(18)                   // Sets the zoom
-                .bearing(0)                // Sets the orientation of the camera to east
-                .tilt(30)                   // Sets the tilt of the camera to 30 degrees
-                .build();
-
-        // 카메라를 여의도 위치로 옮긴다.
-        mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-
-        // prevent double scroll
-        ScrollView sv_root_layout = findViewById(R.id.sv_root_layout);
-        myMapFragment.setListener(() -> sv_root_layout.requestDisallowInterceptTouchEvent(true));
-    }
-
-    public void refreshClick(View v) {
-        drawMap();
-    }
-
-    //작업정보 가져오기
-    public void drawMap() {
-        // request work data to server
-        JSONObject packet = new JSONObject();
-        try {
-            packet.put("method", "GET");
-            packet.put("subject", "task");
-            socketManager.send(packet.toString());
-        } catch (JSONException e) {
-            Toast.makeText(this, "error at make json...", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
-        } catch (RemoteException e) {
-            Toast.makeText(this, "maybe socket error...", Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
-        }
-
-        // receive & parse requested data
-        String receivedData = null;
-        try {
-            receivedData = socketManager.receive();
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
-        Log.d(TAG, String.format("received data : %s", receivedData));
-
         JSONObject parsedData = new JSONObject();
         try {
             parsedData = new JSONObject(receivedData);
@@ -338,19 +273,26 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
             JSONArray parcels = data.getJSONArray("parcels");
             JSONArray surveyPoints = data.getJSONArray("surveyPoints");
 
+            double sumX =0;
+            double sumY =0;
+            int sumi = 0;
             //도형 점 정보 그림
-                JSONObject tmp3 = parcels.getJSONObject(0);
+            for (int i = 0; i < parcels.length(); i++) {
+                JSONObject tmp3 = parcels.getJSONObject(i);
                 JSONArray parcelPoints = tmp3.getJSONArray("parcelPoints");
                 ArrayList<Double> yParcelPointsList = new ArrayList<>();
                 ArrayList<Double> xParcelPointsList = new ArrayList<>();
                 for (int j = 0; j < parcelPoints.length(); j++) {
+                    sumi++;
                     JSONObject tmp2 = parcelPoints.getJSONObject(j);
                     double x = tmp2.getDouble("Y");
                     double y = tmp2.getDouble("X");
+                    sumX+=x;
+                    sumY+=y;
                     xParcelPointsList.add(x);
                     yParcelPointsList.add(y);
                     if (j != 0) {
-                        LatLng poly1 = new LatLng(xParcelPointsList.get(j - 1), yParcelPointsList.get(j- 1));
+                        LatLng poly1 = new LatLng(xParcelPointsList.get(j - 1), yParcelPointsList.get(j - 1));
                         LatLng poly2 = new LatLng(xParcelPointsList.get(j), yParcelPointsList.get(j));
                         PolylineOptions poly = new PolylineOptions();
                         poly.color(Color.RED);
@@ -359,7 +301,29 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
                         poly.add(poly2);
                         mMap.addPolyline(poly);
                     }
+                    if(j == parcelPoints.length()-1){
+                        LatLng poly1 = new LatLng(xParcelPointsList.get(0), yParcelPointsList.get(0));
+                        LatLng poly2 = new LatLng(xParcelPointsList.get(j), yParcelPointsList.get(j));
+                        PolylineOptions poly = new PolylineOptions();
+                        poly.color(Color.RED);
+                        poly.width(6);
+                        poly.add(poly1);
+                        poly.add(poly2);
+                        mMap.addPolyline(poly);
+                    }
+                }
             }
+
+            LatLng center = new LatLng((double)sumX/sumi, (double)sumY/sumi);
+            CameraPosition cameraPosition = new CameraPosition.Builder()
+                    .target(center)      // Sets the center of the map to Mountain View
+                    .zoom(16)                   // Sets the zoom
+                    .bearing(0)                // Sets the orientation of the camera to east
+                    .tilt(30)                   // Sets the tilt of the camera to 30 degrees
+                    .build();
+
+            // 카메라를 여의도 위치로 옮긴다.
+            mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
             //작업 점 정보 그림
             for (int i = 0; i < surveyPoints.length(); i++) {
@@ -390,16 +354,154 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         } catch (Exception e) {
             e.printStackTrace();
         }
-        File file2 = new File(Environment.getExternalStorageDirectory() + "/" + workNum);
+
+        memoHistory();
+
+        // prevent double scroll
+        ScrollView sv_root_layout = findViewById(R.id.sv_root_layout);
+        myMapFragment.setListener(() -> sv_root_layout.requestDisallowInterceptTouchEvent(true));
+    }
+
+    public void refreshClick(View v) {
+        drawMap();
+        memoHistory();
+    }
+
+    //작업정보 가져오기
+    public void drawMap() {
+        // request work data to server
+        JSONObject packet = new JSONObject();
+        try {
+            packet.put("method", "GET");
+            packet.put("subject", "task");
+            socketManager.send(packet.toString());
+        } catch (JSONException e) {
+            Toast.makeText(this, "error at make json...", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        } catch (RemoteException e) {
+            Toast.makeText(this, "maybe socket error...", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
+
+        try {
+            receivedData = socketManager.receive();
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+        Log.d(TAG, String.format("received data : %s", receivedData));
+
+        JSONObject parsedData = new JSONObject();
+        try {
+            parsedData = new JSONObject(receivedData);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        mMap.clear();
+
+        try {
+            int status = parsedData.getInt("status");
+
+            // if receive error message
+            if (status == 4) {
+                String message = parsedData.getString("message");
+                Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            JSONObject data = parsedData.getJSONObject("data");
+            JSONArray parcels = data.getJSONArray("parcels");
+            JSONArray surveyPoints = data.getJSONArray("surveyPoints");
+
+            double sumX =0;
+            double sumY =0;
+            int sumi = 0;
+            //도형 점 정보 그림
+            for (int i = 0; i < parcels.length(); i++) {
+                JSONObject tmp3 = parcels.getJSONObject(i);
+                JSONArray parcelPoints = tmp3.getJSONArray("parcelPoints");
+                ArrayList<Double> yParcelPointsList = new ArrayList<>();
+                ArrayList<Double> xParcelPointsList = new ArrayList<>();
+                for (int j = 0; j < parcelPoints.length(); j++) {
+                    sumi++;
+                    JSONObject tmp2 = parcelPoints.getJSONObject(j);
+                    double x = tmp2.getDouble("Y");
+                    double y = tmp2.getDouble("X");
+                    sumX+=x;
+                    sumY+=y;
+                    xParcelPointsList.add(x);
+                    yParcelPointsList.add(y);
+                    if (j != 0) {
+                        LatLng poly1 = new LatLng(xParcelPointsList.get(j - 1), yParcelPointsList.get(j - 1));
+                        LatLng poly2 = new LatLng(xParcelPointsList.get(j), yParcelPointsList.get(j));
+                        PolylineOptions poly = new PolylineOptions();
+                        poly.color(Color.RED);
+                        poly.width(6);
+                        poly.add(poly1);
+                        poly.add(poly2);
+                        mMap.addPolyline(poly);
+                    }
+                    if(j == parcelPoints.length()-1){
+                        LatLng poly1 = new LatLng(xParcelPointsList.get(0), yParcelPointsList.get(0));
+                        LatLng poly2 = new LatLng(xParcelPointsList.get(j), yParcelPointsList.get(j));
+                        PolylineOptions poly = new PolylineOptions();
+                        poly.color(Color.RED);
+                        poly.width(6);
+                        poly.add(poly1);
+                        poly.add(poly2);
+                        mMap.addPolyline(poly);
+                    }
+                }
+            }
+
+            LatLng center = new LatLng((double)sumX/sumi, (double)sumY/sumi);
+            CameraPosition cameraPosition = new CameraPosition.Builder()
+                    .target(center)      // Sets the center of the map to Mountain View
+                    .zoom(16)                   // Sets the zoom
+                    .bearing(0)                // Sets the orientation of the camera to east
+                    .tilt(30)                   // Sets the tilt of the camera to 30 degrees
+                    .build();
+
+            // 카메라를 여의도 위치로 옮긴다.
+            mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+            //작업 점 정보 그림
+            for (int i = 0; i < surveyPoints.length(); i++) {
+                JSONObject tmp = (JSONObject) surveyPoints.get(i);
+                double x = tmp.getDouble("Y");
+                double y = tmp.getDouble("X");
+                boolean surveyed = tmp.getBoolean("surveyed");
+                String serveyID =  tmp.getString("id");
+                LatLng point = new LatLng(x, y);
+
+                MarkerOptions makerOptions = new MarkerOptions();
+                if (surveyed) {
+                    makerOptions
+                            .position(point)
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
+                            .title(serveyID);
+                } else {
+                    makerOptions
+                            .position(point)
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+                            .title(serveyID);
+                }
+
+                // 마커를 생성한다.
+                mMap.addMarker(makerOptions);
+                mMap.setOnMarkerClickListener(this);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        File file2 = new File(Environment.getExternalStorageDirectory() + "/" + taskId);
         if (!file2.exists()) {
             file2.mkdir();
         }
-        File file = new File(Environment.getExternalStorageDirectory() + "/" + workNum + "/history");
+        File file = new File(Environment.getExternalStorageDirectory() + "/" + taskId + "/history");
         if (!file.exists()) {
             file.mkdir();
         }
 
-        String historyPath = Environment.getExternalStorageDirectory() + "/" + workNum + "/history/history.txt";
+        String historyPath = Environment.getExternalStorageDirectory() + "/" + taskId + "/history/history.txt";
         File historyFile = new File(historyPath);
 
         try {
@@ -426,23 +528,23 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         pointNum = marker.getTitle();
 
         // check directory is exist
-        File file = new File(Environment.getExternalStorageDirectory() + "/" + workNum);
+        File file = new File(Environment.getExternalStorageDirectory() + "/" + taskId);
         if (!file.exists()) {
             file.mkdir();
         }
-        File file2 = new File(Environment.getExternalStorageDirectory() + "/" + workNum + "/" + pointNum);
+        File file2 = new File(Environment.getExternalStorageDirectory() + "/" + taskId + "/" + pointNum);
         if (!file2.exists()) {
             file2.mkdir();
         }
-        File uploadFile = new File(Environment.getExternalStorageDirectory() + "/" + workNum + "/" + pointNum + "/uploadfile");
+        File uploadFile = new File(Environment.getExternalStorageDirectory() + "/" + taskId + "/" + pointNum + "/uploadfile");
         if (!uploadFile.exists()) {
             uploadFile.mkdir();
         }
-        File file4 = new File(Environment.getExternalStorageDirectory() + "/" + workNum + "/" + pointNum + "/textfile");
+        File file4 = new File(Environment.getExternalStorageDirectory() + "/" + taskId + "/" + pointNum + "/textfile");
         if (!file4.exists()) {
             file4.mkdir();
         }
-        File file5 = new File(Environment.getExternalStorageDirectory() + "/" + workNum + "/" + pointNum + "/memofile");
+        File file5 = new File(Environment.getExternalStorageDirectory() + "/" + taskId + "/" + pointNum + "/memofile");
         if (!file5.exists()) {
             file5.mkdir();
         }
@@ -459,7 +561,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
 
 
         // 마커의 메모 불러오기
-        String clientMemoPath = Environment.getExternalStorageDirectory() + "/" + workNum + "/" + pointNum + "/memofile/" + workNum + "_" + pointNum + "_" + "memo.txt";
+        String clientMemoPath = Environment.getExternalStorageDirectory() + "/" + taskId + "/" + pointNum + "/memofile/" + taskId + "_" + pointNum + "_" + "memo.txt";
         File clientMemoFile = new File(clientMemoPath);
 
         if (!clientMemoFile.exists()) {
@@ -675,7 +777,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
             Toast.makeText(getBaseContext(), "작업할 마커를 선택해주세요.", Toast.LENGTH_SHORT).show();
             return;
         }
-        String clientMemoPath = Environment.getExternalStorageDirectory() + "/" + workNum + "/" + pointNum + "/memofile/" + workNum + "_" + pointNum + "_" + "memo.txt";
+        String clientMemoPath = Environment.getExternalStorageDirectory() + "/" + taskId + "/" + pointNum + "/memofile/" + taskId + "_" + pointNum + "_" + "memo.txt";
         File clientMemoFile = new File(clientMemoPath);
 
         String memoStr = et_client_memo.getText().toString();
@@ -710,7 +812,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
             Toast.makeText(getBaseContext(), "작업할 마커를 선택해주세요.", Toast.LENGTH_SHORT).show();
             return;
         }
-        String clientMemoPath = Environment.getExternalStorageDirectory() + "/" + workNum + "/" + pointNum + "/memofile/" + workNum + "_" + pointNum + "_" + "memo.txt";
+        String clientMemoPath = Environment.getExternalStorageDirectory() + "/" + taskId + "/" + pointNum + "/memofile/" + taskId + "_" + pointNum + "_" + "memo.txt";
         File clientMemoFile = new File(clientMemoPath);
         et_client_memo.setText("");
 
@@ -728,7 +830,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
             Intent intent = new Intent(this, CameraActivity.class);
             Bundle bundleData = new Bundle();
             bundleData.putString("c_point_num", pointNum);
-            bundleData.putString("work_num", workNum);
+            bundleData.putString("work_num", taskId);
             intent.putExtra("ID_NUM", bundleData);
             startActivity(intent);
         } else {
@@ -744,7 +846,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
 
             Bundle bundleData = new Bundle();
             bundleData.putString("c_point_num", pointNum);
-            bundleData.putString("work_num", workNum);
+            bundleData.putString("work_num", taskId);
             intent.putExtra("ID_NUM", bundleData);
 
             startActivityForResult(intent, GALLERY_CODE);
@@ -815,7 +917,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
                 try {
                     // make streams
                     FileInputStream fis = new FileInputStream(file);
-                    FileOutputStream newFos = new FileOutputStream(String.format("%s/%s/%s/%s/%s", Environment.getExternalStorageDirectory(), workNum, pointNum, "uploadfile", fileName));
+                    FileOutputStream newFos = new FileOutputStream(String.format("%s/%s/%s/%s/%s", Environment.getExternalStorageDirectory(), taskId, pointNum, "uploadfile", fileName));
 
                     // copy
                     int readCount = 0;
