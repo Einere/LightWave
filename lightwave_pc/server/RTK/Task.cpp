@@ -6,6 +6,7 @@
 #include "json/json.h"
 #include "Task.h"
 #include "path.h"
+#include <map>
 
 using namespace File;
 using namespace DataType;
@@ -101,10 +102,17 @@ namespace SurveyTask {
 
 	int Task::AddParcels(std::vector<CParcel> pts)
 	{
+		std::map<CString, bool> landNoExists;
+		for (auto itor = m_parcels.begin(); itor != m_parcels.end(); ++itor) {
+			landNoExists[itor->landNo] = true;
+		}
+
 		for (size_t i = 0; i < pts.size(); ++i) {
+			if (landNoExists[pts[i].GetLandNo()]) continue;
 			ParcelToStore parcel = Parcel2ParcelToStore(pts[i]);
 			m_parcels.push_back(parcel);
 		}
+
 		return m_parcels.size();
 	}
 
