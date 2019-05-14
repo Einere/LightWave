@@ -134,6 +134,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
             tv_work_name.setText(receivedIntent.getStringExtra("taskName"));
             tv_location_number.setText(receivedIntent.getStringExtra("landNo"));
             et_server_memo.setText(receivedIntent.getStringExtra("taskDesc"));
+            taskName=receivedIntent.getStringExtra("taskDesc");
             workNum = receivedIntent.getStringExtra("id");
             Toast.makeText(this, workNum, Toast.LENGTH_SHORT).show();
             receivedData = receivedIntent.getStringExtra("receivedData");
@@ -190,6 +191,9 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
 
         String taskhistoryPath = Environment.getExternalStorageDirectory() + "/workHistory/"+ taskName +".txt";
         File taskhistoryFile = new File(taskhistoryPath);
+        if (taskhistoryFile.exists()) {
+            taskhistoryFile.delete();
+        }
 
         try {
             if (!taskhistoryFile.exists()) {
@@ -335,28 +339,26 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
             JSONArray surveyPoints = data.getJSONArray("surveyPoints");
 
             //도형 점 정보 그림
-            for (int i = 0; i < parcels.length(); i++) {
-                JSONObject tmp = parcels.getJSONObject(i);
-                JSONArray parcelPoints = tmp.getJSONArray("parcelPoints");
+                JSONObject tmp3 = parcels.getJSONObject(0);
+                JSONArray parcelPoints = tmp3.getJSONArray("parcelPoints");
                 ArrayList<Double> yParcelPointsList = new ArrayList<>();
                 ArrayList<Double> xParcelPointsList = new ArrayList<>();
                 for (int j = 0; j < parcelPoints.length(); j++) {
-                    JSONObject tmp2 = parcelPoints.getJSONObject(i);
+                    JSONObject tmp2 = parcelPoints.getJSONObject(j);
                     double x = tmp2.getDouble("Y");
                     double y = tmp2.getDouble("X");
                     xParcelPointsList.add(x);
                     yParcelPointsList.add(y);
-                    if (i != 0) {
-                        LatLng poly1 = new LatLng(xParcelPointsList.get(i - 1), yParcelPointsList.get(i - 1));
-                        LatLng poly2 = new LatLng(xParcelPointsList.get(i), yParcelPointsList.get(i));
+                    if (j != 0) {
+                        LatLng poly1 = new LatLng(xParcelPointsList.get(j - 1), yParcelPointsList.get(j- 1));
+                        LatLng poly2 = new LatLng(xParcelPointsList.get(j), yParcelPointsList.get(j));
                         PolylineOptions poly = new PolylineOptions();
                         poly.color(Color.RED);
-                        poly.width(4);
+                        poly.width(6);
                         poly.add(poly1);
                         poly.add(poly2);
                         mMap.addPolyline(poly);
                     }
-                }
             }
 
             //작업 점 정보 그림
@@ -365,7 +367,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
                 double x = tmp.getDouble("Y");
                 double y = tmp.getDouble("X");
                 boolean surveyed = tmp.getBoolean("surveyed");
-
+                String serveyID =  tmp.getString("id");
                 LatLng point = new LatLng(x, y);
 
                 MarkerOptions makerOptions = new MarkerOptions();
@@ -373,12 +375,12 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
                     makerOptions
                             .position(point)
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
-                            .title("212");
+                            .title(serveyID);
                 } else {
                     makerOptions
                             .position(point)
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
-                            .title("212");
+                            .title(serveyID);
                 }
 
                 // 마커를 생성한다.
