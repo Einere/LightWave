@@ -2,8 +2,10 @@ package com.example.einere.myapplication.connection;
 
 import android.app.Service;
 import android.content.Intent;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -24,6 +26,8 @@ public class ConnectionService extends Service {
     final int STATUS_DISCONNECTED = 0;
     final int STATUS_CONNECTED = 1;
     final int TIME_OUT = 5000;
+    final int SOCKET_SEND_COMPLETE = 10;
+    final int SOCKET_RECEIVE_COMPLETE = 11;
 
     private int status = STATUS_DISCONNECTED;
     private Socket socket = null;
@@ -32,6 +36,10 @@ public class ConnectionService extends Service {
     private BufferedWriter writer = null;
     private String receivedData = null;
     private Boolean existReceivedData = false;
+
+    private Thread sendThread = null;
+    private Thread receiveThread = null;
+    private Handler handler = null;
 
     IConnectionService.Stub binder = new IConnectionService.Stub() {
         @Override
@@ -74,6 +82,29 @@ public class ConnectionService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        handler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                switch (msg.what) {
+                    case SOCKET_SEND_COMPLETE: {
+                        // kill send thread
+                        if (sendThread != null) {
+                            sendThread.interrupt();
+                        }
+                        sendThread = null;
+                        Log.d(TAG, "kill sending thread");
+                    }
+                    case SOCKET_RECEIVE_COMPLETE: {
+                        // kill receiving thread
+                        if (receiveThread != null) {
+                            receiveThread.interrupt();
+                        }
+                        receiveThread = null;
+                        Log.d(TAG, "kill receiving thread");
+                    }
+                }
+            }
+        };
         Log.i("ConnectionService", "onCreate()");
     }
 
@@ -140,39 +171,66 @@ public class ConnectionService extends Service {
 
     void mySend(String packet) {
         final String myPacket = packet;
-        new Thread(() -> {
-            Looper.prepare();
-            try {
-                writer.write(myPacket, 0, myPacket.length());
-                writer.flush();
-            } catch (IOException e) {
-                e.printStackTrace();
-                Toast.makeText(ConnectionService.this, "error at send data...", Toast.LENGTH_SHORT).show();
-            }
-        }).start();
+        if (sendThread == null) {
+            sendThread = new Thread(() -> {
+                Looper.prepare();
+                try {
+                    writer.write(myPacket, 0, myPacket.length());
+                    writer.flush();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Toast.makeText(ConnectionService.this, "error at send data...", Toast.LENGTH_SHORT).show();
+                }
+
+                // make message
+                Message message = handler.obtainMessage();
+                message.what = SOCKET_SEND_COMPLETE;
+                handler.sendMessage(message);
+            });
+        }
+
+        if (!sendThread.isAlive()) {
+            sendThread.start();
+        }
     }
 
     String myReceive() {
-        new Thread(() -> {
-            Looper.prepare();
-            try{
-                Log.d(TAG, "myReceive()'s thread run");
-                // polling whether available data is exist...
-                // !Thread.currentThread().isInterrupted() &&
-                while((receivedData = reader.readLine()) != null){
-                    existReceivedData = true;
-                    Log.d(TAG, String.format("read data : %s...", receivedData));
-                    Log.d(TAG, String.format("read data length : %d...", receivedData.length()));
-                }
-                Log.d(TAG, "myReceive()'s thread exit while loop");
-            } catch (Exception e) {
-                e.printStackTrace();
-                Log.d(TAG, "myReceive()'s thread error");
-            }
-        }).start();
+        // make receiving thread
+        if (receiveThread == null) {
+            receiveThread = new Thread(() -> {
+                Looper.prepare();
+                try {
+                    Log.d(TAG, "myReceive()'s thread run");
+                    // polling whether available data is exist...
+                    // !Thread.currentThread().isInterrupted() &&
+                    while ((receivedData = reader.readLine()) != null) {
+                        existReceivedData = true;
+                        Log.d(TAG, String.format("[%d] read data : %s...", Thread.currentThread().getId(), receivedData));
+                        Log.d(TAG, String.format("[%d] read data length : %d...", Thread.currentThread().getId(), receivedData.length()));
 
-        for(int i = 0; i < 5; i++){
-            if(existReceivedData){
+                    }
+                    Log.d(TAG, "myReceive()'s thread exit while loop");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.d(TAG, "myReceive()'s thread error");
+                }
+
+                // make message
+                Message message = handler.obtainMessage();
+                message.what = SOCKET_RECEIVE_COMPLETE;
+                handler.sendMessage(message);
+            });
+            Log.d(TAG, "receiving thread assign!!");
+        }
+
+        // if thread is not alive
+        if (!receiveThread.isAlive()) {
+            receiveThread.start();
+            Log.d(TAG, "receiving thread start!!");
+        }
+
+        for (int i = 0; i < 5; i++) {
+            if (existReceivedData) {
                 break;
             }
             try {
@@ -186,19 +244,18 @@ public class ConnectionService extends Service {
         return receivedData;
     }
 
-    void checkStatus(){
+    void checkStatus() {
         new Thread(() -> {
-            while(status == STATUS_DISCONNECTED){
-                try{
-                    if(socket.isClosed()){
+            while (status == STATUS_DISCONNECTED) {
+                try {
+                    if (socket.isClosed()) {
                         socket.connect(socketAddress, TIME_OUT);
                         writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8));
                         reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
                         status = STATUS_CONNECTED;
                         Log.i("ConnectionService", "myConnect2()");
                     }
-                }
-                catch(IOException e) {
+                } catch (IOException e) {
                     e.printStackTrace();
                     status = STATUS_DISCONNECTED;
                 }
@@ -206,7 +263,7 @@ public class ConnectionService extends Service {
         }).start();
     }
 
-    void resetReceivedData(){
+    void resetReceivedData() {
         Log.d(TAG, "resetReceivedData call");
         existReceivedData = false;
         receivedData = null;

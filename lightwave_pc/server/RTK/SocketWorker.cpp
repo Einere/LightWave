@@ -3,6 +3,7 @@
 #include "WorkerManager.h"
 #include "MainFrm.h"
 #include "SocketWorker.h"
+#include "LengthMiddleware.h"
 
 SocketWorker::SocketWorker( WorkerManager* pWorkerManager) {
 	m_pWorkerManager = pWorkerManager;
@@ -36,8 +37,6 @@ CString SocketWorker::GetWorkerName()
 void SocketWorker::SetAuthorized()
 {
 	m_worker.authorized = true;
-
-	/* workaround */
 	GetPeerName(m_worker.ip, m_worker.port);
 }
 
@@ -48,25 +47,30 @@ bool SocketWorker::IsAuthorized() const
 
 void SocketWorker::OnReceive(int nErrorCode)
 {
-	const std::string data = readIn();
-	Logger::Log("request size: %d bytes", data.size());
-	Logger::Log("request: %s", data.c_str());
+	m_data += readIn();
+	if (!isEndOfRequest()) {
+		// 요청의 끝을 아직 만나지 못했으므로 응답하지않고 다음 패킷을 기다린다.
+		return;
+	}
+
+	Logger::Log("request size: %d bytes", m_data.size());
+	Logger::Log("request: %s", m_data.c_str());
 	
-	std::string response = m_requestResolver.Resolve(*this, data);
+	std::string response = m_requestResolver.Resolve(*this, m_data);
+	if (response == Service::NO_RESPONSE) return;
 	response += '\n';
 
-	std::string responseU8 = UTF8Encoding::gogoUTF8(response);
-	auto res = responseU8.c_str();
+	std::string responseU8 = TextEncoding::gogoUTF8(response);
 
-	Logger::Log("response: %s", response.c_str());
-
-	int result = this->Send((void*)(res), responseU8.size(), sends);
-	if (SOCKET_ERROR == result) {
+	int sentSizeOrError = this->Send((void*)(responseU8.c_str()), responseU8.size(), sends);
+	if (SOCKET_ERROR == sentSizeOrError) {
 		Logger::Log("응답 실패");
 		return;
 	}
 
-	Logger::Log("Sent: %d bytes", result);
+	Logger::Log("response size: %d bytes", sentSizeOrError);
+	Logger::Log("response: %s", response.c_str());
+	m_data.clear();
 }
 
 void SocketWorker::OnClose(int nErrorCode)
@@ -82,6 +86,23 @@ void SocketWorker::NotifyUpdate() const
 	WorkerManager::GetInstance()->Update();
 }
 
+void SocketWorker::beginBlob(int size)
+{
+	m_data.clear();
+	m_blobSize = size;
+}
+
+void SocketWorker::endBlob()
+{
+	m_data.clear();
+	m_blobSize = 0;
+}
+
+bool SocketWorker::isEndOfRequest() const
+{
+	return !(m_blobSize > 0);
+}
+
 std::string SocketWorker::readIn()
 {
 	std::string buf;
@@ -93,6 +114,10 @@ std::string SocketWorker::readIn()
 		receivedLength = Receive((void*)block, BLOCK_SIZE);
 		buf.append(block, receivedLength);
 	} while (receivedLength == 1024 && buf[buf.size()-1]!=0);
+
+	if (m_blobSize > 0) {
+		m_blobSize -= receivedLength;
+	}
 
 	return buf;
 }
