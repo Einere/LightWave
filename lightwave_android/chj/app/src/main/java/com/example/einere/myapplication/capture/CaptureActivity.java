@@ -242,46 +242,137 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         // 구글 맵 객체를 불러온다.
         mMap = googleMap;
 
-       /* // 서울 여의도에 대한 위치 설정
-        LatLng seoul = new LatLng(37.52487, 126.92723);
-        LatLng seoul2 = new LatLng(37.52440, 126.92750);
+        JSONObject parsedData = new JSONObject();
+        try {
+            parsedData = new JSONObject(receivedData);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        mMap.clear();
 
-        // 구글 맵에 표시할 마커에 대한 옵션 설정
-        MarkerOptions makerOptions = new MarkerOptions();
-        makerOptions
-                .position(seoul)
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW))
-                .title("212");
+        try {
+            int status = parsedData.getInt("status");
 
-        MarkerOptions makerOptions2 = new MarkerOptions();
-        makerOptions2
-                .position(seoul2)
-                .title("213");
+            // if receive error message
+            if (status == 4) {
+                String message = parsedData.getString("message");
+                Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            JSONObject data = parsedData.getJSONObject("data");
+            JSONArray parcels = data.getJSONArray("parcels");
+            JSONArray surveyPoints = data.getJSONArray("surveyPoints");
 
-        // 마커를 생성한다.
-        mMap.addMarker(makerOptions);
-        mMap.addMarker(makerOptions2);
-        mMap.setOnMarkerClickListener(this);
+            double sumX =0;
+            double sumY =0;
+            int sumi = 0;
+            //도형 점 정보 그림
+            for (int i = 0; i < parcels.length(); i++) {
+                JSONObject tmp3 = parcels.getJSONObject(i);
+                JSONArray parcelPoints = tmp3.getJSONArray("parcelPoints");
+                ArrayList<Double> yParcelPointsList = new ArrayList<>();
+                ArrayList<Double> xParcelPointsList = new ArrayList<>();
+                for (int j = 0; j < parcelPoints.length(); j++) {
+                    sumi++;
+                    JSONObject tmp2 = parcelPoints.getJSONObject(j);
+                    double x = tmp2.getDouble("Y");
+                    double y = tmp2.getDouble("X");
+                    sumX+=x;
+                    sumY+=y;
+                    xParcelPointsList.add(x);
+                    yParcelPointsList.add(y);
+                    if (j != 0) {
+                        LatLng poly1 = new LatLng(xParcelPointsList.get(j - 1), yParcelPointsList.get(j - 1));
+                        LatLng poly2 = new LatLng(xParcelPointsList.get(j), yParcelPointsList.get(j));
+                        PolylineOptions poly = new PolylineOptions();
+                        poly.color(Color.RED);
+                        poly.width(6);
+                        poly.add(poly1);
+                        poly.add(poly2);
+                        mMap.addPolyline(poly);
+                    }
+                    if(j == parcelPoints.length()-1){
+                        LatLng poly1 = new LatLng(xParcelPointsList.get(0), yParcelPointsList.get(0));
+                        LatLng poly2 = new LatLng(xParcelPointsList.get(j), yParcelPointsList.get(j));
+                        PolylineOptions poly = new PolylineOptions();
+                        poly.color(Color.RED);
+                        poly.width(6);
+                        poly.add(poly1);
+                        poly.add(poly2);
+                        mMap.addPolyline(poly);
+                    }
+                }
+            }
 
-        PolylineOptions poly = new PolylineOptions();
-        poly.color(Color.RED);
-        poly.width(4);
-        poly.add(seoul);
-        poly.add(seoul2);
-        mMap.addPolyline(poly);*/
+            LatLng center = new LatLng((double)sumX/sumi, (double)sumY/sumi);
+            CameraPosition cameraPosition = new CameraPosition.Builder()
+                    .target(center)      // Sets the center of the map to Mountain View
+                    .zoom(16)                   // Sets the zoom
+                    .bearing(0)                // Sets the orientation of the camera to east
+                    .tilt(30)                   // Sets the tilt of the camera to 30 degrees
+                    .build();
 
-       drawMap();
-        LatLng seoul = new LatLng(37.52487, 126.92723);
-        // 카메라 옵션
-        CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(seoul)      // Sets the center of the map to Mountain View
-                .zoom(18)                   // Sets the zoom
-                .bearing(0)                // Sets the orientation of the camera to east
-                .tilt(30)                   // Sets the tilt of the camera to 30 degrees
-                .build();
+            // 카메라를 여의도 위치로 옮긴다.
+            mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
-        // 카메라를 여의도 위치로 옮긴다.
-        mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+            //작업 점 정보 그림
+            for (int i = 0; i < surveyPoints.length(); i++) {
+                JSONObject tmp = (JSONObject) surveyPoints.get(i);
+                double x = tmp.getDouble("Y");
+                double y = tmp.getDouble("X");
+                boolean surveyed = tmp.getBoolean("surveyed");
+                String serveyID =  tmp.getString("id");
+                LatLng point = new LatLng(x, y);
+
+                MarkerOptions makerOptions = new MarkerOptions();
+                if (surveyed) {
+                    makerOptions
+                            .position(point)
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
+                            .title(serveyID);
+                } else {
+                    makerOptions
+                            .position(point)
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
+                            .title(serveyID);
+                }
+
+                // 마커를 생성한다.
+                mMap.addMarker(makerOptions);
+                mMap.setOnMarkerClickListener(this);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        File file2 = new File(Environment.getExternalStorageDirectory() + "/" + workNum);
+        if (!file2.exists()) {
+            file2.mkdir();
+        }
+        File file = new File(Environment.getExternalStorageDirectory() + "/" + workNum + "/history");
+        if (!file.exists()) {
+            file.mkdir();
+        }
+
+        String historyPath = Environment.getExternalStorageDirectory() + "/" + workNum + "/history/history.txt";
+        File historyFile = new File(historyPath);
+
+        try {
+            if (!historyFile.exists()) {
+                try {
+                    FileOutputStream fos = new FileOutputStream(historyFile);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            FileOutputStream fos = new FileOutputStream(historyFile);
+            BufferedWriter buw = new BufferedWriter(new OutputStreamWriter(fos, StandardCharsets.UTF_8));
+            buw.write(receivedData);
+            buw.close();
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
 
         // prevent double scroll
         ScrollView sv_root_layout = findViewById(R.id.sv_root_layout);
@@ -338,19 +429,26 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
             JSONArray parcels = data.getJSONArray("parcels");
             JSONArray surveyPoints = data.getJSONArray("surveyPoints");
 
+            double sumX =0;
+            double sumY =0;
+            int sumi = 0;
             //도형 점 정보 그림
-                JSONObject tmp3 = parcels.getJSONObject(0);
+            for (int i = 0; i < parcels.length(); i++) {
+                JSONObject tmp3 = parcels.getJSONObject(i);
                 JSONArray parcelPoints = tmp3.getJSONArray("parcelPoints");
                 ArrayList<Double> yParcelPointsList = new ArrayList<>();
                 ArrayList<Double> xParcelPointsList = new ArrayList<>();
                 for (int j = 0; j < parcelPoints.length(); j++) {
+                    sumi++;
                     JSONObject tmp2 = parcelPoints.getJSONObject(j);
                     double x = tmp2.getDouble("Y");
                     double y = tmp2.getDouble("X");
+                    sumX+=x;
+                    sumY+=y;
                     xParcelPointsList.add(x);
                     yParcelPointsList.add(y);
                     if (j != 0) {
-                        LatLng poly1 = new LatLng(xParcelPointsList.get(j - 1), yParcelPointsList.get(j- 1));
+                        LatLng poly1 = new LatLng(xParcelPointsList.get(j - 1), yParcelPointsList.get(j - 1));
                         LatLng poly2 = new LatLng(xParcelPointsList.get(j), yParcelPointsList.get(j));
                         PolylineOptions poly = new PolylineOptions();
                         poly.color(Color.RED);
@@ -359,7 +457,29 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
                         poly.add(poly2);
                         mMap.addPolyline(poly);
                     }
+                    if(j == parcelPoints.length()-1){
+                        LatLng poly1 = new LatLng(xParcelPointsList.get(0), yParcelPointsList.get(0));
+                        LatLng poly2 = new LatLng(xParcelPointsList.get(j), yParcelPointsList.get(j));
+                        PolylineOptions poly = new PolylineOptions();
+                        poly.color(Color.RED);
+                        poly.width(6);
+                        poly.add(poly1);
+                        poly.add(poly2);
+                        mMap.addPolyline(poly);
+                    }
+                }
             }
+
+            LatLng center = new LatLng((double)sumX/sumi, (double)sumY/sumi);
+            CameraPosition cameraPosition = new CameraPosition.Builder()
+                    .target(center)      // Sets the center of the map to Mountain View
+                    .zoom(16)                   // Sets the zoom
+                    .bearing(0)                // Sets the orientation of the camera to east
+                    .tilt(30)                   // Sets the tilt of the camera to 30 degrees
+                    .build();
+
+            // 카메라를 여의도 위치로 옮긴다.
+            mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
             //작업 점 정보 그림
             for (int i = 0; i < surveyPoints.length(); i++) {
