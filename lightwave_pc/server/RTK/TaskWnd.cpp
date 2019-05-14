@@ -62,8 +62,9 @@ BEGIN_MESSAGE_MAP(CTaskMngDlg, CDialogEx)
 	ON_NOTIFY(NM_CLICK, IDC_LIST_TASK, &CTaskMngDlg::OnNMClickListTask)
 	ON_COMMAND(ID_TASK_MNG_DELETE, &CTaskMngDlg::OnTaskMngDelete)
 	ON_COMMAND(ID_TASK_MNG_ACTIVE, &CTaskMngDlg::OnTaskMngActive)
-	ON_COMMAND(ID_TASK_MNG_TOGGLE_STATE, &CTaskMngDlg::OnTaskMngToggleState)
+	ON_COMMAND(ID_TASK_MNG_START_TASK, &CTaskMngDlg::OnTaskMngStartTask)
 	ON_NOTIFY(LVN_ITEMACTIVATE, IDC_LIST_TASK, &CTaskMngDlg::OnLvnItemActivateListTask)
+	ON_BN_CLICKED(IDC_BUTTON_START_TASK, &CTaskMngDlg::OnBnClickedButtonStartTask)
 END_MESSAGE_MAP()
 
 
@@ -88,6 +89,27 @@ SurveyTask::Task& CTaskMngDlg::appendTask(const SurveyTask::Task& task)
 	return taskManager->GetTaskByIndex(taskManager->GetTasksCount()-1);
 }
 
+bool CTaskMngDlg::StartSelectedTask()
+{
+	UINT id = GetSelectedId();
+
+	auto taskManager = ProgramManager::TaskManager::GetInstance();
+	BOOL hasStarted = taskManager->StartTask(id);
+	if (!hasStarted) {
+		MessageBox("시작 가능한 작업이 아닙니다.", "경고", MB_ICONWARNING);
+		return false;
+	}
+
+	SurveyTask::Task* pTask;
+	pTask = taskManager->GetTaskById(id);
+
+	char notice[100];
+	sprintf(notice, "작업이 시작되었습니다.\n작업 ID: %d\n작업 이름: %s", pTask->GetId(), pTask->GetTaskName().GetString());
+	MessageBox(notice, "안내", MB_ICONINFORMATION);
+
+	return true;
+}
+
 UINT CTaskMngDlg::GetSelectedId() const
 {
 	int mark = m_listTask.GetSelectionMark();
@@ -109,32 +131,16 @@ int CTaskMngDlg::deleteSelectedTask()
 	BOOL success = m_listTask.DeleteItem(mark);
 	
 	if (!success) return -1;
+
+	int nextMark = mark <= m_listTask.GetItemCount() - 1 ? mark : mark - 1;
+	
+	if (nextMark >= 0) {
+		m_listTask.SetItemState(nextMark, LVIS_SELECTED, LVIS_SELECTED);
+		m_listTask.SetSelectionMark(nextMark);
+	}
+
 	return 1;
 }
-
-//BOOL CTaskMngDlg::getSelectedTask(SurveyTask::Task & task_Out) const
-//{
-//	UINT taskIndex = getSelectedTaskIndex();
-//	if (-1 == taskIndex) return FALSE;
-//
-//	task_Out = m_tasks[taskIndex];
-//	return TRUE;
-//}
-//
-//UINT CTaskMngDlg::getSelectedTaskIndex() const
-//{
-//	int mark = m_listTask.GetSelectionMark();
-//	CString idInString = m_listTask.GetItemText(mark, 0);
-//
-//	UINT id = _ttoi(idInString);
-//	UINT tasksCount = m_tasks.size();
-//
-//	for (int i = 0; i < tasksCount; ++i) {
-//		if (id == m_tasks[i].getId()) return i;
-//	}
-//
-//	return -1;
-//}
 
 void CTaskMngDlg::OnBnClickedButtonAddTask()
 {
@@ -263,28 +269,11 @@ void CTaskMngDlg::OnTaskMngActive()
 
 	auto pManager = ProgramManager::TaskManager::GetInstance();
 	pManager->LoadTask(id);
-	/*auto pManager = ProgramManager::CParcelManager::GetInstance();
-	pManager->LoadCif(fileName);*/
 }
 
-void CTaskMngDlg::OnTaskMngToggleState()
+void CTaskMngDlg::OnTaskMngStartTask()
 {
-	UINT id = GetSelectedId();
-	auto taskManager = ProgramManager::TaskManager::GetInstance();
-
-	BOOL hasStarted = taskManager->StartTask(id);
-	if (!hasStarted) {
-		MessageBox("시작 가능한 작업이 아닙니다.", "경고", MB_ICONWARNING);
-		return;
-	}
-	
-	SurveyTask::Task* pTask;
-	pTask = taskManager->GetTaskById(id);
-	ASSERT(pTask != NULL);
-
-	char notice[100];
-	sprintf(notice, "작업이 시작되었습니다.\n작업 ID: %d\n작업 이름: %s", pTask->GetId(), pTask->GetTaskName().GetString());
-	MessageBox(notice, "안내", MB_ICONINFORMATION);
+	StartSelectedTask();
 }
 
 
@@ -297,3 +286,7 @@ void CTaskMngDlg::OnLvnItemActivateListTask(NMHDR *pNMHDR, LRESULT *pResult)
 	*pResult = 0;
 }
 
+void CTaskMngDlg::OnBnClickedButtonStartTask()
+{
+	StartSelectedTask();
+}

@@ -21,6 +21,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	SurveyTask::Task& appendTask(const SurveyTask::Task& task);
+	bool StartSelectedTask();
 
 public:
 	afx_msg void OnBnClickedButtonAddTask();
@@ -39,8 +40,9 @@ public:
 	afx_msg void OnNMClickListTask(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnTaskMngDelete();
 	afx_msg void OnTaskMngActive();
-	afx_msg void OnTaskMngToggleState();
+	afx_msg void OnTaskMngStartTask();
 	afx_msg void OnLvnItemActivateListTask(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnBnClickedButtonStartTask();
 };
 
 class TaskWnd : public CDockablePane {
