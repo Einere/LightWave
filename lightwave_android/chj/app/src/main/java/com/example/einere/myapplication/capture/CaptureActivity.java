@@ -96,7 +96,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
 
     // id_number
     private String pointNum = null;
-    private String workNum = "111";
+    private String taskId = "111";
 
     //image ArrayList
     private ArrayList<Image> images = new ArrayList<>();
@@ -134,9 +134,9 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
             tv_work_name.setText(receivedIntent.getStringExtra("taskName"));
             tv_location_number.setText(receivedIntent.getStringExtra("landNo"));
             et_server_memo.setText(receivedIntent.getStringExtra("taskDesc"));
-            taskName=receivedIntent.getStringExtra("taskDesc");
-            workNum = receivedIntent.getStringExtra("id");
-            Toast.makeText(this, workNum, Toast.LENGTH_SHORT).show();
+            taskName=receivedIntent.getStringExtra("taskName");
+            taskId = receivedIntent.getStringExtra("id");
+            Toast.makeText(this, taskId, Toast.LENGTH_SHORT).show();
             receivedData = receivedIntent.getStringExtra("receivedData");
         }
 
@@ -160,10 +160,19 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         findViewById(R.id.btn_memo_save).setOnClickListener(v -> saveMemo());
         findViewById(R.id.btn_memo_delete).setOnClickListener(v -> deleteMemo());
 
-         //이어하기 내역
+         memoHistory();
+    }
+
+    public void memoHistory(){
+        //이어하기 내역
         File file = new File(Environment.getExternalStorageDirectory() + "/" + "workHistory");
         if (!file.exists()) {
             file.mkdir();
+        }
+
+        File file2 = new File(Environment.getExternalStorageDirectory() + "/" + "workHistory/task");
+        if (!file2.exists()) {
+            file2.mkdir();
         }
 
         String historyPath = Environment.getExternalStorageDirectory() + "/workHistory/beforeHistory.txt";
@@ -189,7 +198,8 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
             e.printStackTrace();
         }
 
-        String taskhistoryPath = Environment.getExternalStorageDirectory() + "/workHistory/"+ taskName +".txt";
+        //작업리스트 내역
+        String taskhistoryPath = Environment.getExternalStorageDirectory() + "/workHistory/task/"+ taskName +".txt";
         File taskhistoryFile = new File(taskhistoryPath);
         if (taskhistoryFile.exists()) {
             taskhistoryFile.delete();
@@ -344,35 +354,8 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         } catch (Exception e) {
             e.printStackTrace();
         }
-        File file2 = new File(Environment.getExternalStorageDirectory() + "/" + workNum);
-        if (!file2.exists()) {
-            file2.mkdir();
-        }
-        File file = new File(Environment.getExternalStorageDirectory() + "/" + workNum + "/history");
-        if (!file.exists()) {
-            file.mkdir();
-        }
 
-        String historyPath = Environment.getExternalStorageDirectory() + "/" + workNum + "/history/history.txt";
-        File historyFile = new File(historyPath);
-
-        try {
-            if (!historyFile.exists()) {
-                try {
-                    FileOutputStream fos = new FileOutputStream(historyFile);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            FileOutputStream fos = new FileOutputStream(historyFile);
-            BufferedWriter buw = new BufferedWriter(new OutputStreamWriter(fos, StandardCharsets.UTF_8));
-            buw.write(receivedData);
-            buw.close();
-            fos.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+        memoHistory();
 
         // prevent double scroll
         ScrollView sv_root_layout = findViewById(R.id.sv_root_layout);
@@ -381,6 +364,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
 
     public void refreshClick(View v) {
         drawMap();
+        memoHistory();
     }
 
     //작업정보 가져오기
@@ -399,8 +383,6 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
             e.printStackTrace();
         }
 
-        // receive & parse requested data
-        String receivedData = null;
         try {
             receivedData = socketManager.receive();
         } catch (RemoteException e) {
@@ -510,16 +492,16 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         } catch (Exception e) {
             e.printStackTrace();
         }
-        File file2 = new File(Environment.getExternalStorageDirectory() + "/" + workNum);
+        File file2 = new File(Environment.getExternalStorageDirectory() + "/" + taskId);
         if (!file2.exists()) {
             file2.mkdir();
         }
-        File file = new File(Environment.getExternalStorageDirectory() + "/" + workNum + "/history");
+        File file = new File(Environment.getExternalStorageDirectory() + "/" + taskId + "/history");
         if (!file.exists()) {
             file.mkdir();
         }
 
-        String historyPath = Environment.getExternalStorageDirectory() + "/" + workNum + "/history/history.txt";
+        String historyPath = Environment.getExternalStorageDirectory() + "/" + taskId + "/history/history.txt";
         File historyFile = new File(historyPath);
 
         try {
@@ -546,23 +528,23 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         pointNum = marker.getTitle();
 
         // check directory is exist
-        File file = new File(Environment.getExternalStorageDirectory() + "/" + workNum);
+        File file = new File(Environment.getExternalStorageDirectory() + "/" + taskId);
         if (!file.exists()) {
             file.mkdir();
         }
-        File file2 = new File(Environment.getExternalStorageDirectory() + "/" + workNum + "/" + pointNum);
+        File file2 = new File(Environment.getExternalStorageDirectory() + "/" + taskId + "/" + pointNum);
         if (!file2.exists()) {
             file2.mkdir();
         }
-        File uploadFile = new File(Environment.getExternalStorageDirectory() + "/" + workNum + "/" + pointNum + "/uploadfile");
+        File uploadFile = new File(Environment.getExternalStorageDirectory() + "/" + taskId + "/" + pointNum + "/uploadfile");
         if (!uploadFile.exists()) {
             uploadFile.mkdir();
         }
-        File file4 = new File(Environment.getExternalStorageDirectory() + "/" + workNum + "/" + pointNum + "/textfile");
+        File file4 = new File(Environment.getExternalStorageDirectory() + "/" + taskId + "/" + pointNum + "/textfile");
         if (!file4.exists()) {
             file4.mkdir();
         }
-        File file5 = new File(Environment.getExternalStorageDirectory() + "/" + workNum + "/" + pointNum + "/memofile");
+        File file5 = new File(Environment.getExternalStorageDirectory() + "/" + taskId + "/" + pointNum + "/memofile");
         if (!file5.exists()) {
             file5.mkdir();
         }
@@ -579,7 +561,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
 
 
         // 마커의 메모 불러오기
-        String clientMemoPath = Environment.getExternalStorageDirectory() + "/" + workNum + "/" + pointNum + "/memofile/" + workNum + "_" + pointNum + "_" + "memo.txt";
+        String clientMemoPath = Environment.getExternalStorageDirectory() + "/" + taskId + "/" + pointNum + "/memofile/" + taskId + "_" + pointNum + "_" + "memo.txt";
         File clientMemoFile = new File(clientMemoPath);
 
         if (!clientMemoFile.exists()) {
@@ -795,7 +777,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
             Toast.makeText(getBaseContext(), "작업할 마커를 선택해주세요.", Toast.LENGTH_SHORT).show();
             return;
         }
-        String clientMemoPath = Environment.getExternalStorageDirectory() + "/" + workNum + "/" + pointNum + "/memofile/" + workNum + "_" + pointNum + "_" + "memo.txt";
+        String clientMemoPath = Environment.getExternalStorageDirectory() + "/" + taskId + "/" + pointNum + "/memofile/" + taskId + "_" + pointNum + "_" + "memo.txt";
         File clientMemoFile = new File(clientMemoPath);
 
         String memoStr = et_client_memo.getText().toString();
@@ -830,7 +812,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
             Toast.makeText(getBaseContext(), "작업할 마커를 선택해주세요.", Toast.LENGTH_SHORT).show();
             return;
         }
-        String clientMemoPath = Environment.getExternalStorageDirectory() + "/" + workNum + "/" + pointNum + "/memofile/" + workNum + "_" + pointNum + "_" + "memo.txt";
+        String clientMemoPath = Environment.getExternalStorageDirectory() + "/" + taskId + "/" + pointNum + "/memofile/" + taskId + "_" + pointNum + "_" + "memo.txt";
         File clientMemoFile = new File(clientMemoPath);
         et_client_memo.setText("");
 
@@ -848,7 +830,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
             Intent intent = new Intent(this, CameraActivity.class);
             Bundle bundleData = new Bundle();
             bundleData.putString("c_point_num", pointNum);
-            bundleData.putString("work_num", workNum);
+            bundleData.putString("work_num", taskId);
             intent.putExtra("ID_NUM", bundleData);
             startActivity(intent);
         } else {
@@ -864,7 +846,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
 
             Bundle bundleData = new Bundle();
             bundleData.putString("c_point_num", pointNum);
-            bundleData.putString("work_num", workNum);
+            bundleData.putString("work_num", taskId);
             intent.putExtra("ID_NUM", bundleData);
 
             startActivityForResult(intent, GALLERY_CODE);
@@ -935,7 +917,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
                 try {
                     // make streams
                     FileInputStream fis = new FileInputStream(file);
-                    FileOutputStream newFos = new FileOutputStream(String.format("%s/%s/%s/%s/%s", Environment.getExternalStorageDirectory(), workNum, pointNum, "uploadfile", fileName));
+                    FileOutputStream newFos = new FileOutputStream(String.format("%s/%s/%s/%s/%s", Environment.getExternalStorageDirectory(), taskId, pointNum, "uploadfile", fileName));
 
                     // copy
                     int readCount = 0;
