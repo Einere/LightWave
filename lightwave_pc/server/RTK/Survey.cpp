@@ -70,6 +70,15 @@ namespace SurveyTask {
 		m_images.push_back(image);
 	}
 
+	void Survey::ClearImages()
+	{
+		for (auto itor = m_images.begin(); itor != m_images.end(); ++itor) {
+			bool success = DeleteFile(itor->path);
+		}
+
+		m_images.clear();
+	}
+
 	void Survey::setWorker(Workers::Worker worker)
 	{
 		m_worker = worker;

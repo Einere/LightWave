@@ -8,7 +8,7 @@ namespace SurveyTask {
 		: public File::Storable
 	{
 	public:
-		Base64Image(CString parentDir=File::rootDir, CString encodedString = "");
+		Base64Image(CString fileName, CString parentDir=File::rootDir, CString encodedString = "");
 		~Base64Image();
 
 	protected:

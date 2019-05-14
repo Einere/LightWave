@@ -42,9 +42,10 @@ Json::Value SurveyMonkey::DoPost(Json::Value props, SocketWorker& socketWorker)
 	}
 	SurveyTask::Survey survey;
 
-	if (survey.HasBeenSurveyed()) {
+	// 같은 측량점에 대해 촬영정보를 등록하려 할 경우 기존 데이터를 덮어 씀.
+	/*if (survey.HasBeenSurveyed()) {
 		return Service::Error("중복 등록 불가: 촬영정보가 이미 등록된 좌표입니다.");
-	}
+	}*/
 
 	Json::Value memoRoot = jsonData["memo"];
 	if (memoRoot.isNull()) {
@@ -69,6 +70,10 @@ Json::Value SurveyMonkey::DoPost(Json::Value props, SocketWorker& socketWorker)
 		return Service::Error("이미지와 위경도방위정보의 갯수가 일치하지 않습니다.");
 	}
 
+	if (survey.HasBeenSurveyed()) {
+		survey.ClearImages();
+	}
+
 	std::vector<CString> images;
 	for (auto& img : imagesRoot) {
 		images.push_back(img.asCString());
@@ -76,7 +81,9 @@ Json::Value SurveyMonkey::DoPost(Json::Value props, SocketWorker& socketWorker)
 
 	const int imagesCount = images.size();
 	for (int i = 0; i < imagesCount; ++i) {
-		SurveyTask::Base64Image b64img(pTask->GetParentPath(), images[i]);
+		CString fileName;
+		fileName.Format("촬영사진%d", i+1);
+		SurveyTask::Base64Image b64img(fileName, pTask->GetParentPath(), images[i]);
 		CString imgPath = b64img.Store();
 		
 		SurveyTask::Geometry geometry = {

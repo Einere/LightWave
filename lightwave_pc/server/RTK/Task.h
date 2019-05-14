@@ -34,7 +34,7 @@ namespace SurveyTask {
 		BOOL HasStarted() const;
 		BOOL Start();
 		BOOL Stop();
-
+		
 		void RegisterSurvey(Survey survey);
 		bool PatchSurvey(UINT surveyId, Survey survey);
 		Survey* GetSurveyById(UINT id);

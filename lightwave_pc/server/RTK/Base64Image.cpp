@@ -3,12 +3,11 @@
 
 namespace SurveyTask {
 
-	Base64Image::Base64Image(CString parentDir, CString encodedString)
+	Base64Image::Base64Image(CString fileName, CString parentDir, CString encodedString)
 		: File::Storable(parentDir), m_encoded(encodedString)
 	{
 		std::srand((UINT)time(NULL));
-		CString fileName;
-		m_fileName.Format("SampleImage%d", std::rand());
+		m_fileName.Format("%s", fileName);
 
 		m_ext = "jpg";
 		m_parentPath = parentDir + "/images";
