@@ -114,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void goToContinueCapture() {
         Intent intent = new Intent(this, CaptureActivity.class);
-        intent.putExtra("method", "continue");
+        intent.putExtra("method", "new");
         String path = Environment.getExternalStorageDirectory() + "/workHistory/beforeHistory.txt";
         File file = new File(path);
         if (!file.exists()) {
