@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
+import android.util.ArrayMap;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -13,6 +14,7 @@ import com.example.einere.myapplication.IConnectionService;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -20,6 +22,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 
 public class ConnectionService extends Service {
     final String TAG = "ConnectionService";
@@ -34,10 +37,12 @@ public class ConnectionService extends Service {
     private SocketAddress socketAddress = null;
     private BufferedReader reader = null;
     private BufferedWriter writer = null;
+    private DataOutputStream dosWriter = null;
+    private OutputStreamWriter osr = null;
     private String receivedData = null;
     private Boolean existReceivedData = false;
 
-    private Thread sendThread = null;
+    private ArrayMap<Long, Thread> sendThreadList = new ArrayMap<>();
     private Thread receiveThread = null;
     private Handler handler = null;
 
@@ -85,13 +90,11 @@ public class ConnectionService extends Service {
         handler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
+                Log.d(TAG, "handle message start");
                 switch (msg.what) {
                     case SOCKET_SEND_COMPLETE: {
                         // kill send thread
-                        if (sendThread != null) {
-                            sendThread.interrupt();
-                        }
-                        sendThread = null;
+                        sendThreadList.remove((long) msg.arg1).interrupt();
                         Log.d(TAG, "kill sending thread");
                     }
                     case SOCKET_RECEIVE_COMPLETE: {
@@ -147,8 +150,11 @@ public class ConnectionService extends Service {
         new Thread(() -> {
             try {
                 socket.connect(socketAddress, TIME_OUT);
-                writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8));
+                osr = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8);
+                writer = new BufferedWriter(osr);
                 reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
+                dosWriter = new DataOutputStream(socket.getOutputStream());
+
                 status = STATUS_CONNECTED;
                 Log.i("ConnectionService", "myConnect2()");
             } catch (IOException e) {
@@ -171,27 +177,37 @@ public class ConnectionService extends Service {
 
     void mySend(String packet) {
         final String myPacket = packet;
-        if (sendThread == null) {
-            sendThread = new Thread(() -> {
-                Looper.prepare();
-                try {
-                    writer.write(myPacket, 0, myPacket.length());
-                    writer.flush();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    Toast.makeText(ConnectionService.this, "error at send data...", Toast.LENGTH_SHORT).show();
-                }
 
-                // make message
-                Message message = handler.obtainMessage();
-                message.what = SOCKET_SEND_COMPLETE;
-                handler.sendMessage(message);
-            });
-        }
+        Thread thread = new Thread(() -> {
+            Looper.prepare();
+            try {
+                Log.d(TAG, String.format("[%d] send data thread start...", Thread.currentThread().getId()));
+                writer.write(myPacket, 0, myPacket.length());
+                Log.d(TAG, String.format("[%d] write end...", Thread.currentThread().getId()));
+                writer.flush();
+                /*dosWriter.writeBytes(packet);
+                dosWriter.flush();*/
+                /*osr.write(myPacket, 0, myPacket.length());
+                Log.d(TAG, String.format("[%d] write end...", Thread.currentThread().getId()));
+                osr.flush();*/
+                Log.d(TAG, String.format("[%d] send data end...", Thread.currentThread().getId()));
+            } catch (IOException e) {
+                e.printStackTrace();
+                Toast.makeText(ConnectionService.this, "error at send data...", Toast.LENGTH_SHORT).show();
+            }
 
-        if (!sendThread.isAlive()) {
-            sendThread.start();
-        }
+            // make message
+            Log.d(TAG, String.format(Locale.KOREA, "[%d]make message start", Thread.currentThread().getId()));
+            Message message = handler.obtainMessage();
+            message.what = SOCKET_SEND_COMPLETE;
+            message.arg1 = (int) Thread.currentThread().getId();
+            handler.sendMessage(message);
+            Log.d(TAG, String.format(Locale.KOREA, "[%d]make message end", Thread.currentThread().getId()));
+        });
+
+        sendThreadList.put(thread.getId(), thread);
+        Log.d(TAG, String.format("[%d] assign send thread...", Thread.currentThread().getId()));
+        thread.start();
     }
 
     String myReceive() {

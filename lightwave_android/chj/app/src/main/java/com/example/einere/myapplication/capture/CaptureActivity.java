@@ -142,12 +142,11 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
             Toast.makeText(this, taskId, Toast.LENGTH_SHORT).show();
             receivedData = receivedIntent.getStringExtra("receivedData");
             status = true;
-        }
-        else if(method != null && method.equals("history")){
+        } else if (method != null && method.equals("history")) {
             tv_work_name.setText(receivedIntent.getStringExtra("taskName"));
             tv_location_number.setText(receivedIntent.getStringExtra("landNo"));
             et_server_memo.setText(receivedIntent.getStringExtra("taskDesc"));
-            taskName=receivedIntent.getStringExtra("taskName");
+            taskName = receivedIntent.getStringExtra("taskName");
             taskId = receivedIntent.getStringExtra("id");
             Toast.makeText(this, taskId, Toast.LENGTH_SHORT).show();
             receivedData = receivedIntent.getStringExtra("receivedData");
@@ -455,7 +454,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
                         poly.add(poly2);
                         mMap.addPolyline(poly);
                     }
-                    if(j == parcelPoints.length()-1){
+                    if (j == parcelPoints.length() - 1) {
                         LatLng poly1 = new LatLng(xParcelPointsList.get(0), yParcelPointsList.get(0));
                         LatLng poly2 = new LatLng(xParcelPointsList.get(j), yParcelPointsList.get(j));
                         PolylineOptions poly = new PolylineOptions();
@@ -485,7 +484,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
                 double x = tmp.getDouble("Y");
                 double y = tmp.getDouble("X");
                 boolean surveyed = tmp.getBoolean("surveyed");
-                String serveyID =  tmp.getString("id");
+                String serveyID = tmp.getString("id");
                 LatLng point = new LatLng(x, y);
 
                 MarkerOptions makerOptions = new MarkerOptions();
@@ -603,7 +602,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
             }
         }
 
-        // if not exist any file in workNum/point/upload
+        // if not exist any file in taskId/point/upload
         if (uploadImageList2 == null) {
             return true;
         }
@@ -673,31 +672,52 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
                 // make data JSONObject
                 JSONObject data = new JSONObject();
                 data.put("userName", socketManager.getUserName());
+                data.put("taskId", Integer.parseInt(taskId));
+                data.put("surveyId", Integer.parseInt(pointNum));
 
                 // put serialized picture data
-                int i = 0;
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                ArrayList<String> imageList = new ArrayList<>();
                 for (Uri uri : selectedUriList) {
                     Bitmap tmpBitmap = BitmapFactory.decodeFile(uri.getPath());
-                    tmpBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                    tmpBitmap.compress(Bitmap.CompressFormat.PNG, 30, stream);
                     byte[] bytes = stream.toByteArray();
                     String serialized = Base64.encodeToString(bytes, Base64.NO_WRAP);
-                    data.put(String.format(Locale.KOREA, "image%d", i), serialized);
-                    Log.d(TAG, String.format("encoded string : %s", serialized));
-                    i++;
+                    imageList.add(serialized);
+                    Log.d(TAG, String.format(Locale.KOREA, "encoded : %s", serialized));
                 }
+                data.put("images", imageList.toString());
+//                data.put("images", "test");
+
                 // put text data
-                i = 0;
+                ArrayList<String> geometryList = new ArrayList<>();
                 for (File file : upTextList) {
-                    data.put(String.format(Locale.KOREA, "text%d", i), getFileContents(file));
-                    i++;
+                    JSONObject geometry = new JSONObject();
+
+                    // open stream
+                    InputStream is = new FileInputStream(file);
+                    BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+                    geometry.put("azimuth", br.readLine());
+                    geometry.put("latitude", br.readLine());
+                    geometry.put("longitude", br.readLine());
+
+                    // close stream
+                    br.close();
+                    is.close();
+                    geometryList.add(geometry.toString());
+                    Log.d(TAG, String.format(Locale.KOREA, "geometry : %s", geometry.toString()));
                 }
+                data.put("geometry", geometryList.toString());
+
+                // put memo data
+                data.put("memo", et_client_memo.getText());
+
                 // make packet
                 JSONObject packet = makePacket("POST", "survey", data);
 
                 // make data length packet
                 JSONObject lengthData = new JSONObject();
-                lengthData.put("length", packet.toString().getBytes().length); // 단순히 String의 길이? 혹은 byte?
+                lengthData.put("length", packet.toString().getBytes().length);
                 Log.d(TAG, String.format(Locale.KOREA, "length : %d, byte : %d", packet.toString().length(), packet.toString().getBytes().length));
                 JSONObject lengthPacket = makePacket("POST", "length", lengthData);
 
@@ -718,6 +738,10 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
             Toast.makeText(this, "RemoteException occurred!", Toast.LENGTH_SHORT).show();
         } catch (JSONException e) {
             Toast.makeText(this, "JSONException occurred!", Toast.LENGTH_SHORT).show();
+        } catch (FileNotFoundException e) {
+            Toast.makeText(this, "file is not found!", Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            Toast.makeText(this, "error in readLine!", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -787,6 +811,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
     }
     /* ******************* GPS methods end ******************* */
 
+
     /* ****************** Memo methods start ********************** */
     public void saveMemo() {
         if (pointNum == null) {
@@ -837,8 +862,8 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
             else Toast.makeText(this, "삭제 실패", Toast.LENGTH_LONG).show();
         }
     }
-
     /* ****************** Memo methods end ********************** */
+
 
     /* ******************* camera & gallery methods start ******************* */
     public void capture() {
@@ -984,6 +1009,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         return stringBuilder.toString();
     }
     /* ******************* text file methods end ******************* */
+
 
     /* ******************* ArrayList for upload test methods start ******************* */
     public void checkArrayListForUpload() {
