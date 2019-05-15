@@ -14,16 +14,11 @@ namespace ProgramManager {
 		VHANDLE hLayer = CadGetLayerByName(hDwg, survey.HasBeenSurveyed()?"100":"101");
 		CadSetCurLayer(hDwg, hLayer);
 
-		VHANDLE hEnt = CadAddCircle(hDwg, survey.GetX(), survey.GetY(), 0, 3);
+		VHANDLE hEnt = CadAddCircle(hDwg, survey.GetX(), survey.GetY(), 0, m_radius);
 		CadEntityPutFilled(hEnt, TRUE);
 		m_surveyHandles.push_back(hEnt);
 
 		return true;
-	}
-
-	void SurveyViewManager::AppendSurveyHandle(VHANDLE h)
-	{
-		m_surveyHandles.push_back(h);
 	}
 
 	void SurveyViewManager::LoadSurveysFromTask(const SurveyTask::Task & task)
@@ -57,36 +52,12 @@ namespace ProgramManager {
 
 	void SurveyViewManager::ClearAllData()
 	{
-		/*if(m_surveyHandles.size()>0)
-			CadEntityErase(m_surveyHandles[0], true);*/
 		int handlesCount = m_surveyHandles.size();
 		for (int i = 0; i < handlesCount; ++i) {
 			CadEntityErase(m_surveyHandles[i], true);
 		}
 		
 		m_surveyHandles.clear();
-	}
-
-	bool SurveyViewManager::DrawSurveyPoints()
-	{
-		// 작업자의 측량 위치 생성
-		/*auto pTaskManager = TaskManager::GetInstance();
-		if (pTaskManager->getLoadedTask() != NULL) {
-			CadSetCurLayer(m_hDwg, hLayer100);
-			UINT taskId = pTaskManager->getSelectedTaskIdOrZero();
-			auto surveys = pTaskManager->getSurveys();
-			for (auto& s : surveys) {
-				if (!s.HasBeenSurveyed()) {
-					CadLayerPutColor(hLayer100, CAD_COLOR_RED);
-				}
-				else {
-					CadLayerPutColor(hLayer100, CAD_COLOR_CYAN);
-				}
-
-				MakeSurveyPoint(s, 504, "");
-			}
-		}*/
-		return false;
 	}
 
 	SurveyViewManager* SurveyViewManager::m_pThis = NULL;

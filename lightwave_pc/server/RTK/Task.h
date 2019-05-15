@@ -41,7 +41,8 @@ namespace SurveyTask {
 		const std::vector<Survey>& GetSurveys() const;
 		Survey* GetSurveyByCoord(double x, double y);
 
-		Json::Value toJson();
+		Json::Value ToJson();
+
 	public: // Override
 		virtual std::string ToFileContent();
 

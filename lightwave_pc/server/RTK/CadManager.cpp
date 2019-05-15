@@ -1090,7 +1090,6 @@ namespace ProgramManager
 			}
 		}
 
-		Logger::Log("X: %.3f, Y: %.3f", fY, fX);
 		if (m_fnMouseClickEvent != NULL)
 		{
 			(*m_fnMouseClickEvent)(fX, fY);
@@ -1182,7 +1181,7 @@ namespace ProgramManager
 			if (-1 == id) break;
 
 			SurveyTask::Task* pTask;
-			pTask = pTaskManager->GetTaskById(id);
+			pTask = pTaskManager->GetTaskByIdOrNull(id);
 			ASSERT(pTask != NULL);
 
 			auto pCadManager = CCadManager::GetInstance();

@@ -163,7 +163,7 @@ namespace SurveyTask {
 		return NULL;
 	}
 
-	Json::Value Task::toJson()
+	Json::Value Task::ToJson()
 	{
 		/* 저장할 필드 목록: [id, taskName, taskDesc, lotNumber, fileName, parcels, surveys]	*/
 		Json::Value root;
@@ -188,7 +188,7 @@ namespace SurveyTask {
 
 	std::string Task::ToFileContent()
 	{
-		auto jsonInString = Json::json2Str(toJson());
+		auto jsonInString = Json::json2Str(ToJson());
 		return jsonInString;
 	}
 

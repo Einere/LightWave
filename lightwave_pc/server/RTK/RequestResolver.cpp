@@ -6,9 +6,7 @@
 
 #include "InitMonkey.h"
 #include "TaskMonkey.h"
-#include "ParcelMonkey.h"
 #include "SurveyMonkey.h"
-#include "TestMonkey.h"
 #include "LengthMiddleware.h"
 
 #include "json.h"
@@ -23,9 +21,7 @@ namespace Service {
 		// 요청들을 담당할 우리의 몽키들을 이곳에서 초기화합니다.
 		m_monkeys.push_back(std::make_shared<InitMonkey>());
 		m_monkeys.push_back(std::make_shared<TaskMonkey>());
-		m_monkeys.push_back(std::make_shared<ParcelMonkey>());
 		m_monkeys.push_back(std::make_shared<SurveyMonkey>());
-		m_monkeys.push_back(std::make_shared<TestMonkey>());
 
 		m_middlewares.push_back(std::make_shared<LengthMiddleware>());
 	}

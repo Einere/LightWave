@@ -23,7 +23,7 @@ namespace ProgramManager {
 		return m_tasks[index];
 	}
 
-	SurveyTask::Task* TaskManager::GetTaskById(UINT id)
+	SurveyTask::Task* TaskManager::GetTaskByIdOrNull(UINT id)
 	{
 		for (auto& task : m_tasks) {
 			if (id == task.GetId()) {
@@ -48,14 +48,14 @@ namespace ProgramManager {
 	{
 		if (0 == m_startedTaskId) return NULL;
 
-		return GetTaskById(m_startedTaskId);
+		return GetTaskByIdOrNull(m_startedTaskId);
 	}
 
 	SurveyTask::Task * TaskManager::GetLoadedTask()
 	{
 		if (0 == m_loadedTaskId) return NULL;
 
-		return GetTaskById(m_loadedTaskId);
+		return GetTaskByIdOrNull(m_loadedTaskId);
 	}
 
 	void TaskManager::AppendTask(const SurveyTask::Task & task)
@@ -87,7 +87,7 @@ namespace ProgramManager {
 		}
 
 		SurveyTask::Task* pTask;
-		pTask = GetTaskById(id);
+		pTask = GetTaskByIdOrNull(id);
 		if (pTask == NULL) return false;
 
 		m_selectedId = id;
@@ -98,12 +98,12 @@ namespace ProgramManager {
 	bool TaskManager::StartTask(UINT id)
 	{
 		SurveyTask::Task* pTask;
-		pTask = GetTaskById(id);
+		pTask = GetTaskByIdOrNull(id);
 		ASSERT(pTask != NULL);
 
 		if (0 != m_startedTaskId) {
 			SurveyTask::Task* pTaskToBeStopped;
-			pTaskToBeStopped = GetTaskById(m_startedTaskId);
+			pTaskToBeStopped = GetTaskByIdOrNull(m_startedTaskId);
 			pTaskToBeStopped->Stop();
 		}
 
@@ -117,7 +117,7 @@ namespace ProgramManager {
 	bool TaskManager::StopTask(UINT id)
 	{
 		SurveyTask::Task* pTask;
-		pTask = GetTaskById(id);
+		pTask = GetTaskByIdOrNull(id);
 		ASSERT(pTask != NULL);
 
 		bool hasStopped = pTask->Stop();
@@ -131,7 +131,7 @@ namespace ProgramManager {
 	bool TaskManager::LoadTask(UINT id)
 	{
 		SurveyTask::Task* pTask;
-		pTask = GetTaskById(id);
+		pTask = GetTaskByIdOrNull(id);
 		ASSERT(pTask != NULL);
 
 		if (id == m_loadedTaskId) {
@@ -156,7 +156,7 @@ namespace ProgramManager {
 			taskId = m_startedTaskId;
 		}
 
-		SurveyTask::Task* task = GetTaskById(taskId);
+		SurveyTask::Task* task = GetTaskByIdOrNull(taskId);
 		task->RegisterSurvey(survey);
 	}
 
@@ -169,7 +169,7 @@ namespace ProgramManager {
 			return std::vector<SurveyTask::Survey>();
 		}
 
-		SurveyTask::Task* task = GetTaskById(taskId);
+		SurveyTask::Task* task = GetTaskByIdOrNull(taskId);
 		return task->GetSurveys();
 	}
 
