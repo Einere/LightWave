@@ -25,7 +25,6 @@
 #include "EditSurveyPointDlg.h"
 #include "Survey.h"
 #include "CoordConverter.h"
-#include "ConnectionSettingDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -87,7 +86,6 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_ADD_PARCEL, &CMainFrame::OnSetParcel)
 	ON_COMMAND(ID_DEV_TEST, &CMainFrame::OnDevTest)
 	ON_COMMAND(ID_MANAGE_SURVEY_POINTS, &CMainFrame::OnManageSurveyPoints)
-	ON_COMMAND(ID_CONNECTION_SETTING, &CMainFrame::OnConnectionSetting)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -967,18 +965,4 @@ void CMainFrame::OnManageSurveyPoints()
 {
 	EditSurveyPointDlg dlg;
 	dlg.DoModal();
-}
-
-
-void CMainFrame::OnConnectionSetting()
-{
-	ConnectionSettingDlg dlg;
-	if (IDOK == dlg.DoModal()) {
-		auto pWorkerManager = WorkerManager::GetInstance();
-		pWorkerManager->SetPort(dlg.GetPort());
-		
-		if (pWorkerManager->IsListening()) {
-			MessageBox("변경된 포트를 적용할면 서버를 Stop했다가 다시 시작해야합니다.");
-		}
-	}
 }

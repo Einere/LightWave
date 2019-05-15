@@ -310,9 +310,6 @@
     <ClInclude Include="CoordConverter.h">
       <Filter>common</Filter>
     </ClInclude>
-    <ClInclude Include="ConnectionSettingDlg.h">
-      <Filter>windows</Filter>
-    </ClInclude>
     <ClInclude Include="LengthMiddleware.h">
       <Filter>services</Filter>
     </ClInclude>
@@ -491,9 +488,6 @@
     </ClCompile>
     <ClCompile Include="CoordConverter.cpp">
       <Filter>common</Filter>
-    </ClCompile>
-    <ClCompile Include="ConnectionSettingDlg.cpp">
-      <Filter>windows</Filter>
     </ClCompile>
     <ClCompile Include="LengthMiddleware.cpp">
       <Filter>services</Filter>

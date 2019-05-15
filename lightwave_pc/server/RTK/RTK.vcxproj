@@ -142,7 +142,6 @@
     <ClInclude Include="BasePoint.h" />
     <ClInclude Include="Caculate.h" />
     <ClInclude Include="CadManager.h" />
-    <ClInclude Include="ConnectionSettingDlg.h" />
     <ClInclude Include="ConnectionStateDlg.h" />
     <ClInclude Include="CoordConverter.h" />
     <ClInclude Include="EditSurveyPointDlg.h" />
@@ -207,7 +206,6 @@
     <ClCompile Include="BasePoint.cpp" />
     <ClCompile Include="Caculate.cpp" />
     <ClCompile Include="CadManager.cpp" />
-    <ClCompile Include="ConnectionSettingDlg.cpp" />
     <ClCompile Include="ConnectionStateDlg.cpp" />
     <ClCompile Include="CoordConverter.cpp" />
     <ClCompile Include="EditSurveyPointDlg.cpp" />
