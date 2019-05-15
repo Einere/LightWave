@@ -36,6 +36,7 @@ namespace SurveyTask {
 		void LoadAndGetImages(std::vector<CImage>* out_Images) const;
 		std::vector<SurveyImage> GetImages() const;
 		void AppendImage(SurveyImage image);
+		void ClearImages();
 
 		void setWorker(Workers::Worker worker);
 		void setWorker(UINT id, CString name, CString ip, UINT port);

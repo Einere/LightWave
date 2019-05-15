@@ -1187,7 +1187,6 @@ namespace ProgramManager
 
 			auto pCadManager = CCadManager::GetInstance();
 			auto selectedParcels = pCadManager->getSelectedParcels();
-			pTask->ClearParcelPoints();
 			int size = pTask->AddParcels(selectedParcels);
 
 			if (size > 0) {

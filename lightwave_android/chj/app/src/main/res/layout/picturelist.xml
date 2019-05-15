@@ -4,44 +4,20 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
     <TextView
-        android:id="@+id/txt_pictureName"
+        android:id="@+id/txt_taskName"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:text="사진이름"
-        android:textSize ="20dp"/>
+        android:textSize ="20dp"
+        android:layout_gravity="center"/>
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/txt_landNo"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center">
-
-        <Button
-            android:id="@+id/btn_selectGallery"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="사진보기"
-            android:layout_weight="1"/>
-        <Button
-            android:id="@+id/btn_pictureInformation"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="정보보기"
-            android:layout_weight="1"/>
-
-        <Button
-            android:id="@+id/btn_sendData"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="전송"
-            android:layout_weight="1"/>
-
-        <Button
-            android:id="@+id/btn_memo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="메모"
-            android:layout_weight="1"/>
-    </LinearLayout>
+        android:text="사진이름"
+        android:textSize ="20dp"
+        android:layout_gravity="center"/>
 
 
 </LinearLayout>

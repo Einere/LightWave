@@ -4,15 +4,28 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.einere.myapplication.capture.CaptureActivity;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 public class PictureList extends BaseAdapter{
@@ -23,11 +36,9 @@ public class PictureList extends BaseAdapter{
 
     class ViewHolder
     {
-        TextView pictureName;
-        Button btn_selectGallery;
-        Button btn_pictureInformation;
-        Button btn_sendData;
-        Button btn_memo;
+        TextView taskName;
+        TextView landNo;
+
     }
 
     public PictureList(Context context, ArrayList<Picture> data)
@@ -68,11 +79,8 @@ public class PictureList extends BaseAdapter{
             itemLayout = mLayoutInflater.inflate( R.layout.picturelist, null );
 
             viewHolder = new ViewHolder();
-            viewHolder.pictureName = (TextView) itemLayout.findViewById( R.id.txt_pictureName );
-            viewHolder.btn_selectGallery = (Button) itemLayout.findViewById( R.id.btn_selectGallery );
-            viewHolder.btn_pictureInformation = (Button) itemLayout.findViewById( R.id.btn_pictureInformation );
-            viewHolder.btn_sendData = (Button) itemLayout.findViewById( R.id.btn_sendData );
-            viewHolder.btn_memo = (Button) itemLayout.findViewById( R.id.btn_memo );
+            viewHolder.taskName = (TextView) itemLayout.findViewById( R.id.txt_taskName );
+            viewHolder.landNo = (TextView) itemLayout.findViewById( R.id.txt_landNo);
             itemLayout.setTag( viewHolder );
         }
         else
@@ -80,45 +88,65 @@ public class PictureList extends BaseAdapter{
             viewHolder = (ViewHolder)itemLayout.getTag();
 
         }
-        viewHolder.pictureName.setText( mData.get(position).pname );
+        viewHolder.taskName.setText( mData.get(position).taskName );
 
-        //메모버튼
-        viewHolder.btn_memo.setOnClickListener(new View.OnClickListener() {
+        //captureActivity 이동
+        itemLayout.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Intent intent = new Intent(mContext, MemoActivity.class);
+                Intent intent = new Intent(mContext, CaptureActivity.class);
+                intent.putExtra("method", "history");
+                String path = Environment.getExternalStorageDirectory() + "/workHistory/task/"+mData.get(position).taskName+".txt";
+                File file = new File(path);
+                if (!file.exists()) {
+                    Toast.makeText(mContext, "전 작업이 없습니다", Toast.LENGTH_SHORT).show();
+                    return;
+                } else {
+                    StringBuilder sb = new StringBuilder();
+                    try {
+                        InputStream is = new FileInputStream(path);
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 
-                listenername = mData.get(position).pname;
-                String txt_filename = listenername;
-                int idx = txt_filename.indexOf(".");
-                txt_filename = txt_filename.substring(0, idx)+".txt";
+                        // read line
+                        String line = "";
+                        while ((line = reader.readLine()) != null) {
+                            sb.append(line).append("\n");
+                        }
 
-                Bundle bundleData = new Bundle();
-                bundleData.putString("txt_File",txt_filename);
-                intent.putExtra("TXT_FILE", bundleData);
-                mContext.startActivity(intent);
+                        // close stream
+                        reader.close();
+                        is.close();
+                        JSONObject parsedData = new JSONObject();
+                        try {
+                            parsedData = new JSONObject(sb.toString());
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        try {
+                            JSONObject data = (JSONObject) parsedData.get("data");
+                            // work id
+                            intent.putExtra("id", data.getString("id"));
+                            // work name
+                            intent.putExtra("taskName", data.getString("taskName"));
+                            // location number
+                            intent.putExtra("landNo", data.getString("landNo"));
+                            // work information (memo?)
+                            intent.putExtra("taskDesc", data.getString("taskDesc"));
+                            // receivedData
+                            intent.putExtra("receivedData", sb.toString());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                        mContext.startActivity(intent);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         });
 
-        //전송버튼
-        viewHolder.btn_sendData.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-
-            }
-        });
-
-        //정보보기버튼
-        viewHolder.btn_pictureInformation.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-
-            }
-        });
-
-        //사진보기버튼
-        viewHolder.btn_selectGallery.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-
-            }
-        });
+        viewHolder.landNo.setText( mData.get(position).landNo );
 
         return itemLayout;
     }

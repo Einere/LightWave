@@ -1,5 +1,6 @@
 package com.example.einere.myapplication.main;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
@@ -8,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.einere.myapplication.ListViewActivity;
 import com.example.einere.myapplication.R;
 import com.example.einere.myapplication.SocketManager;
 import com.example.einere.myapplication.capture.CaptureActivity;
@@ -166,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void goToCheckHistory() {
-//        Intent intent = new Intent(this, CaptureActivity.class);
-//        startActivity(intent);
+        Intent intent = new Intent(this, ListViewActivity.class);
+        startActivity(intent);
     }
 }
