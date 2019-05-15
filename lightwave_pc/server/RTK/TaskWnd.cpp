@@ -101,7 +101,7 @@ bool CTaskMngDlg::StartSelectedTask()
 	}
 
 	SurveyTask::Task* pTask;
-	pTask = taskManager->GetTaskById(id);
+	pTask = taskManager->GetTaskByIdOrNull(id);
 
 	char notice[100];
 	sprintf(notice, "작업이 시작되었습니다.\n작업 ID: %d\n작업 이름: %s", pTask->GetId(), pTask->GetTaskName().GetString());
@@ -258,7 +258,7 @@ void CTaskMngDlg::OnTaskMngActive()
 	auto taskManager = ProgramManager::TaskManager::GetInstance();
 
 	SurveyTask::Task* pTask;
-	pTask = taskManager->GetTaskById(id);
+	pTask = taskManager->GetTaskByIdOrNull(id);
 	if (pTask == NULL) return;
 
 	CString fileName = pTask->GetCifPath();

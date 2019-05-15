@@ -1,14 +1,5 @@
 #include "stdafx.h"
 #include "WorkerManager.h"
-#include "SocketWorker.h"
-#include "SocketRecipient.h"
-
-
-//WorkerManager::WorkerManager(SocketRecipient* recep)
-//	:m_acceptor()
-//{
-//	m_pRecepient = recep;
-//}
 
 WorkerManager::WorkerManager() {
 
@@ -18,17 +9,7 @@ WorkerManager::~WorkerManager()
 {
 }
 
-//const SocketRecipient* WorkerManager::getRecepient() const
-//{
-//	return m_pRecepient;
-//}
-//
-//void WorkerManager::setRecepient(SocketRecipient * recep)
-//{
-//	m_pRecepient = recep;
-//}
-
-const std::vector<std::shared_ptr<SocketWorker>>& WorkerManager::GetWorkers()
+const std::vector<std::shared_ptr<Service::SocketWorker>>& WorkerManager::GetWorkers()
 {
 	return m_workers;
 }
@@ -55,7 +36,7 @@ void WorkerManager::StopServer()
 	CloseAll();
 	m_isListening = false;
 
-	if(m_nextPort != 0) m_port = m_nextPort;
+	if (m_nextPort != 0) m_port = m_nextPort;
 }
 
 void WorkerManager::CloseAll()
@@ -71,11 +52,8 @@ void WorkerManager::CloseAll()
 	m_workers.clear();
 }
 
-void WorkerManager::AppendWorker(std::shared_ptr<SocketWorker> pNewWorker)
+void WorkerManager::AppendWorker(std::shared_ptr<Service::SocketWorker> pNewWorker)
 {
-	/*auto newWorker = std::make_shared<SocketWorker>(this);
-	m_acceptor.Accept(*newWorker);*/
-
 	if (Inspect(pNewWorker)) {
 		m_workers.push_back(pNewWorker);
 	}
@@ -90,9 +68,6 @@ void WorkerManager::AppendWorker(std::shared_ptr<SocketWorker> pNewWorker)
 	pNewWorker->GetPeerName(ipAddress, port);
 
 	Notify();
-	/*ASSERT(m_pRecepient);
-	m_pRecepient->OnAccept(ipAddress, port, 0);*/
-	//m_pRecepient->OnAccept(pNewWorker->getIpAddress(), pNewWorker->getPort(), 0);
 }
 
 void WorkerManager::DeleteWorker(const CString& targetIpaddr, UINT targetPort)
@@ -115,7 +90,7 @@ void WorkerManager::DeleteWorker(CString name)
 {
 	auto itor = m_workers.begin();
 	for (auto itor = m_workers.begin(); itor != m_workers.end(); ++itor) {
-		if (0==(*itor)->GetWorkerName().Compare(name)) {
+		if (0 == (*itor)->GetWorkerName().Compare(name)) {
 			m_workers.erase(itor);
 			(*itor)->Close();
 			Notify();
@@ -129,7 +104,7 @@ bool WorkerManager::IsListening() const
 	return m_isListening;
 }
 
-bool WorkerManager::Inspect(std::shared_ptr<SocketWorker> target)
+bool WorkerManager::Inspect(std::shared_ptr<Service::SocketWorker> target)
 {
 	return true;
 }
@@ -202,7 +177,7 @@ void WorkerManager::GetIpAddrAndPort(CString& ip, UINT& port) const
 {
 	std::vector<CString> ips;
 	GetIpAddrs(ips);
-	ip = ips[0];
+	ip = ips[ips.size() - 1];
 	port = m_port;
 }
 
@@ -211,10 +186,10 @@ void WorkerManager::SetSocketStatePane(StatePane * pStatePane)
 	m_pStatePane = pStatePane;
 }
 
-std::shared_ptr<SocketWorker> WorkerManager::GetWorkerOrNull(CString name) const
+std::shared_ptr<Service::SocketWorker> WorkerManager::GetWorkerOrNull(CString name) const
 {
 	for (auto& worker : m_workers) {
-		if (0==worker->GetWorkerName().Compare(name)) {
+		if (0 == worker->GetWorkerName().Compare(name)) {
 			return worker;
 		}
 	}
@@ -222,7 +197,7 @@ std::shared_ptr<SocketWorker> WorkerManager::GetWorkerOrNull(CString name) const
 	return NULL;
 }
 
-std::shared_ptr<SocketWorker> WorkerManager::GetWorkerOrNull(const CString & ipAddress, UINT port) const
+std::shared_ptr<Service::SocketWorker> WorkerManager::GetWorkerOrNull(const CString & ipAddress, UINT port) const
 {
 	for (auto& worker : m_workers) {
 		CString ipTest;

@@ -1,37 +1,30 @@
 #include "stdafx.h"
-#include "InitMOnkey.h"
+#include "InitMonkey.h"
 
-
-InitMonkey::InitMonkey() : Monkey("meta")
-{
-	m_authList[Service::Method::Post] = false;
-}
-
-
-InitMonkey::~InitMonkey()
-{
-}
-
-Json::Value InitMonkey::DoPost(Json::Value props, SocketWorker& socketWorker)
-{
-	Json::Value jsonData = props["data"];
-	if (jsonData.isNull()) {
-		return Service::Error("`data` property is required.");
+namespace Service {
+	InitMonkey::InitMonkey() : Monkey("meta")
+	{
+		m_authList[Service::Method::Post] = false;
 	}
-	
-	Json::Value jsonUserName = jsonData["userName"];
-	if (jsonUserName.isNull()) {
-		return Service::Error("`userName` property is required.");
+
+	InitMonkey::~InitMonkey()
+	{
 	}
-	socketWorker.SetWorkerName(jsonUserName.asCString());
-	socketWorker.SetAuthorized();
 
-	/*auto pManager = WorkerManager::GetInstance();
-	auto worker = pManager->getWorkerOrNull(props["ip-address"].asCString(), props["port"].asUInt());
-	if (!worker) return Service::error("Invalid Request");
+	Json::Value InitMonkey::DoPost(Json::Value props, SocketWorker& socketWorker)
+	{
+		Json::Value jsonData = props["data"];
+		if (jsonData.isNull()) {
+			return Service::Error("`data` 필드 존재하지 않음.");
+		}
 
-	worker->setWorkerName(jsonData["userName"].asCString());
-	worker->setAuthorized();*/
+		Json::Value jsonUserName = jsonData["userName"];
+		if (jsonUserName.isNull() || jsonUserName.asCString() == "") {
+			return Service::Error("`userName` 필드 존재하지 않음.");
+		}
+		socketWorker.SetWorkerName(jsonUserName.asCString());
+		socketWorker.SetAuthorized();
 
-	return Json::Value();
+		return Json::Value();
+	}
 }

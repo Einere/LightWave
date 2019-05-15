@@ -3,34 +3,29 @@
 #include "WorkerManager.h"
 #include "SocketWorker.h";
 
-
-SocketAcceptor::SocketAcceptor()
-{
-}
-
-
-SocketAcceptor::~SocketAcceptor()
-{
-	Close();
-}
-
-void SocketAcceptor::OnAccept(int nErrorCode)
-{
-	CString ip;
-	UINT port;
-	GetSockName(ip, port);
-
-	auto pWorker = WorkerManager::GetInstance()->GetWorkerOrNull(ip, port);
-	if (pWorker) {
-		Logger::Err("동일한 Ip주소[%s]와 port[%d]에서 두 번의 연결 시도가 확인 됨 => 거절", ip, port);
-		return;
+namespace Service {
+	SocketAcceptor::SocketAcceptor()
+	{
 	}
-	
-	pWorker = std::make_shared<SocketWorker>();
-	Accept(*pWorker);
-	
-	auto pManager = WorkerManager::GetInstance();
-	pManager->AppendWorker(pWorker);
-	
-	Listen();
+
+
+	SocketAcceptor::~SocketAcceptor()
+	{
+		Close();
+	}
+
+	void SocketAcceptor::OnAccept(int nErrorCode)
+	{
+		auto pWorker = std::make_shared<SocketWorker>();
+		Accept(*pWorker);
+
+		auto pManager = WorkerManager::GetInstance();
+		pManager->AppendWorker(pWorker);
+
+		/*
+		Accept된 클라이언트는 방금 생성된 SocketWorker가 전담 마크한다.
+		나는 다른 연결 요청을 받기위해 Listen 한다.
+		*/
+		Listen();
+	}
 }

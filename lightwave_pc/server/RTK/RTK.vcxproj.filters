@@ -196,9 +196,6 @@
     <ClInclude Include="Service.h">
       <Filter>services</Filter>
     </ClInclude>
-    <ClInclude Include="ParcelMonkey.h">
-      <Filter>services</Filter>
-    </ClInclude>
     <ClInclude Include="TaskWnd.h">
       <Filter>windows</Filter>
     </ClInclude>
@@ -232,17 +229,11 @@
     <ClInclude Include="StatePane.h">
       <Filter>windows</Filter>
     </ClInclude>
-    <ClInclude Include="WorkerManager.h">
-      <Filter>services</Filter>
-    </ClInclude>
     <ClInclude Include="Task.h">
       <Filter>models</Filter>
     </ClInclude>
     <ClInclude Include="Log.h">
       <Filter>common</Filter>
-    </ClInclude>
-    <ClInclude Include="TestMonkey.h">
-      <Filter>services</Filter>
     </ClInclude>
     <ClInclude Include="SocketAcceptor.h">
       <Filter>services</Filter>
@@ -310,10 +301,10 @@
     <ClInclude Include="CoordConverter.h">
       <Filter>common</Filter>
     </ClInclude>
-    <ClInclude Include="ConnectionSettingDlg.h">
-      <Filter>windows</Filter>
-    </ClInclude>
     <ClInclude Include="LengthMiddleware.h">
+      <Filter>services</Filter>
+    </ClInclude>
+    <ClInclude Include="WorkerManager.h">
       <Filter>services</Filter>
     </ClInclude>
   </ItemGroup>
@@ -375,9 +366,6 @@
     <ClCompile Include="Monkey.cpp">
       <Filter>services</Filter>
     </ClCompile>
-    <ClCompile Include="ParcelMonkey.cpp">
-      <Filter>services</Filter>
-    </ClCompile>
     <ClCompile Include="ConnectionStateDlg.cpp">
       <Filter>windows</Filter>
     </ClCompile>
@@ -414,17 +402,11 @@
     <ClCompile Include="SocketWorker.cpp">
       <Filter>services</Filter>
     </ClCompile>
-    <ClCompile Include="WorkerManager.cpp">
-      <Filter>services</Filter>
-    </ClCompile>
     <ClCompile Include="Task.cpp">
       <Filter>models</Filter>
     </ClCompile>
     <ClCompile Include="Log.cpp">
       <Filter>common</Filter>
-    </ClCompile>
-    <ClCompile Include="TestMonkey.cpp">
-      <Filter>services</Filter>
     </ClCompile>
     <ClCompile Include="SocketAcceptor.cpp">
       <Filter>services</Filter>
@@ -492,10 +474,10 @@
     <ClCompile Include="CoordConverter.cpp">
       <Filter>common</Filter>
     </ClCompile>
-    <ClCompile Include="ConnectionSettingDlg.cpp">
-      <Filter>windows</Filter>
-    </ClCompile>
     <ClCompile Include="LengthMiddleware.cpp">
+      <Filter>services</Filter>
+    </ClCompile>
+    <ClCompile Include="WorkerManager.cpp">
       <Filter>services</Filter>
     </ClCompile>
   </ItemGroup>
