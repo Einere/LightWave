@@ -56,7 +56,7 @@
             android:inputType="numberDecimal"
             android:labelFor="@+id/tv_ip"
             android:nextFocusDown="@+id/et_ip2"
-
+            android:text="10"
             />
 
         <TextView
@@ -76,7 +76,8 @@
             android:gravity="center"
             android:inputType="numberDecimal"
             android:labelFor="@+id/tv_ip"
-            android:nextFocusDown="@+id/et_ip3"/>
+            android:nextFocusDown="@+id/et_ip3"
+            android:text="20" />
 
         <TextView
             android:layout_width="0sp"
@@ -95,7 +96,8 @@
             android:gravity="center"
             android:inputType="numberDecimal"
             android:labelFor="@+id/tv_ip"
-            android:nextFocusDown="@+id/et_ip4"/>
+            android:nextFocusDown="@+id/et_ip4"
+            android:text="12" />
 
         <TextView
             android:layout_width="0sp"
@@ -114,7 +116,8 @@
             android:gravity="center"
             android:inputType="numberDecimal"
             android:labelFor="@+id/tv_ip"
-            android:nextFocusDown="@+id/et_port"/>
+            android:nextFocusDown="@+id/et_port"
+            android:text="135" />
 
     </LinearLayout>
 

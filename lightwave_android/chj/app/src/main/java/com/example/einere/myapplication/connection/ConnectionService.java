@@ -95,7 +95,7 @@ public class ConnectionService extends Service {
                     case SOCKET_SEND_COMPLETE: {
                         // kill send thread
                         sendThreadList.remove((long) msg.arg1).interrupt();
-                        Log.d(TAG, "kill sending thread");
+                        Log.d(TAG, String.format(Locale.KOREA, "[%d]kill sending thread", msg.arg1));
                     }
                     case SOCKET_RECEIVE_COMPLETE: {
                         // kill receiving thread
@@ -179,18 +179,11 @@ public class ConnectionService extends Service {
         final String myPacket = packet;
 
         Thread thread = new Thread(() -> {
+            Log.d(TAG, String.format("[%d] send data thread start...", Thread.currentThread().getId()));
             Looper.prepare();
             try {
-                Log.d(TAG, String.format("[%d] send data thread start...", Thread.currentThread().getId()));
                 writer.write(myPacket, 0, myPacket.length());
-                Log.d(TAG, String.format("[%d] write end...", Thread.currentThread().getId()));
                 writer.flush();
-                /*dosWriter.writeBytes(packet);
-                dosWriter.flush();*/
-                /*osr.write(myPacket, 0, myPacket.length());
-                Log.d(TAG, String.format("[%d] write end...", Thread.currentThread().getId()));
-                osr.flush();*/
-                Log.d(TAG, String.format("[%d] send data end...", Thread.currentThread().getId()));
             } catch (IOException e) {
                 e.printStackTrace();
                 Toast.makeText(ConnectionService.this, "error at send data...", Toast.LENGTH_SHORT).show();

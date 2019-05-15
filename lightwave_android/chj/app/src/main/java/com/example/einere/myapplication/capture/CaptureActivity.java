@@ -1,8 +1,6 @@
 package com.example.einere.myapplication.capture;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -31,6 +29,7 @@ import com.example.einere.myapplication.GpsInfo;
 import com.example.einere.myapplication.ListViewActivity;
 import com.example.einere.myapplication.R;
 import com.example.einere.myapplication.SocketManager;
+import com.google.android.gms.common.util.IOUtils;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -679,9 +678,11 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 ArrayList<String> imageList = new ArrayList<>();
                 for (Uri uri : selectedUriList) {
-                    Bitmap tmpBitmap = BitmapFactory.decodeFile(uri.getPath());
-                    tmpBitmap.compress(Bitmap.CompressFormat.PNG, 30, stream);
-                    byte[] bytes = stream.toByteArray();
+                    //Bitmap tmpBitmap = BitmapFactory.decodeFile(uri.getPath());
+                    //tmpBitmap.compress(Bitmap.CompressFormat.PNG, 30, stream);
+
+                    byte[] bytes =
+                            IOUtils.readInputStreamFully(new FileInputStream(new File(uri.getPath())));
                     String serialized = Base64.encodeToString(bytes, Base64.NO_WRAP);
                     imageList.add(serialized);
                     Log.d(TAG, String.format(Locale.KOREA, "encoded : %s", serialized));
@@ -714,6 +715,10 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
 
                 // make packet
                 JSONObject packet = makePacket("POST", "survey", data);
+
+                data = null;
+                geometryList = null;
+                imageList = null;
 
                 // make data length packet
                 JSONObject lengthData = new JSONObject();
