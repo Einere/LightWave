@@ -105,6 +105,9 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
     private String receivedData = null;
     private String taskName = null;
 
+    //새로시작하기 이어하기 = 1 , 히스토리 = 0
+    private boolean status = true;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -138,6 +141,17 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
             taskId = receivedIntent.getStringExtra("id");
             Toast.makeText(this, taskId, Toast.LENGTH_SHORT).show();
             receivedData = receivedIntent.getStringExtra("receivedData");
+            status = true;
+        }
+        else if(method != null && method.equals("history")){
+            tv_work_name.setText(receivedIntent.getStringExtra("taskName"));
+            tv_location_number.setText(receivedIntent.getStringExtra("landNo"));
+            et_server_memo.setText(receivedIntent.getStringExtra("taskDesc"));
+            taskName=receivedIntent.getStringExtra("taskName");
+            taskId = receivedIntent.getStringExtra("id");
+            Toast.makeText(this, taskId, Toast.LENGTH_SHORT).show();
+            receivedData = receivedIntent.getStringExtra("receivedData");
+            status = false;
         }
 
         // get sensor manager
@@ -175,29 +189,31 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
             file2.mkdir();
         }
 
-        String historyPath = Environment.getExternalStorageDirectory() + "/workHistory/beforeHistory.txt";
-        File historyFile = new File(historyPath);
-        if (historyFile.exists()) {
-            historyFile.delete();
-        }
-
-        try {
-            if (!historyFile.exists()) {
-                try {
-                    FileOutputStream fos = new FileOutputStream(historyFile);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        if(status) {
+            String historyPath = Environment.getExternalStorageDirectory() + "/workHistory/beforeHistory.txt";
+            File historyFile = new File(historyPath);
+            if (historyFile.exists()) {
+                historyFile.delete();
             }
-            FileOutputStream fos = new FileOutputStream(historyFile);
-            BufferedWriter buw = new BufferedWriter(new OutputStreamWriter(fos, StandardCharsets.UTF_8));
-            buw.write(receivedData);
-            buw.close();
-            fos.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
+            try {
+                if (!historyFile.exists()) {
+                    try {
+                        FileOutputStream fos = new FileOutputStream(historyFile);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                FileOutputStream fos = new FileOutputStream(historyFile);
+                BufferedWriter buw = new BufferedWriter(new OutputStreamWriter(fos, StandardCharsets.UTF_8));
+                buw.write(receivedData);
+                buw.close();
+                fos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
         //작업리스트 내역
         String taskhistoryPath = Environment.getExternalStorageDirectory() + "/workHistory/task/"+ taskName +".txt";
         File taskhistoryFile = new File(taskhistoryPath);

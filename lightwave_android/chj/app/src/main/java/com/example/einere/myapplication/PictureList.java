@@ -94,7 +94,7 @@ public class PictureList extends BaseAdapter{
         itemLayout.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent intent = new Intent(mContext, CaptureActivity.class);
-                intent.putExtra("method", "new");
+                intent.putExtra("method", "history");
                 String path = Environment.getExternalStorageDirectory() + "/workHistory/task/"+mData.get(position).taskName+".txt";
                 File file = new File(path);
                 if (!file.exists()) {
