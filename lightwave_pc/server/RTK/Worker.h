@@ -16,4 +16,6 @@ namespace Workers {
 		UINT port;
 		bool authorized = false;
 	};
+
+	IdType GenerateId(const Worker& worker);
 }

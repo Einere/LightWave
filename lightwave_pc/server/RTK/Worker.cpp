@@ -1,13 +1,16 @@
 #include "stdafx.h"
 #include "Worker.h"
+#include "time.h"
 
 Workers::Worker::Worker(IdType _id, CString _name, CString _ip, UINT _port, bool _authorized)
 {
-	id = _id;
 	name = _name;
 	ip = _ip;
 	port = _port;
 	authorized = _authorized;
+
+	// id 생성은 반드시 다른 필드 값들이 채워진 후 수행해야한다.
+	id = _id != 0 ? _id : GenerateId(*this);
 }
 
 Json::Value Workers::Worker::ToJson() const
@@ -41,4 +44,24 @@ bool Workers::Worker::FromJson(Json::Value root)
 	port = portRoot.asUInt();
 	
 	return true;
+}
+
+Workers::IdType Workers::GenerateId(const Worker& worker)
+{
+	const int LENGTH = 9;
+	SYSTEMTIME curTime;
+	GetLocalTime(&curTime);
+
+	CString timeInStr = TimeUtil::ConvertTime2StrNumber(curTime);
+	CString idInStr = "1";
+
+	idInStr += timeInStr;
+	UINT id = atoi(idInStr);
+
+	int nameLength = worker.name.GetLength();
+	for (int i = 0; i < nameLength; ++i) {
+		id = 10 * id + worker.name[i];
+	}
+
+	return id;
 }

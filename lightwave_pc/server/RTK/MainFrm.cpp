@@ -7,6 +7,8 @@
 
 #include "RTK.h"
 
+#include <Iphlpapi.h>
+
 #include "OutputWnd.h"
 #include "Task.h"
 #include "MainFrm.h"
@@ -847,8 +849,10 @@ void CMainFrame::OnServerStart()
 	pWorkerManager->StartServer();
 	updateStateDlg();
 	
-	CString msg;
-	msg.Format("서버 리스닝 시작\n  IP: %s\n  PORT: %d", "unknown", pWorkerManager->GetPortNow());
+	CString msg, ipAddr;
+	UINT port;
+	pWorkerManager->GetIpAddrAndPort(ipAddr, port);
+	msg.Format("서버 리스닝 시작\n  IP: %s\n  PORT: %d", ipAddr, pWorkerManager->GetPortNow());
 	Logger::Log(msg);
 	MessageBox(msg, "서버 시작");
 }
@@ -949,15 +953,15 @@ void CMainFrame::OnSetParcel()
 	}
 }
 
-void CMainFrame::OnDevTest()
+void get_local_ips(std::vector<std::wstring>& ips)
 {
-	char buffer[MAX_PATH];
-	GetModuleFileName(NULL, buffer, MAX_PATH);
-	std::string::size_type pos = std::string(buffer).find_last_of("\\/");
-	auto result = std::string(buffer).substr(0, pos);
-	Logger::Log("%s", result.c_str());
+	
 }
 
+void CMainFrame::OnDevTest()
+{
+
+}
 
 void CMainFrame::OnManageSurveyPoints()
 {

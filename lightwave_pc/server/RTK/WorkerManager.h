@@ -18,6 +18,7 @@ public:
 	void setRecepient(SocketRecipient* recep);*/
 	void SetSocketStatePane(StatePane* dlg);
 
+	std::shared_ptr<SocketWorker> GetWorkerOrNull(CString name) const;
 	std::shared_ptr<SocketWorker> GetWorkerOrNull(const CString& ipAddress, UINT port) const;
 	const std::vector<std::shared_ptr<SocketWorker>>& GetWorkers();
 
@@ -29,6 +30,7 @@ public:
 	
 	void AppendWorker(std::shared_ptr<SocketWorker> pNewWorker);
 	void DeleteWorker(const CString& ipAddress, UINT port);
+	void DeleteWorker(CString name);
 
 	/* Deprecated: 이전 구현에서 사용되는 함수 */
 	void OnReceive(SocketWorker * pSocketWorker, std::string json, int errorCode);
@@ -45,6 +47,8 @@ public:
 	void SetPort(UINT port);
 	UINT GetPortNow() const;
 	UINT GetPort() const;
+	void GetIpAddrs(std::vector<CString>& ips) const;
+	void GetIpAddrAndPort(CString& Addr, UINT& port) const;
 
 private:
 	SocketAcceptor m_acceptor;
