@@ -241,7 +241,7 @@ namespace SurveyTask {
 
 	UINT Task::GenerateId() const
 	{
-		return (UINT)time(NULL);
+		return (UINT)time(NULL)+rand();
 	}
 
 	ParcelToStore Parcel2ParcelToStore(DataType::CParcel& parcel)

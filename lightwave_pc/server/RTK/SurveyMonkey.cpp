@@ -82,7 +82,7 @@ namespace Service {
 		const int imagesCount = images.size();
 		for (int i = 0; i < imagesCount; ++i) {
 			CString fileName;
-			fileName.Format("ÃÔ¿µ»çÁø%d", i + 1);
+			fileName.Format("%d-ÃÔ¿µ»çÁø%d", pSurvey->GetId(), i);
 			SurveyTask::Base64Image b64img(fileName, pTask->GetParentPath(), images[i]);
 			CString imgPath = b64img.Store();
 
