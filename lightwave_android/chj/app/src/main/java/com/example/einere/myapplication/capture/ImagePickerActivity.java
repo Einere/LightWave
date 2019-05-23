@@ -36,10 +36,6 @@ public class ImagePickerActivity extends AppCompatActivity {
     int horizontalItemNumber = 2;
     int verticalItemNumber = 3;
 
-    // id_number
-    private String c_point_num;
-    private String work_num;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,8 +45,9 @@ public class ImagePickerActivity extends AppCompatActivity {
         //작업정보고유번호, 마커고유번호 가져오기
         Intent intent = getIntent();
         Bundle bundleData = intent.getBundleExtra("ID_NUM");
-        work_num = bundleData.getString("work_num");
-        c_point_num = bundleData.getString("c_point_num");
+        String work_num = bundleData.getString("work_num");
+        // id_number
+        String c_point_num = bundleData.getString("c_point_num");
         Log.d(TAG, String.format("work_num : %s, c_point_num : %s", work_num, c_point_num));
 
         // get dynamic item size

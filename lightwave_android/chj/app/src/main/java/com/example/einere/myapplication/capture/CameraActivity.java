@@ -1,4 +1,4 @@
-package com.example.einere.myapplication;
+package com.example.einere.myapplication.capture;
 
 import android.Manifest;
 import android.annotation.TargetApi;
@@ -36,8 +36,10 @@ import android.util.Size;
 import android.util.SparseIntArray;
 import android.view.Surface;
 import android.view.TextureView;
-import android.view.View;
 import android.widget.Button;
+
+import com.example.einere.myapplication.R;
+import com.example.einere.myapplication.gps.GpsInfo;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -47,14 +49,17 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 
+@SuppressWarnings("NullableProblems")
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class CameraActivity extends AppCompatActivity implements SensorEventListener {
     private static final String TAG = "AndroidCameraApi";
@@ -108,12 +113,12 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
         }
 
         if (gravity != null && geomagnetic != null) {
-            float R[] = new float[9];
-            float I[] = new float[9];
+            float[] R = new float[9];
+            float[] I = new float[9];
 
             boolean success = SensorManager.getRotationMatrix(R, I, gravity, geomagnetic);
             if (success) {
-                float orientation[] = new float[3];
+                float[] orientation = new float[3];
                 SensorManager.getOrientation(R, orientation);
                 // orientation contains: azimuth, pitch  and roll
                 azimuth = orientation[0];
@@ -136,10 +141,10 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
-        textureView = (TextureView) findViewById(R.id.texture);
+        textureView = findViewById(R.id.texture);
         assert textureView != null;
         textureView.setSurfaceTextureListener(textureListener);
-        takePictureButton = (Button) findViewById(R.id.btn_takepicture);
+        takePictureButton = findViewById(R.id.btn_takepicture);
         assert takePictureButton != null;
 
         // get sensor manager
@@ -154,12 +159,7 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
         pointNum = bundleData.getString("c_point_num");
 
 
-        takePictureButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                takePicture();
-            }
-        });
+        takePictureButton.setOnClickListener(v -> takePicture());
     }
 
     TextureView.SurfaceTextureListener textureListener = new TextureView.SurfaceTextureListener() {
@@ -248,10 +248,8 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
         CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
         try {
             CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraDevice.getId());
-            Size[] jpegSizes = null;
-            if (characteristics != null) {
-                jpegSizes = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP).getOutputSizes(ImageFormat.JPEG);
-            }
+            Size[] jpegSizes;
+            jpegSizes = Objects.requireNonNull(characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)).getOutputSizes(ImageFormat.JPEG);
             int width = 640;
             int height = 480;
             if (jpegSizes != null && 0 < jpegSizes.length) {
@@ -259,7 +257,7 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
                 height = jpegSizes[0].getHeight();
             }
             ImageReader reader = ImageReader.newInstance(width, height, ImageFormat.JPEG, 1);
-            List<Surface> outputSurfaces = new ArrayList<Surface>(2);
+            List<Surface> outputSurfaces = new ArrayList<>(2);
             outputSurfaces.add(reader.getSurface());
             outputSurfaces.add(new Surface(textureView.getSurfaceTexture()));
             final CaptureRequest.Builder captureBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
@@ -277,9 +275,7 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
             ImageReader.OnImageAvailableListener readerListener = new ImageReader.OnImageAvailableListener() {
                 @Override
                 public void onImageAvailable(ImageReader reader) {
-                    Image image = null;
-                    try {
-                        image = reader.acquireLatestImage();
+                    try (Image image = reader.acquireLatestImage()) {
                         ByteBuffer buffer = image.getPlanes()[0].getBuffer();
                         byte[] bytes = new byte[buffer.capacity()];
                         buffer.get(bytes);
@@ -288,10 +284,6 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
                         e.printStackTrace();
                     } catch (IOException e) {
                         e.printStackTrace();
-                    } finally {
-                        if (image != null) {
-                            image.close();
-                        }
                     }
                 }
 
@@ -355,10 +347,10 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
         try {
             File file2 = new File(Environment.getExternalStorageDirectory() + "/" + workNum + "/" + pointNum + "/textfile/" + timeStamp + ".txt");
             FileOutputStream fos = new FileOutputStream(file2);
-            BufferedWriter buw = new BufferedWriter(new OutputStreamWriter(fos, "UTF8"));
-            buw.write(String.valueOf(takeazimuth) + "\n");
-            buw.write(String.valueOf(latitude) + "\n");
-            buw.write(String.valueOf(longitude) + "\n");
+            BufferedWriter buw = new BufferedWriter(new OutputStreamWriter(fos, StandardCharsets.UTF_8));
+            buw.write(takeazimuth + "\n");
+            buw.write(latitude + "\n");
+            buw.write(longitude + "\n");
             Log.d(TAG, String.format("latitude : %f, longitude : %f", latitude, longitude));
             buw.close();
             fos.close();
@@ -379,7 +371,7 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
             Surface surface = new Surface(texture);
             captureRequestBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
             captureRequestBuilder.addTarget(surface);
-            cameraDevice.createCaptureSession(Arrays.asList(surface), new CameraCaptureSession.StateCallback() {
+            cameraDevice.createCaptureSession(Collections.singletonList(surface), new CameraCaptureSession.StateCallback() {
                 @Override
                 public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
                     //The camera is already closed

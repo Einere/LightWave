@@ -1,4 +1,4 @@
-package com.example.einere.myapplication;
+package com.example.einere.myapplication.socket;
 
 import android.app.Application;
 import android.content.ComponentName;
@@ -9,11 +9,10 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 
-import com.example.einere.myapplication.connection.ConnectionService;
+import com.example.einere.myapplication.IConnectionService;
 
 public class SocketManager extends Application {
     private static final SocketManager instance = new SocketManager();
-    private static Context context = null;
     private ServiceConnection connection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -41,10 +40,10 @@ public class SocketManager extends Application {
         Log.i("SocketManager", "onCreate()");
 
         // get context
-        context = getApplicationContext();
+        Context context = getApplicationContext();
 
         // bind service
-        Intent intent = new Intent(context, ConnectionService.class);
+        Intent intent = new Intent(context, SocketService.class);
         context.bindService(intent, connection, BIND_AUTO_CREATE);
     }
 

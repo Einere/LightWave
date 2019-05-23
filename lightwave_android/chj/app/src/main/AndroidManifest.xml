@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.einere.myapplication">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -10,13 +11,14 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
-        android:name=".SocketManager"
+        android:name=".socket.SocketManager"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="산학연계"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        tools:ignore="GoogleAppIndexingWarning">
 
         <activity
             android:name=".splash.SplashActivity"
@@ -27,21 +29,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".connection.ConnectionActivity">
+        <activity android:name=".connection.ConnectionActivity" />
+        <activity android:name=".main.MainActivity">
 
         </activity>
-        <activity android:name=".main.MainActivity" />
-        <activity android:name=".capture.CaptureActivity">
-
-        </activity>
-        <activity android:name=".ListViewActivity" />
-        <activity android:name=".MemoActivity" />
-        <activity android:name=".CameraActivity" />
+        <activity android:name=".capture.CaptureActivity" />
+        <activity android:name=".history.TaskHistoryListViewActivity" />
+        <activity android:name=".capture.CameraActivity" />
         <activity android:name=".capture.ImagePickerActivity" />
 
 
         <service
-            android:name=".connection.ConnectionService"
+            android:name=".socket.SocketService"
             android:enabled="true"
             android:exported="false" />
 
