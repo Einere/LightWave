@@ -102,6 +102,7 @@ namespace Service {
 		std::string buf;
 
 		const int BLOCK_SIZE = 1024;
+
 		int receivedLength = 0;
 		do {
 			char block[BLOCK_SIZE];

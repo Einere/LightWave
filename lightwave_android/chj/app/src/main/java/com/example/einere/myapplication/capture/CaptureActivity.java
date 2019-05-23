@@ -8,6 +8,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.media.Image;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.RemoteException;
@@ -661,93 +662,125 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
     }
 
     public void sendData() {
-        // check manager status
-        try {
-            ArrayList<Uri> selectedUriList = recyclerAdapter.getSelectedUriList();
-            if (socketManager.getStatus() == STATUS_CONNECTED && selectedUriList.size() > 0) {
-                // get uri list
+        //
+         class MyAsyncTask extends AsyncTask<Integer, Integer, Integer> {
+
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+            }
+
+            @Override
+            protected Integer doInBackground(Integer... integers){
+
+              //  for(int i = 0; i < 30; i++) {
+                    // check manager status
+                    try {
+                        ArrayList<Uri> selectedUriList = recyclerAdapter.getSelectedUriList();
+                        if (socketManager.getStatus() == STATUS_CONNECTED && selectedUriList.size() > 0) {
+                            // get uri list
 //                ArrayList<Uri> uriList = recyclerAdapter.getSelectedUriList();
 
-                // make data JSONObject
-                JSONObject data = new JSONObject();
-                data.put("userName", socketManager.getUserName());
-                data.put("taskId", Integer.parseInt(taskId));
-                data.put("surveyId", Integer.parseInt(pointNum));
+                            // put serialized picture data
+                            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                            ArrayList<String> imageList = new ArrayList<>();
+                            for (Uri uri : selectedUriList) {
+                                //Bitmap tmpBitmap = BitmapFactory.decodeFile(uri.getPath());
+                                //tmpBitmap.compress(Bitmap.CompressFormat.PNG, 30, stream);
 
-                // put serialized picture data
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                ArrayList<String> imageList = new ArrayList<>();
-                for (Uri uri : selectedUriList) {
-                    //Bitmap tmpBitmap = BitmapFactory.decodeFile(uri.getPath());
-                    //tmpBitmap.compress(Bitmap.CompressFormat.PNG, 30, stream);
+                                byte[] bytes =
+                                        IOUtils.readInputStreamFully(new FileInputStream(new File(uri.getPath())));
+                                String serialized = Base64.encodeToString(bytes, Base64.NO_WRAP);
+                                imageList.add(serialized);
+                                Log.d(TAG, String.format(Locale.KOREA, "encoded : %s", serialized));
+                            }
+                            //data.put("images", imageList.toString());
 
-                    byte[] bytes =
-                            IOUtils.readInputStreamFully(new FileInputStream(new File(uri.getPath())));
-                    String serialized = Base64.encodeToString(bytes, Base64.NO_WRAP);
-                    imageList.add(serialized);
-                    Log.d(TAG, String.format(Locale.KOREA, "encoded : %s", serialized));
-                }
-                data.put("images", imageList.toString());
 //                data.put("images", "test");
 
-                // put text data
-                ArrayList<String> geometryList = new ArrayList<>();
-                for (File file : upTextList) {
-                    JSONObject geometry = new JSONObject();
+                            // put text data
+                            ArrayList<String> geometryList = new ArrayList<>();
+                            for (File file : upTextList) {
+                                JSONObject geometry = new JSONObject();
 
-                    // open stream
-                    InputStream is = new FileInputStream(file);
-                    BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
-                    geometry.put("azimuth", br.readLine());
-                    geometry.put("latitude", br.readLine());
-                    geometry.put("longitude", br.readLine());
+                                // open stream
+                                InputStream is = new FileInputStream(file);
+                                BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+                                geometry.put("azimuth", br.readLine());
+                                geometry.put("latitude", br.readLine());
+                                geometry.put("longitude", br.readLine());
 
-                    // close stream
-                    br.close();
-                    is.close();
-                    geometryList.add(geometry.toString());
-                    Log.d(TAG, String.format(Locale.KOREA, "geometry : %s", geometry.toString()));
-                }
-                data.put("geometry", geometryList.toString());
+                                // close stream
+                                br.close();
+                                is.close();
+                                geometryList.add(geometry.toString());
+                                Log.d(TAG, String.format(Locale.KOREA, "geometry : %s", geometry.toString()));
+                            }
+                           // data.put("geometry", geometryList.toString());
 
-                // put memo data
-                data.put("memo", et_client_memo.getText());
+                            // put memo data
+                           // data.put("memo", et_client_memo.getText());
 
-                // make packet
-                JSONObject packet = makePacket("POST", "survey", data);
+                            for(int k=0; k<imageList.size(); k++) {
+                                JSONObject data = new JSONObject();
+                                // make packet
+                                JSONObject packet = makePacket("POST", "survey", data);
+                                // make data JSONObject
+                                data.put("userName", socketManager.getUserName());
+                                data.put("taskId", Integer.parseInt(taskId));
+                                data.put("surveyId", Integer.parseInt(pointNum));
+                                data.put("geometry", geometryList.get(k).toString());
+                                data.put("images", imageList.get(k).toString());
+                                data.put("memo", et_client_memo.getText());
 
-                data = null;
-                geometryList = null;
-                imageList = null;
+                                // make data length packet
+                                JSONObject lengthData = new JSONObject();
+                                lengthData.put("length", packet.toString().getBytes().length);
+                                Log.d(TAG, String.format(Locale.KOREA, "length : %d, byte : %d", packet.toString().length(), packet.toString().getBytes().length));
+                                JSONObject lengthPacket = makePacket("POST", "length", lengthData);
 
-                // make data length packet
-                JSONObject lengthData = new JSONObject();
-                lengthData.put("length", packet.toString().getBytes().length);
-                Log.d(TAG, String.format(Locale.KOREA, "length : %d, byte : %d", packet.toString().length(), packet.toString().getBytes().length));
-                JSONObject lengthPacket = makePacket("POST", "length", lengthData);
+                                // send packet length to server
+                                socketManager.send(lengthPacket.toString());
 
-                // send packet length to server
-                socketManager.send(lengthPacket.toString());
+                                // send packet to server
+                                socketManager.send(packet.toString());
+                                // Toast.makeText(this, "send!", Toast.LENGTH_SHORT).show();
+                                Log.d(TAG, String.format("send data : %s", packet.toString()));
 
-                // send packet to server
-                socketManager.send(packet.toString());
-                Toast.makeText(this, "send!", Toast.LENGTH_SHORT).show();
-                Log.d(TAG, String.format("send data : %s", packet.toString()));
+                                // receive response packet from server
+                                socketManager.receive();
+                                data = null;
+                            }
+                            geometryList = null;
+                            imageList = null;
+                        } else {
+                            // Toast.makeText(this, "not connected to server or no selected image", Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (RemoteException e) {
+                        // Toast.makeText(this, "RemoteException occurred!", Toast.LENGTH_SHORT).show();
+                    } catch (JSONException e) {
+                        //  Toast.makeText(this, "JSONException occurred!", Toast.LENGTH_SHORT).show();
+                    } catch (FileNotFoundException e) {
+                        //  Toast.makeText(this, "file is not found!", Toast.LENGTH_SHORT).show();
+                    } catch (IOException e) {
+                        //  Toast.makeText(this, "error in readLine!", Toast.LENGTH_SHORT).show();
+                    }
+             //   }
+             return 0;
+           }
 
-                // receive response packet from server
-                socketManager.receive();
-            } else {
-                Toast.makeText(this, "not connected to server or no selected image", Toast.LENGTH_SHORT).show();
+         @Override
+         protected void onProgressUpdate(Integer... params) {
+
             }
-        } catch (RemoteException e) {
-            Toast.makeText(this, "RemoteException occurred!", Toast.LENGTH_SHORT).show();
-        } catch (JSONException e) {
-            Toast.makeText(this, "JSONException occurred!", Toast.LENGTH_SHORT).show();
-        } catch (FileNotFoundException e) {
-            Toast.makeText(this, "file is not found!", Toast.LENGTH_SHORT).show();
-        } catch (IOException e) {
-            Toast.makeText(this, "error in readLine!", Toast.LENGTH_SHORT).show();
-        }
+
+          @Override
+           protected void onPostExecute(Integer result) {
+               super.onPostExecute(result);
+           }
+    }
+        MyAsyncTask task = new MyAsyncTask();
+         task.execute();
     }
 
     public void receiveData(View v) throws RemoteException {
