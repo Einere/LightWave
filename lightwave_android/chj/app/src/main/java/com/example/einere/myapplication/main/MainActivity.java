@@ -1,6 +1,5 @@
 package com.example.einere.myapplication.main;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
@@ -9,10 +8,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.example.einere.myapplication.ListViewActivity;
 import com.example.einere.myapplication.R;
-import com.example.einere.myapplication.SocketManager;
 import com.example.einere.myapplication.capture.CaptureActivity;
+import com.example.einere.myapplication.history.TaskHistoryListViewActivity;
+import com.example.einere.myapplication.socket.SocketManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -37,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
         // set listener
         findViewById(R.id.btn_new_capture).setOnClickListener(v -> goToNewCapture());
         findViewById(R.id.btn_continue_capture).setOnClickListener(v -> goToContinueCapture());
-        findViewById(R.id.btn_check_history).setOnClickListener(v -> goToCheckHistory());
+//        findViewById(R.id.btn_check_history).setOnClickListener(v -> goToCheckHistory());
     }
 
     @Override
@@ -78,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
         }
         Log.d(TAG, String.format("received data : %s", receivedData));
 
-        JSONObject parsedData = new JSONObject();
+        JSONObject parsedData;
         try {
             parsedData = new JSONObject(receivedData);
 
@@ -121,7 +120,6 @@ public class MainActivity extends AppCompatActivity {
         File file = new File(path);
         if (!file.exists()) {
             Toast.makeText(this, "전 작업이 없습니다", Toast.LENGTH_SHORT).show();
-            return;
         } else {
             StringBuilder sb = new StringBuilder();
             try {
@@ -129,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 
                 // read line
-                String line = "";
+                String line;
                 while ((line = reader.readLine()) != null) {
                     sb.append(line).append("\n");
                 }
@@ -168,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void goToCheckHistory() {
-        Intent intent = new Intent(this, ListViewActivity.class);
+        Intent intent = new Intent(this, TaskHistoryListViewActivity.class);
         startActivity(intent);
     }
 }

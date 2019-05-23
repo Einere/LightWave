@@ -1,4 +1,4 @@
-package com.example.einere.myapplication.connection;
+package com.example.einere.myapplication.socket;
 
 import android.app.Service;
 import android.content.Intent;
@@ -24,8 +24,8 @@ import java.net.SocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
-public class ConnectionService extends Service {
-    final String TAG = "ConnectionService";
+public class SocketService extends Service {
+    final String TAG = "SocketService";
     final int STATUS_DISCONNECTED = 0;
     final int STATUS_CONNECTED = 1;
     final int TIME_OUT = 5000;
@@ -44,7 +44,7 @@ public class ConnectionService extends Service {
 
     private ArrayMap<Long, Thread> sendThreadList = new ArrayMap<>();
     private Thread receiveThread = null;
-    private Handler handler = null;
+    private Handler handler;
 
     IConnectionService.Stub binder = new IConnectionService.Stub() {
         @Override
@@ -81,39 +81,19 @@ public class ConnectionService extends Service {
         }
     };
 
-    public ConnectionService() {
+    public SocketService() {
+        handler = new SocketHandler(sendThreadList, receiveThread);
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-        handler = new Handler() {
-            @Override
-            public void handleMessage(Message msg) {
-                Log.d(TAG, "handle message start");
-                switch (msg.what) {
-                    case SOCKET_SEND_COMPLETE: {
-                        // kill send thread
-                        sendThreadList.remove((long) msg.arg1).interrupt();
-                        Log.d(TAG, String.format(Locale.KOREA, "[%d]kill sending thread", msg.arg1));
-                    }
-                    case SOCKET_RECEIVE_COMPLETE: {
-                        // kill receiving thread
-                        if (receiveThread != null) {
-                            receiveThread.interrupt();
-                        }
-                        receiveThread = null;
-                        Log.d(TAG, "kill receiving thread");
-                    }
-                }
-            }
-        };
-        Log.i("ConnectionService", "onCreate()");
+        Log.i("SocketService", "onCreate()");
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i("ConnectionService", "onStartCommand()");
+        Log.i("SocketService", "onStartCommand()");
 
         return START_STICKY;
     }
@@ -122,30 +102,30 @@ public class ConnectionService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.i("ConnectionService", "onDestroy()");
+        Log.i("SocketService", "onDestroy()");
     }
 
     @Override
     public IBinder onBind(Intent intent) {
         // TODO: Return the communication channel to the service.
-        Log.i("ConnectionService", "onBind()");
+        Log.i("SocketService", "onBind()");
 
         return binder;
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
-        Log.i("ConnectionService", "onUnbind()");
+        Log.i("SocketService", "onUnbind()");
         return super.onUnbind(intent);
     }
 
     void mySetSocket(String ip, int port) {
         socketAddress = new InetSocketAddress(ip, port);
-        Log.i("ConnectionService", "mySetSocket()");
+        Log.i("SocketService", "mySetSocket()");
     }
 
     void myConnect() {
-        Log.i("ConnectionService", "myConnect1()");
+        Log.i("SocketService", "myConnect1()");
         socket = new Socket();
         new Thread(() -> {
             try {
@@ -156,7 +136,7 @@ public class ConnectionService extends Service {
                 dosWriter = new DataOutputStream(socket.getOutputStream());
 
                 status = STATUS_CONNECTED;
-                Log.i("ConnectionService", "myConnect2()");
+                Log.i("SocketService", "myConnect2()");
             } catch (IOException e) {
                 e.printStackTrace();
                 status = STATUS_DISCONNECTED;
@@ -186,7 +166,7 @@ public class ConnectionService extends Service {
                 writer.flush();
             } catch (IOException e) {
                 e.printStackTrace();
-                Toast.makeText(ConnectionService.this, "error at send data...", Toast.LENGTH_SHORT).show();
+                Toast.makeText(SocketService.this, "error at send data...", Toast.LENGTH_SHORT).show();
             }
 
             // make message
@@ -262,7 +242,7 @@ public class ConnectionService extends Service {
                         writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8));
                         reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
                         status = STATUS_CONNECTED;
-                        Log.i("ConnectionService", "myConnect2()");
+                        Log.i("SocketService", "myConnect2()");
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -277,5 +257,43 @@ public class ConnectionService extends Service {
         existReceivedData = false;
         receivedData = null;
         Log.d(TAG, "resetReceivedData end");
+    }
+
+    // because of memory leak, need to declare static class...
+    static class SocketHandler extends Handler {
+        private final String TAG = "SocketHandler";
+        final int SOCKET_SEND_COMPLETE = 10;
+        final int SOCKET_RECEIVE_COMPLETE = 11;
+
+        private ArrayMap<Long, Thread> sendThreadList;
+        private Thread receiveThread;
+
+        SocketHandler(ArrayMap<Long, Thread> sendThreadList, Thread receiveThread) {
+            this.sendThreadList = sendThreadList;
+            this.receiveThread = receiveThread;
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            Log.d(TAG, "handle message start");
+            switch (msg.what) {
+                case SOCKET_SEND_COMPLETE: {
+                    // kill send thread
+                    Thread sendThread = sendThreadList.remove((long) msg.arg1);
+                    if (sendThread != null) {
+                        sendThread.interrupt();
+                    }
+                    Log.d(TAG, String.format(Locale.KOREA, "[%d]kill sending thread", msg.arg1));
+                }
+                case SOCKET_RECEIVE_COMPLETE: {
+                    // kill receiving thread
+                    if (receiveThread != null) {
+                        receiveThread.interrupt();
+                    }
+                    Log.d(TAG, "kill receiving thread");
+                }
+            }
+
+        }
     }
 }

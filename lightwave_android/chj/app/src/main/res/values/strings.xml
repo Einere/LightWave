@@ -14,8 +14,8 @@
     <string name="new_capture">새로 촬영하기</string>
     <string name="continue_capture">이어서 촬영하기</string>
     <string name="check_history">작업이력 확인하기</string>
-    <string name="work_name">작업이름</string>
-    <string name="work_place">작업위치</string>
+    <string name="work_name">작업 이름</string>
+    <string name="work_place">작업 위치</string>
     <string name="server_memo_hint">서버로 부터 받은 메모입니다</string>
     <string name="client_memo_hint">메모를 입력해 주세요</string>
     <string name="done">선택완료</string>
@@ -24,4 +24,6 @@
     <string name="save_memo">메모저장</string>
     <string name="delete_memo">메모삭제</string>
     <string name="first_ip">첫번째아이피</string>
+    <string name="task_history_list">작업 이력 목록</string>
+    <string name="marker">마커</string>
 </resources>

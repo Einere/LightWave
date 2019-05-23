@@ -2,10 +2,6 @@ package com.example.einere.myapplication.capture;
 
 import android.content.Intent;
 import android.graphics.Color;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.media.Image;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -25,11 +21,10 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.einere.myapplication.CameraActivity;
-import com.example.einere.myapplication.GpsInfo;
-import com.example.einere.myapplication.ListViewActivity;
 import com.example.einere.myapplication.R;
-import com.example.einere.myapplication.SocketManager;
+import com.example.einere.myapplication.gps.GpsInfo;
+import com.example.einere.myapplication.history.TaskHistoryListViewActivity;
+import com.example.einere.myapplication.socket.SocketManager;
 import com.google.android.gms.common.util.IOUtils;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -60,8 +55,9 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Objects;
 
-public class CaptureActivity extends FragmentActivity implements SensorEventListener, OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
+public class CaptureActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
     final int STATUS_DISCONNECTED = 0;
     final int STATUS_CONNECTED = 1;
     private final int CAMERA_CODE = 1111;
@@ -81,13 +77,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
     EditText et_client_memo = null;
     EditText et_server_memo = null;
 
-    // sensor
-    SensorManager sensorManager = null;
-    Sensor accelerometer = null;
-    Sensor magnetometer = null;
-    float[] gravity = null;
-    float[] geomagnetic = null;
-    TextView tv_azimuth = null;
+    // geometry
     private GpsInfo gps;
 
     // upload ArrayList
@@ -126,7 +116,6 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         TextView tv_work_name = findViewById(R.id.tv_work_name);
         TextView tv_location_number = findViewById(R.id.tv_location_number);
         rv_selectedImage = findViewById(R.id.rv_selectedImage);
-        tv_azimuth = findViewById(R.id.tv_azimuth);
         et_client_memo = findViewById(R.id.et_client_memo);
         et_server_memo = findViewById(R.id.et_server_memo);
 
@@ -137,7 +126,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
             tv_work_name.setText(receivedIntent.getStringExtra("taskName"));
             tv_location_number.setText(receivedIntent.getStringExtra("landNo"));
             et_server_memo.setText(receivedIntent.getStringExtra("taskDesc"));
-            taskName=receivedIntent.getStringExtra("taskName");
+            taskName = receivedIntent.getStringExtra("taskName");
             taskId = receivedIntent.getStringExtra("id");
             Toast.makeText(this, taskId, Toast.LENGTH_SHORT).show();
             receivedData = receivedIntent.getStringExtra("receivedData");
@@ -152,11 +141,6 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
             receivedData = receivedIntent.getStringExtra("receivedData");
             status = false;
         }
-
-        // get sensor manager
-        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        magnetometer = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 
         // make RecyclerView
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
@@ -173,10 +157,10 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         findViewById(R.id.btn_memo_save).setOnClickListener(v -> saveMemo());
         findViewById(R.id.btn_memo_delete).setOnClickListener(v -> deleteMemo());
 
-         memoHistory();
+        memoHistory();
     }
 
-    public void memoHistory(){
+    public void memoHistory() {
         //이어하기 내역
         File file = new File(Environment.getExternalStorageDirectory() + "/" + "workHistory");
         if (!file.exists()) {
@@ -188,7 +172,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
             file2.mkdir();
         }
 
-        if(status) {
+        if (status) {
             String historyPath = Environment.getExternalStorageDirectory() + "/workHistory/beforeHistory.txt";
             File historyFile = new File(historyPath);
             if (historyFile.exists()) {
@@ -214,21 +198,17 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
 
         }
         //작업리스트 내역
-        String taskhistoryPath = Environment.getExternalStorageDirectory() + "/workHistory/task/"+ taskName +".txt";
-        File taskhistoryFile = new File(taskhistoryPath);
-        if (taskhistoryFile.exists()) {
-            taskhistoryFile.delete();
+        String taskHistoryPath = Environment.getExternalStorageDirectory() + "/workHistory/task/" + taskName + ".txt";
+        File taskHistoryFile = new File(taskHistoryPath);
+        if (taskHistoryFile.exists()) {
+            taskHistoryFile.delete();
         }
 
         try {
-            if (!taskhistoryFile.exists()) {
-                try {
-                    FileOutputStream fos = new FileOutputStream(taskhistoryFile);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            if (!taskHistoryFile.exists()) {
+                FileOutputStream fos = new FileOutputStream(taskHistoryFile);
             }
-            FileOutputStream fos = new FileOutputStream(taskhistoryFile);
+            FileOutputStream fos = new FileOutputStream(taskHistoryFile);
             BufferedWriter buw = new BufferedWriter(new OutputStreamWriter(fos, StandardCharsets.UTF_8));
             buw.write(receivedData);
             buw.close();
@@ -244,10 +224,6 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
 
         // get SocketManager instance
         socketManager = SocketManager.getInstance();
-
-        // register listener
-        sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
-        sensorManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_UI);
     }
 
     @Override
@@ -288,8 +264,8 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
             JSONArray parcels = data.getJSONArray("parcels");
             JSONArray surveyPoints = data.getJSONArray("surveyPoints");
 
-            double sumX =0;
-            double sumY =0;
+            double sumX = 0;
+            double sumY = 0;
             int sumi = 0;
             //도형 점 정보 그림
             for (int i = 0; i < parcels.length(); i++) {
@@ -302,8 +278,8 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
                     JSONObject tmp2 = parcelPoints.getJSONObject(j);
                     double x = tmp2.getDouble("Y");
                     double y = tmp2.getDouble("X");
-                    sumX+=x;
-                    sumY+=y;
+                    sumX += x;
+                    sumY += y;
                     xParcelPointsList.add(x);
                     yParcelPointsList.add(y);
                     if (j != 0) {
@@ -316,7 +292,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
                         poly.add(poly2);
                         mMap.addPolyline(poly);
                     }
-                    if(j == parcelPoints.length()-1){
+                    if (j == parcelPoints.length() - 1) {
                         LatLng poly1 = new LatLng(xParcelPointsList.get(0), yParcelPointsList.get(0));
                         LatLng poly2 = new LatLng(xParcelPointsList.get(j), yParcelPointsList.get(j));
                         PolylineOptions poly = new PolylineOptions();
@@ -329,7 +305,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
                 }
             }
 
-            LatLng center = new LatLng((double)sumX/sumi, (double)sumY/sumi);
+            LatLng center = new LatLng(sumX / sumi, sumY / sumi);
             CameraPosition cameraPosition = new CameraPosition.Builder()
                     .target(center)      // Sets the center of the map to Mountain View
                     .zoom(16)                   // Sets the zoom
@@ -346,7 +322,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
                 double x = tmp.getDouble("Y");
                 double y = tmp.getDouble("X");
                 boolean surveyed = tmp.getBoolean("surveyed");
-                String serveyID =  tmp.getString("id");
+                String serveyID = tmp.getString("id");
                 LatLng point = new LatLng(x, y);
 
                 MarkerOptions makerOptions = new MarkerOptions();
@@ -426,8 +402,8 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
             JSONArray parcels = data.getJSONArray("parcels");
             JSONArray surveyPoints = data.getJSONArray("surveyPoints");
 
-            double sumX =0;
-            double sumY =0;
+            double sumX = 0;
+            double sumY = 0;
             int sumi = 0;
             //도형 점 정보 그림
             for (int i = 0; i < parcels.length(); i++) {
@@ -440,8 +416,8 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
                     JSONObject tmp2 = parcelPoints.getJSONObject(j);
                     double x = tmp2.getDouble("Y");
                     double y = tmp2.getDouble("X");
-                    sumX+=x;
-                    sumY+=y;
+                    sumX += x;
+                    sumY += y;
                     xParcelPointsList.add(x);
                     yParcelPointsList.add(y);
                     if (j != 0) {
@@ -467,7 +443,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
                 }
             }
 
-            LatLng center = new LatLng((double)sumX/sumi, (double)sumY/sumi);
+            LatLng center = new LatLng(sumX / sumi, sumY / sumi);
             CameraPosition cameraPosition = new CameraPosition.Builder()
                     .target(center)      // Sets the center of the map to Mountain View
                     .zoom(16)                   // Sets the zoom
@@ -588,7 +564,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
                 BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
 
                 // read line
-                String line = "";
+                String line;
                 while ((line = reader.readLine()) != null) {
                     sb.append(line).append("\n");
                 }
@@ -657,130 +633,127 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
     }
 
     public void clickPoint(View v) {
-        Intent intent = new Intent(this, ListViewActivity.class);
+        Intent intent = new Intent(this, TaskHistoryListViewActivity.class);
         startActivity(intent);
     }
 
-    public void sendData() {
-        //
-         class MyAsyncTask extends AsyncTask<Integer, Integer, Integer> {
+    class MyAsyncTask extends AsyncTask<Integer, Integer, Integer> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
 
-            @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
-            }
+        @Override
+        protected Integer doInBackground(Integer... integers) {
 
-            @Override
-            protected Integer doInBackground(Integer... integers){
-
-              //  for(int i = 0; i < 30; i++) {
-                    // check manager status
-                    try {
-                        ArrayList<Uri> selectedUriList = recyclerAdapter.getSelectedUriList();
-                        if (socketManager.getStatus() == STATUS_CONNECTED && selectedUriList.size() > 0) {
-                            // get uri list
+            //  for(int i = 0; i < 30; i++) {
+            // check manager status
+            try {
+                ArrayList<Uri> selectedUriList = recyclerAdapter.getSelectedUriList();
+                if (socketManager.getStatus() == STATUS_CONNECTED && selectedUriList.size() > 0) {
+                    // get uri list
 //                ArrayList<Uri> uriList = recyclerAdapter.getSelectedUriList();
 
-                            // put serialized picture data
-                            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                            ArrayList<String> imageList = new ArrayList<>();
-                            for (Uri uri : selectedUriList) {
-                                //Bitmap tmpBitmap = BitmapFactory.decodeFile(uri.getPath());
-                                //tmpBitmap.compress(Bitmap.CompressFormat.PNG, 30, stream);
+                    // put serialized picture data
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    ArrayList<String> imageList = new ArrayList<>();
+                    for (Uri uri : selectedUriList) {
+                        //Bitmap tmpBitmap = BitmapFactory.decodeFile(uri.getPath());
+                        //tmpBitmap.compress(Bitmap.CompressFormat.PNG, 30, stream);
 
-                                byte[] bytes =
-                                        IOUtils.readInputStreamFully(new FileInputStream(new File(uri.getPath())));
-                                String serialized = Base64.encodeToString(bytes, Base64.NO_WRAP);
-                                imageList.add(serialized);
-                                Log.d(TAG, String.format(Locale.KOREA, "encoded : %s", serialized));
-                            }
-                            //data.put("images", imageList.toString());
-
-//                data.put("images", "test");
-
-                            // put text data
-                            ArrayList<String> geometryList = new ArrayList<>();
-                            for (File file : upTextList) {
-                                JSONObject geometry = new JSONObject();
-
-                                // open stream
-                                InputStream is = new FileInputStream(file);
-                                BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
-                                geometry.put("azimuth", br.readLine());
-                                geometry.put("latitude", br.readLine());
-                                geometry.put("longitude", br.readLine());
-
-                                // close stream
-                                br.close();
-                                is.close();
-                                geometryList.add(geometry.toString());
-                                Log.d(TAG, String.format(Locale.KOREA, "geometry : %s", geometry.toString()));
-                            }
-                           // data.put("geometry", geometryList.toString());
-
-                            // put memo data
-                           // data.put("memo", et_client_memo.getText());
-
-                            for(int k=0; k<imageList.size(); k++) {
-                                JSONObject data = new JSONObject();
-                                // make packet
-                                JSONObject packet = makePacket("POST", "survey", data);
-                                // make data JSONObject
-                                data.put("userName", socketManager.getUserName());
-                                data.put("taskId", Integer.parseInt(taskId));
-                                data.put("surveyId", Integer.parseInt(pointNum));
-                                data.put("geometry", geometryList.get(k).toString());
-                                data.put("images", imageList.get(k).toString());
-                                data.put("memo", et_client_memo.getText());
-
-                                // make data length packet
-                                JSONObject lengthData = new JSONObject();
-                                lengthData.put("length", packet.toString().getBytes().length);
-                                Log.d(TAG, String.format(Locale.KOREA, "length : %d, byte : %d", packet.toString().length(), packet.toString().getBytes().length));
-                                JSONObject lengthPacket = makePacket("POST", "length", lengthData);
-
-                                // send packet length to server
-                                socketManager.send(lengthPacket.toString());
-
-                                // send packet to server
-                                socketManager.send(packet.toString());
-                                // Toast.makeText(this, "send!", Toast.LENGTH_SHORT).show();
-                                Log.d(TAG, String.format("send data : %s", packet.toString()));
-
-                                // receive response packet from server
-                                socketManager.receive();
-                                data = null;
-                            }
-                            geometryList = null;
-                            imageList = null;
-                        } else {
-                            // Toast.makeText(this, "not connected to server or no selected image", Toast.LENGTH_SHORT).show();
-                        }
-                    } catch (RemoteException e) {
-                        // Toast.makeText(this, "RemoteException occurred!", Toast.LENGTH_SHORT).show();
-                    } catch (JSONException e) {
-                        //  Toast.makeText(this, "JSONException occurred!", Toast.LENGTH_SHORT).show();
-                    } catch (FileNotFoundException e) {
-                        //  Toast.makeText(this, "file is not found!", Toast.LENGTH_SHORT).show();
-                    } catch (IOException e) {
-                        //  Toast.makeText(this, "error in readLine!", Toast.LENGTH_SHORT).show();
+                        byte[] bytes =
+                                IOUtils.readInputStreamFully(new FileInputStream(new File(uri.getPath())));
+                        String serialized = Base64.encodeToString(bytes, Base64.NO_WRAP);
+                        imageList.add(serialized);
+                        Log.d(TAG, String.format(Locale.KOREA, "encoded : %s", serialized));
                     }
-             //   }
-             return 0;
-           }
+                    // data.put("images", imageList.toString());
+                    // data.put("images", "test");
 
-         @Override
-         protected void onProgressUpdate(Integer... params) {
+                    // put text data
+                    ArrayList<String> geometryList = new ArrayList<>();
+                    for (File file : upTextList) {
+                        JSONObject geometry = new JSONObject();
 
+                        // open stream
+                        InputStream is = new FileInputStream(file);
+                        BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+                        geometry.put("azimuth", br.readLine());
+                        geometry.put("latitude", br.readLine());
+                        geometry.put("longitude", br.readLine());
+
+                        // close stream
+                        br.close();
+                        is.close();
+                        geometryList.add(geometry.toString());
+                        Log.d(TAG, String.format(Locale.KOREA, "geometry : %s", geometry.toString()));
+                    }
+                    // data.put("geometry", geometryList.toString());
+
+                    // put memo data
+                    // data.put("memo", et_client_memo.getText());
+
+                    for (int k = 0; k < imageList.size(); k++) {
+                        JSONObject data = new JSONObject();
+                        // make packet
+                        JSONObject packet = makePacket("POST", "survey", data);
+                        // make data JSONObject
+                        data.put("userName", socketManager.getUserName());
+                        data.put("taskId", Integer.parseInt(taskId));
+                        data.put("surveyId", Integer.parseInt(pointNum));
+                        data.put("geometry", geometryList.get(k));
+                        data.put("images", imageList.get(k));
+                        data.put("memo", et_client_memo.getText());
+
+                        // make data length packet
+                        JSONObject lengthData = new JSONObject();
+                        lengthData.put("length", packet.toString().getBytes().length);
+                        Log.d(TAG, String.format(Locale.KOREA, "length : %d, byte : %d", packet.toString().length(), packet.toString().getBytes().length));
+                        JSONObject lengthPacket = makePacket("POST", "length", lengthData);
+
+                        // send packet length to server
+                        socketManager.send(lengthPacket.toString());
+
+                        // send packet to server
+                        socketManager.send(packet.toString());
+                        // Toast.makeText(this, "send!", Toast.LENGTH_SHORT).show();
+                        Log.d(TAG, String.format("send data : %s", packet.toString()));
+
+                        // receive response packet from server
+                        socketManager.receive();
+                        data = null;
+                    }
+                    geometryList = null;
+                    imageList = null;
+                } else {
+                    // Toast.makeText(this, "not connected to server or no selected image", Toast.LENGTH_SHORT).show();
+                }
+            } catch (RemoteException e) {
+                // Toast.makeText(this, "RemoteException occurred!", Toast.LENGTH_SHORT).show();
+            } catch (JSONException e) {
+                //  Toast.makeText(this, "JSONException occurred!", Toast.LENGTH_SHORT).show();
+            } catch (FileNotFoundException e) {
+                //  Toast.makeText(this, "file is not found!", Toast.LENGTH_SHORT).show();
+            } catch (IOException e) {
+                //  Toast.makeText(this, "error in readLine!", Toast.LENGTH_SHORT).show();
             }
+            //   }
+            return 0;
+        }
 
-          @Override
-           protected void onPostExecute(Integer result) {
-               super.onPostExecute(result);
-           }
+        @Override
+        protected void onProgressUpdate(Integer... params) {
+        }
+
+        @Override
+        protected void onPostExecute(Integer result) {
+            super.onPostExecute(result);
+        }
     }
+
+    public void sendData() {
         MyAsyncTask task = new MyAsyncTask();
-         task.execute();
+        task.execute();
     }
 
     public void receiveData(View v) throws RemoteException {
@@ -791,43 +764,6 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         }
     }
     /* ******************* socket methods end ******************* */
-
-
-    /* ******************* sensor methods start ******************* */
-    @Override
-    public void onSensorChanged(SensorEvent event) {
-        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            gravity = event.values;
-        }
-        if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
-            geomagnetic = event.values;
-        }
-
-        if (gravity != null && geomagnetic != null) {
-            float[] R = new float[9];
-            float[] I = new float[9];
-
-            boolean success = SensorManager.getRotationMatrix(R, I, gravity, geomagnetic);
-            if (success) {
-                float[] orientation = new float[3];
-                SensorManager.getOrientation(R, orientation);
-
-                // orientation contains: azimuth, pitch  and roll
-                float azimuth = orientation[0];
-                float pitch = orientation[1];
-                float roll = orientation[2];
-
-                tv_azimuth.setText(String.format(Locale.KOREA, "azimuth : %f", azimuth));
-//                txtPitch.setText("y 좌표:" + String.valueOf(pitch));
-//                txtRoll.setText("z 좌표 : " + String.valueOf(roll));
-            }
-        }
-    }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-    }
-    /* ******************* sensor methods end ******************* */
 
 
     /* ******************* GPS methods start ******************* */
@@ -858,16 +794,8 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
         }
         String clientMemoPath = Environment.getExternalStorageDirectory() + "/" + taskId + "/" + pointNum + "/memofile/" + taskId + "_" + pointNum + "_" + "memo.txt";
         File clientMemoFile = new File(clientMemoPath);
-
         String memoStr = et_client_memo.getText().toString();
         try {
-            if (!clientMemoFile.exists()) {
-                try {
-                    FileOutputStream fos = new FileOutputStream(clientMemoFile);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
             FileOutputStream fos = new FileOutputStream(clientMemoFile);
             BufferedWriter buw = null;
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
@@ -879,11 +807,9 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
             }
             fos.close();
             Toast.makeText(this, "저장완료", Toast.LENGTH_SHORT).show();
-
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     public void deleteMemo() {
@@ -942,7 +868,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
                 case GALLERY_CODE: {
                     // if use forth method
                     try {
-                        ArrayList<Uri> uris = data.getParcelableArrayListExtra("selected");
+                        ArrayList<Uri> uris = Objects.requireNonNull(data).getParcelableArrayListExtra("selected");
                         for (Uri uri : uris) {
                             // add to RecyclerView
                             recyclerAdapter.addUri(uri);
@@ -956,6 +882,9 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
 
                             // add text file to upTextList
                             upTextList.add(copyAndReturnFile(path, "TEXT"));
+                            for (File file : upTextList) {
+                                Log.d(TAG, String.format(Locale.KOREA, "file path : %s", file.getPath()));
+                            }
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -999,7 +928,7 @@ public class CaptureActivity extends FragmentActivity implements SensorEventList
                     FileOutputStream newFos = new FileOutputStream(String.format("%s/%s/%s/%s/%s", Environment.getExternalStorageDirectory(), taskId, pointNum, "uploadfile", fileName));
 
                     // copy
-                    int readCount = 0;
+                    int readCount;
                     byte[] buffer = new byte[1024];
                     while ((readCount = fis.read(buffer, 0, 1024)) != -1) {
                         newFos.write(buffer, 0, readCount);

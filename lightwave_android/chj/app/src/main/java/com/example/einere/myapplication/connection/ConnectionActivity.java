@@ -12,8 +12,9 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.einere.myapplication.R;
-import com.example.einere.myapplication.SocketManager;
+import com.example.einere.myapplication.history.TaskHistoryListViewActivity;
 import com.example.einere.myapplication.main.MainActivity;
+import com.example.einere.myapplication.socket.SocketManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -69,6 +70,7 @@ public class ConnectionActivity extends AppCompatActivity {
                 Toast.makeText(this, "connection failed...", Toast.LENGTH_SHORT).show();
             }
         });
+        findViewById(R.id.btn_work_history).setOnClickListener(v -> goToCheckHistory());
     }
 
     @Override
@@ -118,7 +120,7 @@ public class ConnectionActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
             socketManager.send(packet.toString());
-            Log.d(TAG, String.format("send POST / meta packet"));
+            Log.d(TAG, "send POST / meta packet");
 
             // need to receive work data...
             String receivedData = socketManager.receive();
@@ -166,4 +168,9 @@ public class ConnectionActivity extends AppCompatActivity {
 
         popup.show();//showing popup menu
     }*/
+
+    public void goToCheckHistory() {
+        Intent intent = new Intent(this, TaskHistoryListViewActivity.class);
+        startActivity(intent);
+    }
 }
