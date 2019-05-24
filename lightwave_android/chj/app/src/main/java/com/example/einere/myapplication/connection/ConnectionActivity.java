@@ -12,7 +12,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.einere.myapplication.R;
-import com.example.einere.myapplication.history.TaskHistoryListViewActivity;
+import com.example.einere.myapplication.history.TaskHistoryListActivity;
 import com.example.einere.myapplication.main.MainActivity;
 import com.example.einere.myapplication.socket.SocketManager;
 
@@ -170,7 +170,7 @@ public class ConnectionActivity extends AppCompatActivity {
     }*/
 
     public void goToCheckHistory() {
-        Intent intent = new Intent(this, TaskHistoryListViewActivity.class);
+        Intent intent = new Intent(this, TaskHistoryListActivity.class);
         startActivity(intent);
     }
 }

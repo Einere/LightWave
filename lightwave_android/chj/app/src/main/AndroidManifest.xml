@@ -34,7 +34,7 @@
 
         </activity>
         <activity android:name=".capture.CaptureActivity" />
-        <activity android:name=".history.TaskHistoryListViewActivity" />
+        <activity android:name=".history.TaskHistoryListActivity" />
         <activity android:name=".capture.CameraActivity" />
         <activity android:name=".capture.ImagePickerActivity" />
 

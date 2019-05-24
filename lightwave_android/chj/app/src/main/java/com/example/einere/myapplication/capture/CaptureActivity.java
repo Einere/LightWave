@@ -23,7 +23,7 @@ import android.widget.Toast;
 
 import com.example.einere.myapplication.R;
 import com.example.einere.myapplication.gps.GpsInfo;
-import com.example.einere.myapplication.history.TaskHistoryListViewActivity;
+import com.example.einere.myapplication.history.TaskHistoryListActivity;
 import com.example.einere.myapplication.socket.SocketManager;
 import com.google.android.gms.common.util.IOUtils;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -42,7 +42,6 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -56,6 +55,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Objects;
+
+import id.zelory.compressor.Compressor;
 
 public class CaptureActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
     final int STATUS_DISCONNECTED = 0;
@@ -584,9 +585,16 @@ public class CaptureActivity extends FragmentActivity implements OnMapReadyCallb
         }
 
         // 이미지와 텍스트 파일 list에 넣기
+        Compressor compressor = new Compressor(this);
         for (File uploadImageFile : uploadImageList2) {
             // prevent to add duplicated image file
-            if (!upImageList.contains(uploadImageFile)) upImageList.add(uploadImageFile);
+            if (!upImageList.contains(uploadImageFile)) {
+                try {
+                    upImageList.add(compressor.compressToFile(uploadImageFile));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
             uriList.add(Uri.parse(uploadImageFile.getAbsolutePath()));
 
             // get path and fileName
@@ -633,7 +641,7 @@ public class CaptureActivity extends FragmentActivity implements OnMapReadyCallb
     }
 
     public void clickPoint(View v) {
-        Intent intent = new Intent(this, TaskHistoryListViewActivity.class);
+        Intent intent = new Intent(this, TaskHistoryListActivity.class);
         startActivity(intent);
     }
 
@@ -645,99 +653,87 @@ public class CaptureActivity extends FragmentActivity implements OnMapReadyCallb
 
         @Override
         protected Integer doInBackground(Integer... integers) {
-
-            //  for(int i = 0; i < 30; i++) {
             // check manager status
             try {
                 ArrayList<Uri> selectedUriList = recyclerAdapter.getSelectedUriList();
                 if (socketManager.getStatus() == STATUS_CONNECTED && selectedUriList.size() > 0) {
                     // get uri list
 //                ArrayList<Uri> uriList = recyclerAdapter.getSelectedUriList();
+                    // make data JSONObject
+                    JSONObject data = new JSONObject();
+                    data.put("userName", socketManager.getUserName());
+                    data.put("taskId", Integer.parseInt(taskId));
+                    data.put("surveyId", Integer.parseInt(pointNum));
 
                     // put serialized picture data
-                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
                     ArrayList<String> imageList = new ArrayList<>();
+                    Compressor compressor = new Compressor(getBaseContext());
                     for (Uri uri : selectedUriList) {
-                        //Bitmap tmpBitmap = BitmapFactory.decodeFile(uri.getPath());
-                        //tmpBitmap.compress(Bitmap.CompressFormat.PNG, 30, stream);
-
                         byte[] bytes =
-                                IOUtils.readInputStreamFully(new FileInputStream(new File(uri.getPath())));
+                                IOUtils.readInputStreamFully(new FileInputStream(compressor.compressToFile(new File(uri.getPath()))));
                         String serialized = Base64.encodeToString(bytes, Base64.NO_WRAP);
                         imageList.add(serialized);
                         Log.d(TAG, String.format(Locale.KOREA, "encoded : %s", serialized));
                     }
-                    // data.put("images", imageList.toString());
-                    // data.put("images", "test");
+                    data.put("images", imageList.toString());
+//                    data.put("images", "test");
 
                     // put text data
                     ArrayList<String> geometryList = new ArrayList<>();
                     for (File file : upTextList) {
                         JSONObject geometry = new JSONObject();
-
                         // open stream
                         InputStream is = new FileInputStream(file);
                         BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
                         geometry.put("azimuth", br.readLine());
                         geometry.put("latitude", br.readLine());
                         geometry.put("longitude", br.readLine());
-
                         // close stream
                         br.close();
                         is.close();
                         geometryList.add(geometry.toString());
                         Log.d(TAG, String.format(Locale.KOREA, "geometry : %s", geometry.toString()));
                     }
-                    // data.put("geometry", geometryList.toString());
+                    data.put("geometry", geometryList.toString());
 
                     // put memo data
-                    // data.put("memo", et_client_memo.getText());
+                    data.put("memo", et_client_memo.getText());
 
-                    for (int k = 0; k < imageList.size(); k++) {
-                        JSONObject data = new JSONObject();
-                        // make packet
-                        JSONObject packet = makePacket("POST", "survey", data);
-                        // make data JSONObject
-                        data.put("userName", socketManager.getUserName());
-                        data.put("taskId", Integer.parseInt(taskId));
-                        data.put("surveyId", Integer.parseInt(pointNum));
-                        data.put("geometry", geometryList.get(k));
-                        data.put("images", imageList.get(k));
-                        data.put("memo", et_client_memo.getText());
+                    // make packet
+                    JSONObject packet = makePacket("POST", "survey", data);
 
-                        // make data length packet
-                        JSONObject lengthData = new JSONObject();
-                        lengthData.put("length", packet.toString().getBytes().length);
-                        Log.d(TAG, String.format(Locale.KOREA, "length : %d, byte : %d", packet.toString().length(), packet.toString().getBytes().length));
-                        JSONObject lengthPacket = makePacket("POST", "length", lengthData);
+                    // make data length packet
+                    JSONObject lengthData = new JSONObject();
+                    lengthData.put("length", packet.toString().getBytes().length);
+                    Log.d(TAG, String.format(Locale.KOREA, "length : %d, byte : %d", packet.toString().length(), packet.toString().getBytes().length));
+                    JSONObject lengthPacket = makePacket("POST", "length", lengthData);
 
-                        // send packet length to server
-                        socketManager.send(lengthPacket.toString());
+                    // send packet length to server
+                    socketManager.send(lengthPacket.toString());
 
-                        // send packet to server
-                        socketManager.send(packet.toString());
-                        // Toast.makeText(this, "send!", Toast.LENGTH_SHORT).show();
-                        Log.d(TAG, String.format("send data : %s", packet.toString()));
+                    // send packet to server
+                    socketManager.send(packet.toString());
+//                    Toast.makeText(this, "send!", Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, String.format("send data : %s", packet.toString()));
 
-                        // receive response packet from server
-                        socketManager.receive();
-                        data = null;
-                    }
-                    geometryList = null;
-                    imageList = null;
+                    // receive response packet from server
+                    socketManager.receive();
                 } else {
-                    // Toast.makeText(this, "not connected to server or no selected image", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(this, "not connected to server or no selected image", Toast.LENGTH_SHORT).show();
                 }
             } catch (RemoteException e) {
-                // Toast.makeText(this, "RemoteException occurred!", Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
+//                Toast.makeText(this, "RemoteException occurred!", Toast.LENGTH_SHORT).show();
             } catch (JSONException e) {
-                //  Toast.makeText(this, "JSONException occurred!", Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
+//                Toast.makeText(this, "JSONException occurred!", Toast.LENGTH_SHORT).show();
             } catch (FileNotFoundException e) {
-                //  Toast.makeText(this, "file is not found!", Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
+//                Toast.makeText(this, "file is not found!", Toast.LENGTH_SHORT).show();
             } catch (IOException e) {
-                //  Toast.makeText(this, "error in readLine!", Toast.LENGTH_SHORT).show();
+                e.printStackTrace();
+//                Toast.makeText(this, "error in readLine!", Toast.LENGTH_SHORT).show();
             }
-            //   }
             return 0;
         }
 
@@ -937,6 +933,9 @@ public class CaptureActivity extends FragmentActivity implements OnMapReadyCallb
                     // close streams
                     newFos.close();
                     fis.close();
+
+                    // compress image file
+                    file = new Compressor(this).compressToFile(file);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

@@ -31,6 +31,7 @@ public class SocketService extends Service {
     final int TIME_OUT = 5000;
     final int SOCKET_SEND_COMPLETE = 10;
     final int SOCKET_RECEIVE_COMPLETE = 11;
+    final int SOCKET_BUFFER_SIZE = 1024 * 10;
 
     private int status = STATUS_DISCONNECTED;
     private Socket socket = null;
@@ -161,21 +162,28 @@ public class SocketService extends Service {
         Thread thread = new Thread(() -> {
             Log.d(TAG, String.format("[%d] send data thread start...", Thread.currentThread().getId()));
             Looper.prepare();
-            try {
-                writer.write(myPacket, 0, myPacket.length());
-                writer.flush();
-            } catch (IOException e) {
-                e.printStackTrace();
-                Toast.makeText(SocketService.this, "error at send data...", Toast.LENGTH_SHORT).show();
+            for (int i = 0; i * 1024 < myPacket.length(); i++) {
+                try {
+                    if (myPacket.length() - i * 1024 < 1024) {
+                        writer.write(myPacket, i * 1024, myPacket.length() - i * 1024);
+                    } else {
+                        writer.write(myPacket, i * 1024, 1024);
+                    }
+                    writer.flush();
+                    Log.d(TAG, String.format("[%d] send data thread offset : %d...", Thread.currentThread().getId(), i * 1024));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Toast.makeText(SocketService.this, "error at send data...", Toast.LENGTH_SHORT).show();
+                }
             }
 
             // make message
-            Log.d(TAG, String.format(Locale.KOREA, "[%d]make message start", Thread.currentThread().getId()));
+            Log.d(TAG, String.format(Locale.KOREA, "[%d] make message start", Thread.currentThread().getId()));
             Message message = handler.obtainMessage();
             message.what = SOCKET_SEND_COMPLETE;
             message.arg1 = (int) Thread.currentThread().getId();
             handler.sendMessage(message);
-            Log.d(TAG, String.format(Locale.KOREA, "[%d]make message end", Thread.currentThread().getId()));
+            Log.d(TAG, String.format(Locale.KOREA, "[%d] make message end", Thread.currentThread().getId()));
         });
 
         sendThreadList.put(thread.getId(), thread);

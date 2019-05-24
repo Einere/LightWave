@@ -10,7 +10,7 @@ import android.widget.Toast;
 
 import com.example.einere.myapplication.R;
 import com.example.einere.myapplication.capture.CaptureActivity;
-import com.example.einere.myapplication.history.TaskHistoryListViewActivity;
+import com.example.einere.myapplication.history.TaskHistoryListActivity;
 import com.example.einere.myapplication.socket.SocketManager;
 
 import org.json.JSONException;
@@ -166,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void goToCheckHistory() {
-        Intent intent = new Intent(this, TaskHistoryListViewActivity.class);
+        Intent intent = new Intent(this, TaskHistoryListActivity.class);
         startActivity(intent);
     }
 }

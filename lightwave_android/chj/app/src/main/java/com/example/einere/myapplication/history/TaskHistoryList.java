@@ -33,7 +33,6 @@ public class TaskHistoryList extends BaseAdapter {
     class ViewHolder {
         TextView taskName;
         TextView landNo;
-
     }
 
     TaskHistoryList(Context context, ArrayList<Task> data) {
