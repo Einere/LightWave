@@ -154,7 +154,6 @@ public class CaptureActivity extends FragmentActivity implements OnMapReadyCallb
         findViewById(R.id.btn_capture).setOnClickListener(v -> capture());
         findViewById(R.id.btn_select_picture).setOnClickListener(v -> selectGallery());
         findViewById(R.id.btn_send_data).setOnClickListener(v -> sendData());
-        findViewById(R.id.btn_test).setOnClickListener(v -> checkArrayListForUpload());
         findViewById(R.id.btn_memo_save).setOnClickListener(v -> saveMemo());
         findViewById(R.id.btn_memo_delete).setOnClickListener(v -> deleteMemo());
 
@@ -666,17 +665,16 @@ public class CaptureActivity extends FragmentActivity implements OnMapReadyCallb
                     data.put("surveyId", Integer.parseInt(pointNum));
 
                     // put serialized picture data
-                    ArrayList<String> imageList = new ArrayList<>();
+                    JSONArray imageList = new JSONArray();
                     Compressor compressor = new Compressor(getBaseContext());
                     for (Uri uri : selectedUriList) {
                         byte[] bytes =
                                 IOUtils.readInputStreamFully(new FileInputStream(compressor.compressToFile(new File(uri.getPath()))));
                         String serialized = Base64.encodeToString(bytes, Base64.NO_WRAP);
-                        imageList.add(serialized);
+                        imageList.put(serialized);
                         Log.d(TAG, String.format(Locale.KOREA, "encoded : %s", serialized));
                     }
-                    data.put("images", imageList.toString());
-//                    data.put("images", "test");
+                    data.put("images", imageList);
 
                     // put text data
                     ArrayList<String> geometryList = new ArrayList<>();

@@ -169,12 +169,17 @@ public class SocketService extends Service {
                     } else {
                         writer.write(myPacket, i * 1024, 1024);
                     }
-                    writer.flush();
+
                     Log.d(TAG, String.format("[%d] send data thread offset : %d...", Thread.currentThread().getId(), i * 1024));
                 } catch (IOException e) {
                     e.printStackTrace();
                     Toast.makeText(SocketService.this, "error at send data...", Toast.LENGTH_SHORT).show();
                 }
+            }
+            try {
+                writer.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
 
             // make message
