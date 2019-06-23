@@ -41,7 +41,10 @@ namespace Service {
 
 	void SocketWorker::OnReceive(int nErrorCode)
 	{
-		m_data += readIn();
+		auto readData = readIn();
+		m_data += readData;
+		Logger::Log("sequence size: %d bytes", readData.size());
+		Logger::Log("sequence: %s", readData.c_str());
 		if (!isEndOfRequest()) {
 			// 요청의 끝을 아직 만나지 못했으므로 응답하지않고 다음 패킷을 기다린다.
 			return;
@@ -108,11 +111,12 @@ namespace Service {
 			char block[BLOCK_SIZE];
 			receivedLength = Receive((void*)block, BLOCK_SIZE);
 			buf.append(block, receivedLength);
-		} while (receivedLength == 1024 && buf[buf.size() - 1] != 0);
 
-		if (m_blobSize > 0) {
-			m_blobSize -= receivedLength;
-		}
+			if (m_blobSize > 0) {
+				Logger::Log("%d에서 %d 감소", m_blobSize, receivedLength);
+				m_blobSize -= receivedLength;
+			}
+		} while (receivedLength == 1024 && buf[buf.size() - 1] != 0);
 
 		return buf;
 	}
