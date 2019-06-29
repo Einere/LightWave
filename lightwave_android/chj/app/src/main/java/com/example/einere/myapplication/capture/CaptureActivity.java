@@ -2,7 +2,6 @@ package com.example.einere.myapplication.capture;
 
 import android.content.Intent;
 import android.graphics.Color;
-import android.media.Image;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -22,8 +21,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.einere.myapplication.R;
-import com.example.einere.myapplication.gps.GpsInfo;
-import com.example.einere.myapplication.history.TaskHistoryListActivity;
 import com.example.einere.myapplication.socket.SocketManager;
 import com.google.android.gms.common.util.IOUtils;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -46,7 +43,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -78,19 +74,13 @@ public class CaptureActivity extends FragmentActivity implements OnMapReadyCallb
     EditText et_client_memo = null;
     EditText et_server_memo = null;
 
-    // geometry
-    private GpsInfo gps;
-
     // upload ArrayList
-    ArrayList<File> upImageList = new ArrayList<>();
+//    ArrayList<File> upImageList = new ArrayList<>();
     ArrayList<File> upTextList = new ArrayList<>();
 
     // id_number
     private String pointNum = null;
     private String taskId = "111";
-
-    //image ArrayList
-    private ArrayList<Image> images = new ArrayList<>();
 
     //receivedData
     private String receivedData = null;
@@ -197,6 +187,7 @@ public class CaptureActivity extends FragmentActivity implements OnMapReadyCallb
             }
 
         }
+
         //작업리스트 내역
         String taskHistoryPath = Environment.getExternalStorageDirectory() + "/workHistory/task/" + taskName + ".txt";
         File taskHistoryFile = new File(taskHistoryPath);
@@ -374,6 +365,7 @@ public class CaptureActivity extends FragmentActivity implements OnMapReadyCallb
             e.printStackTrace();
         }
 
+        // receive data from server
         try {
             receivedData = socketManager.receive();
         } catch (RemoteException e) {
@@ -381,6 +373,7 @@ public class CaptureActivity extends FragmentActivity implements OnMapReadyCallb
         }
         Log.d(TAG, String.format("received data : %s", receivedData));
 
+        // parse received data
         JSONObject parsedData = new JSONObject();
         try {
             parsedData = new JSONObject(receivedData);
@@ -443,6 +436,7 @@ public class CaptureActivity extends FragmentActivity implements OnMapReadyCallb
                 }
             }
 
+            // 카메라를 여의도 위치로 옮긴다.
             LatLng center = new LatLng(sumX / sumi, sumY / sumi);
             CameraPosition cameraPosition = new CameraPosition.Builder()
                     .target(center)      // Sets the center of the map to Mountain View
@@ -450,8 +444,6 @@ public class CaptureActivity extends FragmentActivity implements OnMapReadyCallb
                     .bearing(0)                // Sets the orientation of the camera to east
                     .tilt(30)                   // Sets the tilt of the camera to 30 degrees
                     .build();
-
-            // 카메라를 여의도 위치로 옮긴다.
             mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
             //작업 점 정보 그림
@@ -492,21 +484,14 @@ public class CaptureActivity extends FragmentActivity implements OnMapReadyCallb
             file.mkdir();
         }
 
-        String historyPath = Environment.getExternalStorageDirectory() + "/" + taskId + "/history/history.txt";
-        File historyFile = new File(historyPath);
-
         try {
-            if (!historyFile.exists()) {
-                try {
-                    FileOutputStream fos = new FileOutputStream(historyFile);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            FileOutputStream fos = new FileOutputStream(historyFile);
-            BufferedWriter buw = new BufferedWriter(new OutputStreamWriter(fos, StandardCharsets.UTF_8));
-            buw.write(receivedData);
-            buw.close();
+            // save history
+            FileOutputStream fos = new FileOutputStream(new File(Environment.getExternalStorageDirectory() + "/" + taskId + "/history/history.txt"));
+            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos, StandardCharsets.UTF_8));
+            bw.write(receivedData);
+
+            // close stream
+            bw.close();
             fos.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -541,7 +526,7 @@ public class CaptureActivity extends FragmentActivity implements OnMapReadyCallb
         }
 
         // 사진파일명 리스트 뽑아오기
-        File[] uploadImageList2 = uploadFile.listFiles((dir, name) -> {
+        File[] uploadImageList = uploadFile.listFiles((dir, name) -> {
             Boolean bOK = false;
             if (name.toLowerCase().endsWith(".png")) bOK = true;
             if (name.toLowerCase().endsWith(".9.png")) bOK = true;
@@ -550,63 +535,40 @@ public class CaptureActivity extends FragmentActivity implements OnMapReadyCallb
             return bOK;
         });
 
-
-        // 마커의 메모 불러오기
-        String clientMemoPath = Environment.getExternalStorageDirectory() + "/" + taskId + "/" + pointNum + "/memofile/" + taskId + "_" + pointNum + "_" + "memo.txt";
-        File clientMemoFile = new File(clientMemoPath);
-
-        if (!clientMemoFile.exists()) {
-            et_client_memo.setHint(R.string.no_memo);
-        } else {
-            StringBuilder sb = new StringBuilder();
-            try {
-                InputStream is = new FileInputStream(clientMemoPath);
-                BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
-
-                // read line
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    sb.append(line).append("\n");
-                }
-
-                // close stream
-                reader.close();
-                is.close();
-                et_client_memo.setText(sb.toString());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        // load memo
+        loadMemo();
 
         // if not exist any file in taskId/point/upload
-        if (uploadImageList2 == null) {
+        if (uploadImageList == null) {
             return true;
         }
 
         // 이미지와 텍스트 파일 list에 넣기
         Compressor compressor = new Compressor(this);
-        for (File uploadImageFile : uploadImageList2) {
+        for (File uploadImageFile : uploadImageList) {
             // prevent to add duplicated image file
-            if (!upImageList.contains(uploadImageFile)) {
+            /*if (!upImageList.contains(uploadImageFile)) {
                 try {
                     upImageList.add(compressor.compressToFile(uploadImageFile));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-            }
+            }*/
             uriList.add(Uri.parse(uploadImageFile.getAbsolutePath()));
 
             // get path and fileName
-            String path = uploadImageFile.getAbsolutePath();
-            String[] splitPath = path.split("/");
+            String[] splitPath = uploadImageFile.getAbsolutePath().split("/");
             String textFileName = splitPath[splitPath.length - 1];
-            textFileName = textFileName.replace(".png", ".txt");
+            // support png, jpg
+            if (textFileName.contains(".png")) textFileName = textFileName.replace(".png", ".txt");
+            else if (textFileName.contains(".jpg"))
+                textFileName = textFileName.replace(".jpg", ".txt");
             splitPath[splitPath.length - 2] = "textfile";
             splitPath[splitPath.length - 1] = textFileName;
             String textFilePath = TextUtils.join("/", splitPath);
-            Log.d(TAG, String.format("path : %s", path));
             Log.d(TAG, String.format("textFilePath : %s", textFilePath));
 
+            // 업로드 했던 사진의 위경도 정보를 upTextList에 추가
             File textFile = new File(textFilePath);
             if (textFile.exists() && !upTextList.contains(textFile)) {
                 // prevent to add duplicated text file
@@ -637,11 +599,6 @@ public class CaptureActivity extends FragmentActivity implements OnMapReadyCallb
             e.printStackTrace();
         }
         return packet;
-    }
-
-    public void clickPoint(View v) {
-        Intent intent = new Intent(this, TaskHistoryListActivity.class);
-        startActivity(intent);
     }
 
     class MyAsyncTask extends AsyncTask<Integer, Integer, Integer> {
@@ -677,22 +634,22 @@ public class CaptureActivity extends FragmentActivity implements OnMapReadyCallb
                     data.put("images", imageList);
 
                     // put text data
-                    ArrayList<String> geometryList = new ArrayList<>();
+                    JSONArray geometryList = new JSONArray();
                     for (File file : upTextList) {
                         JSONObject geometry = new JSONObject();
                         // open stream
                         InputStream is = new FileInputStream(file);
                         BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
-                        geometry.put("azimuth", br.readLine());
-                        geometry.put("latitude", br.readLine());
-                        geometry.put("longitude", br.readLine());
+                        geometry.put("azimuth", Double.parseDouble(br.readLine()));
+                        geometry.put("latitude", Double.parseDouble(br.readLine()));
+                        geometry.put("longitude", Double.parseDouble(br.readLine()));
                         // close stream
                         br.close();
                         is.close();
-                        geometryList.add(geometry.toString());
+                        geometryList.put(geometry);
                         Log.d(TAG, String.format(Locale.KOREA, "geometry : %s", geometry.toString()));
                     }
-                    data.put("geometry", geometryList.toString());
+                    data.put("geometry", geometryList);
 
                     // put memo data
                     data.put("memo", et_client_memo.getText());
@@ -705,6 +662,14 @@ public class CaptureActivity extends FragmentActivity implements OnMapReadyCallb
                     lengthData.put("length", packet.toString().getBytes().length);
                     Log.d(TAG, String.format(Locale.KOREA, "length : %d, byte : %d", packet.toString().length(), packet.toString().getBytes().length));
                     JSONObject lengthPacket = makePacket("POST", "length", lengthData);
+
+                    // log packet
+                    File log = new File(Environment.getExternalStorageDirectory() + "/" + taskId + "/" + pointNum + "/log.txt");
+                    OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(log));
+                    osw.write(packet.toString());
+                    osw.flush();
+                    osw.close();
+                    Log.d(TAG, String.format(Locale.KOREA, "[logging] file path : %s", log.getAbsolutePath()));
 
                     // send packet length to server
                     socketManager.send(lengthPacket.toString());
@@ -749,35 +714,7 @@ public class CaptureActivity extends FragmentActivity implements OnMapReadyCallb
         MyAsyncTask task = new MyAsyncTask();
         task.execute();
     }
-
-    public void receiveData(View v) throws RemoteException {
-        if (socketManager.getStatus() == STATUS_CONNECTED) {
-            socketManager.receive();
-        } else {
-            Toast.makeText(this, "not connected to server", Toast.LENGTH_SHORT).show();
-        }
-    }
     /* ******************* socket methods end ******************* */
-
-
-    /* ******************* GPS methods start ******************* */
-    public void Gps() {
-        gps = new GpsInfo(this);
-        // GPS 사용유무 가져오기
-        if (gps.isGetLocation()) {
-            double latitude = gps.getLatitude();
-            double longitude = gps.getLongitude();
-
-            Toast.makeText(
-                    getApplicationContext(),
-                    "당신의 위치 - \n위도: " + latitude + "\n경도: " + longitude,
-                    Toast.LENGTH_LONG).show();
-        } else {
-            // GPS 를 사용할수 없으므로
-            gps.showSettingsAlert();
-        }
-    }
-    /* ******************* GPS methods end ******************* */
 
 
     /* ****************** Memo methods start ********************** */
@@ -803,6 +740,33 @@ public class CaptureActivity extends FragmentActivity implements OnMapReadyCallb
             Toast.makeText(this, "저장완료", Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void loadMemo() {
+        // 마커의 메모 불러오기
+        String clientMemoPath = Environment.getExternalStorageDirectory() + "/" + taskId + "/" + pointNum + "/memofile/" + taskId + "_" + pointNum + "_" + "memo.txt";
+        File clientMemoFile = new File(clientMemoPath);
+
+        if (!clientMemoFile.exists()) {
+            et_client_memo.setHint(R.string.no_memo);
+        } else {
+            StringBuilder sb = new StringBuilder();
+            try {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(clientMemoPath), StandardCharsets.UTF_8));
+
+                // read line
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    sb.append(line).append("\n");
+                }
+
+                // close stream
+                reader.close();
+                et_client_memo.setText(sb.toString());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -860,7 +824,7 @@ public class CaptureActivity extends FragmentActivity implements OnMapReadyCallb
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
                 case GALLERY_CODE: {
-                    // if use forth method
+                    // 갤러리에서 가져온 경우
                     try {
                         ArrayList<Uri> uris = Objects.requireNonNull(data).getParcelableArrayListExtra("selected");
                         for (Uri uri : uris) {
@@ -872,7 +836,8 @@ public class CaptureActivity extends FragmentActivity implements OnMapReadyCallb
                             String path = uri.getPath();
 
                             // 선택한 이미지를 업로드용 폴더에 추가한 후, upImageList에 추가
-                            upImageList.add(copyAndReturnFile(path, "IMAGE"));
+//                            upImageList.add(copyAndReturnFile(path, "IMAGE"));
+                            copyAndReturnFile(path, "IMAGE");
 
                             // add text file to upTextList
                             upTextList.add(copyAndReturnFile(path, "TEXT"));
@@ -887,7 +852,7 @@ public class CaptureActivity extends FragmentActivity implements OnMapReadyCallb
                     break;
                 }
                 case CAMERA_CODE: {
-                    //카메라에서 가져오기
+                    //카메라에서 가져온 경우
                     break;
                 }
                 default: {
@@ -905,7 +870,9 @@ public class CaptureActivity extends FragmentActivity implements OnMapReadyCallb
         String[] splitPath = path.split("/");
         fileName = splitPath[splitPath.length - 1];
         if (mode.equals("TEXT")) {
-            fileName = fileName.replace(".png", ".txt");
+            // support png, jpg
+            if (fileName.contains(".png")) fileName = fileName.replace(".png", ".txt");
+            else if (fileName.contains(".jpg")) fileName = fileName.replace(".jpg", ".txt");
             splitPath[splitPath.length - 1] = "textfile/";
         }
         filePath = TextUtils.join("/", splitPath);
@@ -915,21 +882,22 @@ public class CaptureActivity extends FragmentActivity implements OnMapReadyCallb
         // get file
         File file = new File(filePath);
         if (file.exists()) {
+            // if image, copy it to uploadfile directory
             if (mode.equals("IMAGE")) {
                 try {
                     // make streams
                     FileInputStream fis = new FileInputStream(file);
-                    FileOutputStream newFos = new FileOutputStream(String.format("%s/%s/%s/%s/%s", Environment.getExternalStorageDirectory(), taskId, pointNum, "uploadfile", fileName));
+                    FileOutputStream fos = new FileOutputStream(String.format("%s/%s/%s/%s/%s", Environment.getExternalStorageDirectory(), taskId, pointNum, "uploadfile", fileName));
 
-                    // copy
+                    // copy to uploadfile directory
                     int readCount;
                     byte[] buffer = new byte[1024];
                     while ((readCount = fis.read(buffer, 0, 1024)) != -1) {
-                        newFos.write(buffer, 0, readCount);
+                        fos.write(buffer, 0, readCount);
                     }
 
                     // close streams
-                    newFos.close();
+                    fos.close();
                     fis.close();
 
                     // compress image file
@@ -951,21 +919,14 @@ public class CaptureActivity extends FragmentActivity implements OnMapReadyCallb
         final StringBuilder stringBuilder = new StringBuilder();
 
         try {
-            final InputStream inputStream = new FileInputStream(file);
-            final BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-            boolean done = false;
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
 
-            while (!done) {
-                final String line = reader.readLine();
-                done = (line == null);
-
-                if (line != null) {
-                    stringBuilder.append(line);
-                }
+            String string;
+            while ((string = reader.readLine()) != null) {
+                stringBuilder.append(string);
             }
 
             reader.close();
-            inputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -976,7 +937,7 @@ public class CaptureActivity extends FragmentActivity implements OnMapReadyCallb
 
 
     /* ******************* ArrayList for upload test methods start ******************* */
-    public void checkArrayListForUpload() {
+    /*public void checkUploadList() {
         if (upImageList != null) {
             for (File file : upImageList) {
                 Log.d(TAG, String.format("check image : %s", file.getAbsolutePath()));
@@ -987,9 +948,9 @@ public class CaptureActivity extends FragmentActivity implements OnMapReadyCallb
             for (File file : upTextList) {
                 Log.d(TAG, String.format("check text : %s", file.getAbsolutePath()));
                 try {
-                    FileReader fr = new FileReader(file);
-                    BufferedReader br = new BufferedReader(fr);
-                    Log.d(TAG, String.format("check text content : %s", br.readLine()));
+                    BufferedReader br = new BufferedReader(new FileReader(file));
+                    String str;
+                    while((str = br.readLine()) != null) Log.d(TAG, String.format("check text content : %s", str));
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
@@ -997,6 +958,6 @@ public class CaptureActivity extends FragmentActivity implements OnMapReadyCallb
                 }
             }
         }
-    }
+    }*/
     /* ******************* ArrayList for upload test methods end ******************* */
 }

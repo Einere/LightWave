@@ -19,6 +19,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
+        <uses-library android:name="com.google.android.maps" />
 
         <activity
             android:name=".splash.SplashActivity"
