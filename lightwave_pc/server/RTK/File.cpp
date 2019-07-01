@@ -47,13 +47,11 @@ namespace File {
 	{
 		CFile file;
 		const bool isOpenSucceed = file.Open(path, CFile::modeRead);
-		ASSERT(isOpenSucceed);
 
 		int length = file.GetLength();
 		char *buf = new char[length];
 		file.Read((void*)buf, length);
-
-		ASSERT(ResolveFileData(buf));
+		ResolveFileData(buf);
 
 		file.Close();
 
