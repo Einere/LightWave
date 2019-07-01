@@ -26,4 +26,5 @@
     <string name="first_ip">첫번째아이피</string>
     <string name="task_history_list">작업 이력 목록</string>
     <string name="marker">마커</string>
+    <string name="test">테스트</string>
 </resources>
