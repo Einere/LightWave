@@ -195,7 +195,6 @@ namespace SurveyTask {
 	BOOL Task::ResolveFileData(const char* data)
 	{
 		Json::Value json = Json::parse(data);
-		ASSERT(json != Json::nullValue);
 
 		SetId(json["id"].asUInt());
 		SetTaskName(json["taskName"].asCString());

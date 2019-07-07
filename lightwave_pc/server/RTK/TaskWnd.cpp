@@ -147,7 +147,7 @@ void CTaskMngDlg::OnBnClickedButtonAddTask()
 	TaskAddDlg dlg;
 	if (dlg.DoModal() == IDOK) {
 		auto& newTask = appendTask(dlg.getTask());
-		ASSERT(newTask.Store());
+		newTask.Store();
 
 		Logger::Log("작업이 등록되었습니다: [작업명: %s\t 대표지번: %s]", newTask.GetTaskName(), newTask.GetLotNumber());
 	}

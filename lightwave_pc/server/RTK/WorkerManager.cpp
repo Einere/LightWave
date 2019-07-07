@@ -177,7 +177,7 @@ void WorkerManager::GetIpAddrAndPort(CString& ip, UINT& port) const
 {
 	std::vector<CString> ips;
 	GetIpAddrs(ips);
-	ip = ips[ips.size() - 1];
+	ip = ips[0];
 	port = m_port;
 }
 
