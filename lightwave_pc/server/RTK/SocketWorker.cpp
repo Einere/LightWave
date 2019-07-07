@@ -113,7 +113,6 @@ namespace Service {
 			buf.append(block, receivedLength);
 
 			if (m_blobSize > 0) {
-				Logger::Log("%d에서 %d 감소", m_blobSize, receivedLength);
 				m_blobSize -= receivedLength;
 			}
 		} while (receivedLength == 1024 && buf[buf.size() - 1] != 0);

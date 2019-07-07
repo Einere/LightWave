@@ -6,7 +6,7 @@ class Logger {
 public:
 	static CLogWnd lout;
 
-	static CString getCurTime();
+	static CString getTimestamp();
 
 	static void Log(const char* format, ...);
 
