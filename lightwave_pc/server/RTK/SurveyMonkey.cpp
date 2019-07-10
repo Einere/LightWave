@@ -4,6 +4,7 @@
 #include "Task.h"
 #include "TaskManager.h"
 #include "Base64Image.h"
+#include "TextEncoding.h"
 
 #include "SurveyViewManager.h"
 
@@ -52,7 +53,7 @@ namespace Service {
 			return Service::Error("\'memo\' 필드가 존재하지 않음.");
 		}
 
-		survey.SetMemo(memoRoot.asCString());
+		survey.SetMemo(TextEncoding::UTF82mulBCString(memoRoot.asCString()));
 
 		Json::Value imagesRoot = jsonData["images"];
 		if (imagesRoot.isNull()) {

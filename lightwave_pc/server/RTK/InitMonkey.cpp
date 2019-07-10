@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "InitMonkey.h"
+#include "TextEncoding.h"
 
 namespace Service {
 	InitMonkey::InitMonkey() : Monkey("meta")
@@ -22,7 +23,7 @@ namespace Service {
 		if (jsonUserName.isNull() || jsonUserName.asCString() == "") {
 			return Service::Error("`userName` 필드 존재하지 않음.");
 		}
-		socketWorker.SetWorkerName(jsonUserName.asCString());
+		socketWorker.SetWorkerName(TextEncoding::UTF82mulBCString(jsonUserName.asCString()));
 		socketWorker.SetAuthorized();
 
 		return Json::Value();
