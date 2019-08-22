@@ -28,15 +28,16 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.Size;
 import android.util.SparseIntArray;
 import android.view.Surface;
 import android.view.TextureView;
 import android.widget.Button;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import com.example.einere.myapplication.R;
 import com.example.einere.myapplication.gps.GpsInfo;
@@ -62,7 +63,7 @@ import java.util.Objects;
 @SuppressWarnings("NullableProblems")
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class CameraActivity extends AppCompatActivity implements SensorEventListener {
-    private static final String TAG = "AndroidCameraApi";
+    private static final String TAG = "CameraActivity";
     private Button takePictureButton;
     private TextureView textureView;
     private String captureName = null;
@@ -248,8 +249,7 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
         CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
         try {
             CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraDevice.getId());
-            Size[] jpegSizes;
-            jpegSizes = Objects.requireNonNull(characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)).getOutputSizes(ImageFormat.JPEG);
+            Size[] jpegSizes = Objects.requireNonNull(characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)).getOutputSizes(ImageFormat.JPEG);
             int width = 640;
             int height = 480;
             if (jpegSizes != null && 0 < jpegSizes.length) {
