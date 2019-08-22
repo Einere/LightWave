@@ -37,4 +37,5 @@ dependencies {
     annotationProcessor 'com.github.bumptech.glide:compiler:4.9.0'
     // https://github.com/zetbaitsu/Compressor
     implementation 'id.zelory:compressor:2.1.0'
+    implementation 'androidx.fragment:fragment:1.0.0'
 }

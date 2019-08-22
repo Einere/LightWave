@@ -23,7 +23,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.einere.myapplication.R;
 import com.example.einere.myapplication.socket.SocketManager;
-import com.google.android.gms.common.util.IOUtils;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -40,11 +39,11 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -75,9 +74,6 @@ public class CaptureActivity extends FragmentActivity implements OnMapReadyCallb
     //memoView
     EditText et_client_memo = null;
     EditText et_server_memo = null;
-
-    // upload ArrayList
-    ArrayList<Uri> upTextList = new ArrayList<>();
 
     // id_number
     private String pointNum = null;
@@ -544,31 +540,8 @@ public class CaptureActivity extends FragmentActivity implements OnMapReadyCallb
         }
 
         // 이미지와 텍스트 파일 list에 넣기
-        Compressor compressor = new Compressor(this);
-        for (File uploadImageFile : uploadImageList) {
-            // prevent to add duplicated image file
+        for (File uploadImageFile : uploadImageList)
             uriList.add(Uri.parse(uploadImageFile.getAbsolutePath()));
-
-            // get path and fileName
-            String[] splitPath = uploadImageFile.getAbsolutePath().split("/");
-            String textFileName = splitPath[splitPath.length - 1];
-            // support png, jpg
-            if (textFileName.contains(".png")) textFileName = textFileName.replace(".png", ".txt");
-            else if (textFileName.contains(".jpg"))
-                textFileName = textFileName.replace(".jpg", ".txt");
-            splitPath[splitPath.length - 2] = "textfile";
-            splitPath[splitPath.length - 1] = textFileName;
-            String textFilePath = TextUtils.join("/", splitPath);
-            Log.d(TAG, String.format("textFilePath : %s", textFilePath));
-
-            // 업로드 했던 사진의 위경도 정보를 upTextList에 추가
-            File textFile = new File(textFilePath);
-            Uri textFileUri = Uri.fromFile(textFile);
-            if (textFile.exists() && !upTextList.contains(textFileUri)) {
-                // prevent to add duplicated text file
-                upTextList.add(textFileUri);
-            }
-        }
 
         // clear RecyclerView
         recyclerAdapter.clearUriList();
@@ -607,41 +580,34 @@ public class CaptureActivity extends FragmentActivity implements OnMapReadyCallb
             try {
                 ArrayList<Uri> selectedUriList = recyclerAdapter.getSelectedUriList();
                 if (socketManager.getStatus() == STATUS_CONNECTED && selectedUriList.size() > 0) {
-                    // get uri list
-//                ArrayList<Uri> uriList = recyclerAdapter.getSelectedUriList();
                     // make data JSONObject
                     JSONObject data = new JSONObject();
                     data.put("userName", socketManager.getUserName());
                     data.put("taskId", Integer.parseInt(taskId));
                     data.put("surveyId", Integer.parseInt(pointNum));
 
-                    // put serialized picture data
-                    JSONArray imageList = new JSONArray();
+                    // make data packet
                     Compressor compressor = new Compressor(getBaseContext());
+                    JSONArray imageList = new JSONArray();
+                    JSONArray geometryList = new JSONArray();
+
                     for (Uri uri : selectedUriList) {
-                        byte[] bytes =
-                                IOUtils.readInputStreamFully(new FileInputStream(compressor.compressToFile(new File(uri.getPath()))));
+                        // put serialized picture data
+                        byte[] bytes = getBytes(new FileInputStream(compressor.compressToFile(new File(uri.getPath()))));
                         imageList.put(Base64.encodeToString(bytes, Base64.NO_WRAP));
                         Log.d(TAG, String.format(Locale.KOREA, "path : %s", uri.toString()));
-                    }
-                    data.put("images", imageList);
 
-                    // put text data
-                    JSONArray geometryList = new JSONArray();
-                    for (Uri uri : upTextList) {
+                        // put geometry data
                         JSONObject geometry = new JSONObject();
-                        // open stream
-                        InputStream is = new FileInputStream(new File(uri.getPath()));
-                        BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+                        BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(getTextFilePath(uri))), StandardCharsets.UTF_8));
                         geometry.put("azimuth", Double.parseDouble(br.readLine()));
                         geometry.put("latitude", Double.parseDouble(br.readLine()));
                         geometry.put("longitude", Double.parseDouble(br.readLine()));
-                        // close stream
                         br.close();
-                        is.close();
                         geometryList.put(geometry);
                         Log.d(TAG, String.format(Locale.KOREA, "geometry : %s", geometry.toString()));
                     }
+                    data.put("images", imageList);
                     data.put("geometry", geometryList);
 
                     // put memo data
@@ -698,6 +664,32 @@ public class CaptureActivity extends FragmentActivity implements OnMapReadyCallb
         @Override
         protected void onPostExecute(Integer result) {
             super.onPostExecute(result);
+        }
+
+        byte[] getBytes(InputStream inputStream) throws IOException {
+            ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
+            int bufferSize = 1024;
+            byte[] buffer = new byte[bufferSize];
+
+            int len = 0;
+            while ((len = inputStream.read(buffer)) != -1) {
+                byteBuffer.write(buffer, 0, len);
+            }
+            return byteBuffer.toByteArray();
+        }
+
+        String getTextFilePath(Uri uri) {
+            // get path and fileName
+            String[] splitPath = uri.getPath().split("/");
+            String textFileName = splitPath[splitPath.length - 1];
+            // support png, jpg
+            if (textFileName.contains(".png")) textFileName = textFileName.replace(".png", ".txt");
+            else if (textFileName.contains(".jpg"))
+                textFileName = textFileName.replace(".jpg", ".txt");
+            splitPath[splitPath.length - 2] = "textfile";
+            splitPath[splitPath.length - 1] = textFileName;
+
+            return TextUtils.join("/", splitPath);
         }
     }
 
@@ -823,18 +815,8 @@ public class CaptureActivity extends FragmentActivity implements OnMapReadyCallb
                             recyclerAdapter.addUri(uri);
                             Log.d(TAG, String.format("received uri : %s", uri.toString()));
 
-                            // get image file path from uri
-                            String path = uri.getPath();
-
-                            // 선택한 이미지를 업로드용 폴더에 추가한 후, upImageList에 추가
-//                            upImageList.add(copyAndReturnFile(path, "IMAGE"));
-                            copyAndReturnUri(path, "IMAGE");
-
-                            // add text file to upTextList
-                            upTextList.add(copyAndReturnUri(path, "TEXT"));
-                            for (Uri textFileUri : upTextList) {
-                                Log.d(TAG, String.format(Locale.KOREA, "file path : %s", textFileUri.getPath()));
-                            }
+                            // 선택한 이미지를 업로드용 폴더에 추가
+                            backup(uri);
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -853,54 +835,35 @@ public class CaptureActivity extends FragmentActivity implements OnMapReadyCallb
         }
     }
 
-    public Uri copyAndReturnUri(String path, String mode) {
-        String fileName;
-        String filePath;
-
-        // get file name, path
-        String[] splitPath = path.split("/");
-        fileName = splitPath[splitPath.length - 1];
-        if (mode.equals("TEXT")) {
-            // support png, jpg
-            if (fileName.contains(".png")) fileName = fileName.replace(".png", ".txt");
-            else if (fileName.contains(".jpg")) fileName = fileName.replace(".jpg", ".txt");
-            splitPath[splitPath.length - 1] = "textfile/";
-        }
-        filePath = TextUtils.join("/", splitPath);
-        if (mode.equals("TEXT")) filePath += fileName;
-        Log.d(TAG, String.format("path : %s, filePath : %s, fileName : %s", path, filePath, fileName));
+    public void backup(Uri uri) {
+        String[] splitPath = uri.getPath().split("/");
+        String fileName = splitPath[splitPath.length - 1];
+        String filePath = TextUtils.join("/", splitPath);
+        Log.d(TAG, String.format("filePath : %s, fileName : %s", filePath, fileName));
 
         // get file
         File file = new File(filePath);
         if (file.exists()) {
             // if image, copy it to uploadfile directory
-            if (mode.equals("IMAGE")) {
-                try {
-                    // make streams
-                    FileInputStream fis = new FileInputStream(file);
-                    FileOutputStream fos = new FileOutputStream(String.format("%s/%s/%s/%s/%s", Environment.getExternalStorageDirectory(), taskId, pointNum, "uploadfile", fileName));
+            try {
+                // make streams
+                FileInputStream fis = new FileInputStream(new Compressor(this).compressToFile(file));
+                FileOutputStream fos = new FileOutputStream(String.format("%s/%s/%s/%s/%s", Environment.getExternalStorageDirectory(), taskId, pointNum, "uploadfile", fileName));
 
-                    // copy to uploadfile directory
-                    int readCount;
-                    byte[] buffer = new byte[1024];
-                    while ((readCount = fis.read(buffer, 0, 1024)) != -1) {
-                        fos.write(buffer, 0, readCount);
-                    }
-
-                    // close streams
-                    fos.close();
-                    fis.close();
-
-                    // compress image file
-                    file = new Compressor(this).compressToFile(file);
-                } catch (Exception e) {
-                    e.printStackTrace();
+                // copy to uploadfile directory
+                int readCount;
+                byte[] buffer = new byte[1024];
+                while ((readCount = fis.read(buffer, 0, 1024)) != -1) {
+                    fos.write(buffer, 0, readCount);
                 }
+
+                // close streams
+                fos.close();
+                fis.close();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            // return image or text file
-            return Uri.fromFile(file);
         }
-        return null;
     }
     /* ******************* camera & gallery methods end ******************* */
 
@@ -926,25 +889,6 @@ public class CaptureActivity extends FragmentActivity implements OnMapReadyCallb
     }
     /* ******************* text file methods end ******************* */
 
-
-    /* ******************* ArrayList for upload test methods start ******************* */
-    public void checkUploadList() {
-        if (upTextList != null) {
-            for (Uri uri : upTextList) {
-                Log.d(TAG, String.format("check text : %s", uri.getPath()));
-                try {
-                    BufferedReader br = new BufferedReader(new FileReader(new File(uri.toString())));
-                    String str;
-                    while((str = br.readLine()) != null) Log.d(TAG, String.format("check text content : %s", str));
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-    /* ******************* ArrayList for upload test methods end ******************* */
     /* ******************* make text file to test start ******************* */
     public void makeTestTextFile() {
         try {
