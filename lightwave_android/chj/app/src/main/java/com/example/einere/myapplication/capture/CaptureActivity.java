@@ -44,7 +44,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
@@ -76,7 +75,7 @@ public class CaptureActivity extends FragmentActivity implements OnMapReadyCallb
 
     // upload ArrayList
 //    ArrayList<File> upImageList = new ArrayList<>();
-    ArrayList<File> upTextList = new ArrayList<>();
+//    ArrayList<File> upTextList = new ArrayList<>();
 
     // id_number
     private String pointNum = null;
@@ -544,7 +543,6 @@ public class CaptureActivity extends FragmentActivity implements OnMapReadyCallb
         }
 
         // 이미지와 텍스트 파일 list에 넣기
-        Compressor compressor = new Compressor(this);
         for (File uploadImageFile : uploadImageList) {
             // prevent to add duplicated image file
             /*if (!upImageList.contains(uploadImageFile)) {
@@ -555,25 +553,6 @@ public class CaptureActivity extends FragmentActivity implements OnMapReadyCallb
                 }
             }*/
             uriList.add(Uri.parse(uploadImageFile.getAbsolutePath()));
-
-            // get path and fileName
-            String[] splitPath = uploadImageFile.getAbsolutePath().split("/");
-            String textFileName = splitPath[splitPath.length - 1];
-            // support png, jpg
-            if (textFileName.contains(".png")) textFileName = textFileName.replace(".png", ".txt");
-            else if (textFileName.contains(".jpg"))
-                textFileName = textFileName.replace(".jpg", ".txt");
-            splitPath[splitPath.length - 2] = "textfile";
-            splitPath[splitPath.length - 1] = textFileName;
-            String textFilePath = TextUtils.join("/", splitPath);
-            Log.d(TAG, String.format("textFilePath : %s", textFilePath));
-
-            // 업로드 했던 사진의 위경도 정보를 upTextList에 추가
-            File textFile = new File(textFilePath);
-            if (textFile.exists() && !upTextList.contains(textFile)) {
-                // prevent to add duplicated text file
-                upTextList.add(textFile);
-            }
         }
 
         // clear RecyclerView
@@ -613,42 +592,49 @@ public class CaptureActivity extends FragmentActivity implements OnMapReadyCallb
             try {
                 ArrayList<Uri> selectedUriList = recyclerAdapter.getSelectedUriList();
                 if (socketManager.getStatus() == STATUS_CONNECTED && selectedUriList.size() > 0) {
-                    // get uri list
-//                ArrayList<Uri> uriList = recyclerAdapter.getSelectedUriList();
                     // make data JSONObject
                     JSONObject data = new JSONObject();
                     data.put("userName", socketManager.getUserName());
                     data.put("taskId", Integer.parseInt(taskId));
                     data.put("surveyId", Integer.parseInt(pointNum));
 
-                    // put serialized picture data
-                    JSONArray imageList = new JSONArray();
                     Compressor compressor = new Compressor(getBaseContext());
+                    JSONArray imageList = new JSONArray();
+                    JSONArray geometryList = new JSONArray();
                     for (Uri uri : selectedUriList) {
+                        // put serialized picture data
+                        File selectedFile = new File(uri.getPath());
                         byte[] bytes =
-                                IOUtils.readInputStreamFully(new FileInputStream(compressor.compressToFile(new File(uri.getPath()))));
+                                IOUtils.readInputStreamFully(new FileInputStream(compressor.compressToFile(selectedFile)));
                         String serialized = Base64.encodeToString(bytes, Base64.NO_WRAP);
                         imageList.put(serialized);
                         Log.d(TAG, String.format(Locale.KOREA, "encoded : %s", serialized));
-                    }
-                    data.put("images", imageList);
 
-                    // put text data
-                    JSONArray geometryList = new JSONArray();
-                    for (File file : upTextList) {
+                        // put text data
+                        String[] splitPath = selectedFile.getAbsolutePath().split("/");
+                        String textFileName = splitPath[splitPath.length - 1];
+                        // support png, jpg
+                        if (textFileName.contains(".png"))
+                            textFileName = textFileName.replace(".png", ".txt");
+                        else if (textFileName.contains(".jpg"))
+                            textFileName = textFileName.replace(".jpg", ".txt");
+                        splitPath[splitPath.length - 2] = "textfile";
+                        splitPath[splitPath.length - 1] = textFileName;
+                        String textFilePath = TextUtils.join("/", splitPath);
+                        Log.d(TAG, String.format("textFilePath : %s", textFilePath));
+
                         JSONObject geometry = new JSONObject();
                         // open stream
-                        InputStream is = new FileInputStream(file);
-                        BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+                        BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(textFilePath), StandardCharsets.UTF_8));
                         geometry.put("azimuth", Double.parseDouble(br.readLine()));
                         geometry.put("latitude", Double.parseDouble(br.readLine()));
                         geometry.put("longitude", Double.parseDouble(br.readLine()));
                         // close stream
                         br.close();
-                        is.close();
                         geometryList.put(geometry);
                         Log.d(TAG, String.format(Locale.KOREA, "geometry : %s", geometry.toString()));
                     }
+                    data.put("images", imageList);
                     data.put("geometry", geometryList);
 
                     // put memo data
@@ -838,12 +824,6 @@ public class CaptureActivity extends FragmentActivity implements OnMapReadyCallb
                             // 선택한 이미지를 업로드용 폴더에 추가한 후, upImageList에 추가
 //                            upImageList.add(copyAndReturnFile(path, "IMAGE"));
                             copyAndReturnFile(path, "IMAGE");
-
-                            // add text file to upTextList
-                            upTextList.add(copyAndReturnFile(path, "TEXT"));
-                            for (File file : upTextList) {
-                                Log.d(TAG, String.format(Locale.KOREA, "file path : %s", file.getPath()));
-                            }
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
