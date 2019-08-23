@@ -543,17 +543,8 @@ public class CaptureActivity extends FragmentActivity implements OnMapReadyCallb
         }
 
         // 이미지와 텍스트 파일 list에 넣기
-        for (File uploadImageFile : uploadImageList) {
-            // prevent to add duplicated image file
-            /*if (!upImageList.contains(uploadImageFile)) {
-                try {
-                    upImageList.add(compressor.compressToFile(uploadImageFile));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }*/
+        for (File uploadImageFile : uploadImageList)
             uriList.add(Uri.parse(uploadImageFile.getAbsolutePath()));
-        }
 
         // clear RecyclerView
         recyclerAdapter.clearUriList();
@@ -818,12 +809,8 @@ public class CaptureActivity extends FragmentActivity implements OnMapReadyCallb
                             recyclerAdapter.addUri(uri);
                             Log.d(TAG, String.format("received uri : %s", uri.toString()));
 
-                            // get image file path from uri
-                            String path = uri.getPath();
-
                             // 선택한 이미지를 업로드용 폴더에 추가한 후, upImageList에 추가
-//                            upImageList.add(copyAndReturnFile(path, "IMAGE"));
-                            copyAndReturnFile(path, "IMAGE");
+                            copyAndReturnFile(uri, "IMAGE");
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -842,54 +829,36 @@ public class CaptureActivity extends FragmentActivity implements OnMapReadyCallb
         }
     }
 
-    public File copyAndReturnFile(String path, String mode) {
-        String fileName;
-        String filePath;
-
+    public void copyAndReturnFile(Uri uri, String mode) {
         // get file name, path
-        String[] splitPath = path.split("/");
-        fileName = splitPath[splitPath.length - 1];
-        if (mode.equals("TEXT")) {
-            // support png, jpg
-            if (fileName.contains(".png")) fileName = fileName.replace(".png", ".txt");
-            else if (fileName.contains(".jpg")) fileName = fileName.replace(".jpg", ".txt");
-            splitPath[splitPath.length - 1] = "textfile/";
-        }
-        filePath = TextUtils.join("/", splitPath);
-        if (mode.equals("TEXT")) filePath += fileName;
-        Log.d(TAG, String.format("path : %s, filePath : %s, fileName : %s", path, filePath, fileName));
+        String[] splitPath = uri.getPath().split("/");
+        String fileName = splitPath[splitPath.length - 1];
+        String filePath = TextUtils.join("/", splitPath);
+        Log.d(TAG, String.format("path : %s, filePath : %s, fileName : %s", uri.getPath(), filePath, fileName));
 
         // get file
         File file = new File(filePath);
         if (file.exists()) {
             // if image, copy it to uploadfile directory
-            if (mode.equals("IMAGE")) {
-                try {
-                    // make streams
-                    FileInputStream fis = new FileInputStream(file);
-                    FileOutputStream fos = new FileOutputStream(String.format("%s/%s/%s/%s/%s", Environment.getExternalStorageDirectory(), taskId, pointNum, "uploadfile", fileName));
+            try {
+                // make streams
+                FileInputStream fis = new FileInputStream(new Compressor(this).compressToFile(file));
+                FileOutputStream fos = new FileOutputStream(String.format("%s/%s/%s/%s/%s", Environment.getExternalStorageDirectory(), taskId, pointNum, "uploadfile", fileName));
 
-                    // copy to uploadfile directory
-                    int readCount;
-                    byte[] buffer = new byte[1024];
-                    while ((readCount = fis.read(buffer, 0, 1024)) != -1) {
-                        fos.write(buffer, 0, readCount);
-                    }
-
-                    // close streams
-                    fos.close();
-                    fis.close();
-
-                    // compress image file
-                    file = new Compressor(this).compressToFile(file);
-                } catch (Exception e) {
-                    e.printStackTrace();
+                // copy to uploadfile directory
+                int readCount;
+                byte[] buffer = new byte[1024];
+                while ((readCount = fis.read(buffer, 0, 1024)) != -1) {
+                    fos.write(buffer, 0, readCount);
                 }
+
+                // close streams
+                fos.close();
+                fis.close();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            // return image or text file
-            return file;
         }
-        return null;
     }
     /* ******************* camera & gallery methods end ******************* */
 
