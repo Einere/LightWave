@@ -32,6 +32,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.util.Range;
 import android.util.Size;
 import android.util.SparseIntArray;
 import android.view.Surface;
@@ -88,6 +89,7 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
     private boolean mFlashSupported;
     private Handler mBackgroundHandler;
     private HandlerThread mBackgroundThread;
+    private Range<Integer> fpsRange;
 
     // sensor
     SensorManager sensorManager = null;
@@ -263,6 +265,9 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
             final CaptureRequest.Builder captureBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
             captureBuilder.addTarget(reader.getSurface());
             captureBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
+            captureBuilder.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON);
+            captureBuilder.set(CaptureRequest.CONTROL_AWB_MODE, CaptureRequest.CONTROL_AWB_MODE_AUTO);
+            captureBuilder.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, fpsRange);
             // Orientation
             int rotation = getWindowManager().getDefaultDisplay().getRotation();
             captureBuilder.set(CaptureRequest.JPEG_ORIENTATION, ORIENTATIONS.get(rotation));
@@ -371,6 +376,7 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
             Surface surface = new Surface(texture);
             captureRequestBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
             captureRequestBuilder.addTarget(surface);
+            captureRequestBuilder.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, fpsRange);
             cameraDevice.createCaptureSession(Collections.singletonList(surface), new CameraCaptureSession.StateCallback() {
                 @Override
                 public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
@@ -398,6 +404,21 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
         try {
             cameraId = manager.getCameraIdList()[0];
             CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
+            // fpsRange 초기화
+            try {
+                Range<Integer>[] ranges = characteristics.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES);
+                if (ranges != null) {
+                    for (Range<Integer> range : ranges) {
+                        int upper = range.getUpper();
+                        Log.i(TAG, "[FPS Range Available]:" + range);
+                        if (upper >= 10) {
+                            if (fpsRange == null || upper < fpsRange.getUpper()) fpsRange = range;
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             StreamConfigurationMap map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
             assert map != null;
             imageDimension = map.getOutputSizes(SurfaceTexture.class)[0];
@@ -465,8 +486,8 @@ public class CameraActivity extends AppCompatActivity implements SensorEventList
     @Override
     protected void onPause() {
         Log.e(TAG, "onPause");
-        //closeCamera();
-        stopBackgroundThread();
+        closeCamera();
+//        stopBackgroundThread();
         super.onPause();
     }
 }
