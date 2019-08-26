@@ -16,6 +16,9 @@ namespace Service {
 	{
 		int length = props["data"]["length"].asInt();
 		socketWorker.beginBlob(length); 
-		return Service::NoResponse();
+
+		Json::Value result;
+		result["status"] = 2;
+		return Service::Success(result);
 	}
 }

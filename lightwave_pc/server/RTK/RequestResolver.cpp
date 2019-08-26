@@ -38,7 +38,6 @@ namespace Service {
 			return Json::json2Str(Error("요청 형식이 올바른 json 형태여야 합니다."));
 		}
 
-
 		std::shared_ptr<Monkey> monkey = GetMiddlewareOrNull(props);
 		if (!monkey) {
 			monkey = GetMonkeyOrNull(props);

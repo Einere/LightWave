@@ -41,6 +41,7 @@ namespace Service {
 
 	void SocketWorker::OnReceive(int nErrorCode)
 	{
+		Logger::Log("OnReceive occured");
 		auto readData = readIn();
 		m_data += readData;
 		Logger::Log("sequence size: %d bytes", readData.size());
@@ -49,6 +50,7 @@ namespace Service {
 			// 요청의 끝을 아직 만나지 못했으므로 응답하지않고 다음 패킷을 기다린다.
 			return;
 		}
+
 
 		Logger::Log("request size: %d bytes", m_data.size());
 		Logger::Log("request: %s", m_data.c_str());
@@ -114,6 +116,7 @@ namespace Service {
 
 			if (m_blobSize > 0) {
 				m_blobSize -= receivedLength;
+				Logger::Log("BLOB SIZE: %d", m_blobSize);
 			}
 		} while (receivedLength == 1024 && buf[buf.size() - 1] != 0);
 
