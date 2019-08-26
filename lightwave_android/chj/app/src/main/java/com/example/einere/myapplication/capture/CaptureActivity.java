@@ -632,6 +632,7 @@ public class CaptureActivity extends FragmentActivity implements OnMapReadyCallb
 
                     // send packet length to server
                     socketManager.send(lengthPacket.toString());
+                    socketManager.receive();
 
                     // send packet to server
                     socketManager.send(packet.toString());
